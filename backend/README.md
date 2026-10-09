@@ -73,7 +73,7 @@ Agrega tu clave en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm star
 ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-Al encender verás `Asistente IA: ✅ conectado a Claude`. Sin la clave el chat responde con reglas locales. Opcional: `IA_MODELO=` para usar otro modelo (por defecto `claude-opus-5-5`).
+Al encender verás `Asistente IA: ✅ conectado a Claude`. Sin la clave el chat responde con reglas locales. Opcional: `IA_MODELO=` para usar otro modelo (por defecto `claude-haiku-5-5`, rápido y económico).
 
 ## Correos (opcional)
 

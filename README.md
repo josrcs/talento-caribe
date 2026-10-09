@@ -101,13 +101,13 @@ En modo demostración los cargos y permisos solo se aplican en la interfaz. **Co
 
 ## Asistente con IA real
 
-`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a Claude (Anthropic) con unas instrucciones que el servidor arma en cada mensaje:
+`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a Claude Haiku 5.5 (Anthropic), un modelo rápido y económico, con unas instrucciones que el servidor arma en cada mensaje:
 
 - **Conoce el negocio:** historia, misión, visión, valores, mentores, cómo inscribirse y contacto de Talento Caribe.
 - **Conoce los productos:** los cursos y fichas se leen de PostgreSQL. Si el equipo crea un curso o una ficha en el panel, el asistente lo sabe de inmediato.
 - **Usa el tono de la marca:** el tono y el contexto extra los define el gerente en el panel (sección «Configurar IA», tabla `config_ia`).
 - **Responde como el negocio:** solo con esa información, sin inventar fechas ni datos, sin pedir contraseñas ni documentos, y sugiere 2 o 3 preguntas para seguir.
-- **Seguro y económico:** el rol del usuario sale de su sesión (JWT), no de lo que diga el navegador; máximo 20 mensajes cada 10 minutos por persona; las instrucciones se reutilizan con la caché de la API.
+- **Seguro y económico:** el rol del usuario sale de su sesión (JWT), no de lo que diga el navegador; máximo 20 mensajes cada 10 minutos por persona y un tope diario (`IA_LIMITE_DIARIO`); las instrucciones se reutilizan con la caché de la API.
 
 Para activarlo agrega tu clave en `backend/.env` y reinicia el servidor:
 

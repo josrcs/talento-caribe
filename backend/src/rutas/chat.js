@@ -14,9 +14,11 @@ const { sesionOpcional, limitePorIP } = require("../seguridad");
 const { SQL_CURSOS, SQL_FICHAS } = require("../consultas");
 const { texto, rechazar } = require("../validar");
 
-const MODELO = process.env.IA_MODELO || "claude-opus-5-5";
+// Claude Haiku 5.5: rápido y económico, ideal para un chat de preguntas cortas sobre el catálogo.
+// Piensa solo lo necesario (output_config.effort: "low") y no acepta temperature ni respuestas prellenadas.
+const MODELO = process.env.IA_MODELO || "claude-haiku-5-5";
 // Si la IA declina una pregunta por seguridad, la API la reintenta sola con otro modelo
-// ("fallbacks"). Solo estos modelos lo aceptan.
+// ("fallbacks"). Solo estos modelos lo aceptan; con Haiku 5.5 una pregunta declinada recibe el mensaje amable de abajo.
 const CON_RESPALDO = ["claude-opus-5-5", "claude-opus-5", "claude-fable-5-1", "claude-sonnet-5-5"].includes(MODELO);
 const iaConfigurada = () => Boolean(process.env.ANTHROPIC_API_KEY);
 let cliente = null;
