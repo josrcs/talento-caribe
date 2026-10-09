@@ -9,6 +9,8 @@
   const country = $("#r-pais"), otherCountry = $("#r-pais-otro"), details = $("#registro-datos"), countryStep = $("#registro-paso-pais");
   const error = $("#registro-error"), button = $("#registro-enviar");
   $("#r-nacimiento").max = new Date().toISOString().slice(0, 10);
+  // Con el servidor, la cuenta se guarda en PostgreSQL con la contraseña cifrada y llega un correo de bienvenida
+  if (window.TCAuth?.api) $(".demo-aviso").innerHTML = "<strong>Tus datos están protegidos</strong><p>Se guardan en el servidor de Talento Caribe con la contraseña cifrada. Te enviaremos un correo de bienvenida y los avisos de tu inscripción.</p>";
   if (cursoId > 0) $("#registro-login a").href = `admin/login.html?rol=estudiante&curso=${encodeURIComponent(cursoId)}`;
   const documentTypes = {
     Colombia: ["Cédula de ciudadanía", "Tarjeta de identidad", "Cédula de extranjería", "PEP (Permiso Especial de Permanencia)"],

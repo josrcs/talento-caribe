@@ -1,7 +1,9 @@
-/* Rutas de cuenta: registro de estudiantes, inicio de sesión y perfil */
+/* Rutas de cuenta: registro de estudiantes, inicio de sesión, perfil y recuperación de contraseña */
+const crypto = require("crypto");
 const router = require("express").Router();
 const pool = require("../db");
-const { cifrar, comparar, firmar, CARGOS, requiereSesion, requiereRol } = require("../seguridad");
+const correos = require("../correo");
+const { cifrar, comparar, firmar, CARGOS, requiereSesion, requiereRol, limitePorIP } = require("../seguridad");
 const { perfilPublico } = require("../consultas");
 const { EMAIL, texto, opcional, limpio, fecha, rechazar } = require("../validar");
 
@@ -34,6 +36,7 @@ router.post("/registro", async (req, res, next) => {
       `INSERT INTO usuarios (correo, clave_hash, rol, documentos_disponibles, ${CAMPOS_EDITABLES.join(", ")})
        VALUES ($1, $2, 'estudiante', $3, ${CAMPOS_EDITABLES.map((_, i) => "$" + (i + 4)).join(", ")}) RETURNING *`,
       [b.correo.trim().toLowerCase(), await cifrar(b.clave), b.documentos_disponibles || [], ...valores]);
+    correos.bienvenida(rows[0]); // sin await: la respuesta no espera al correo
     res.status(201).json(sesion(rows[0]));
   } catch (e) {
     if (e.code === "23505") return res.status(409).json({ error: "Ya existe una cuenta con ese correo. Inicia sesión." });
@@ -79,6 +82,46 @@ router.put("/perfil", requiereSesion, requiereRol("estudiante"), async (req, res
        WHERE id = $${CAMPOS_EDITABLES.length + 2} RETURNING *`,
       [...CAMPOS_EDITABLES.map((c) => limpio(b[c])), b.documentos_disponibles || [], req.usuario.id]);
     res.json(perfilPublico(rows[0]));
+  } catch (e) { next(e); }
+});
+
+/* ---------- Recuperar la contraseña ----------
+   1. POST /recuperar: si el correo tiene cuenta, se le envía un enlace de un solo uso que vence en 1 hora.
+   2. POST /restablecer: con ese enlace se crea la contraseña nueva.
+   En la base se guarda el SHA-256 del enlace, nunca el enlace: quien lea la tabla no puede usarlo. */
+const huella = (token) => crypto.createHash("sha256").update(token).digest("hex");
+// Límites separados: pedir enlaces seguidos no debe impedir usar después el que sí llegó
+const limitarPedidos = limitePorIP(5, 15, "Pediste muchos enlaces seguidos. Espera unos minutos y vuelve a intentarlo.");
+const limitarCambios = limitePorIP(10, 15, "Hiciste muchos intentos seguidos. Espera unos minutos y vuelve a intentarlo.");
+
+router.post("/recuperar", limitarPedidos, async (req, res, next) => {
+  const correo = String(req.body?.correo || "").trim().toLowerCase();
+  if (rechazar(res, { correo: EMAIL.test(correo) })) return;
+  try {
+    const u = (await pool.query("SELECT id, nombre, correo FROM usuarios WHERE correo = $1 AND activo", [correo])).rows[0];
+    if (u) {
+      const token = crypto.randomBytes(32).toString("hex");
+      await pool.query("UPDATE recuperaciones_clave SET usado_en = now() WHERE usuario_id = $1 AND usado_en IS NULL", [u.id]); // solo vale el último enlace
+      await pool.query("INSERT INTO recuperaciones_clave (usuario_id, token_hash, expira_en) VALUES ($1, $2, now() + interval '1 hour')", [u.id, huella(token)]);
+      correos.recuperar(u, `${correos.SITIO}/recuperar.html?token=${token}`);
+    }
+    // La misma respuesta exista o no la cuenta: así nadie puede averiguar qué correos están registrados
+    res.json({ ok: true });
+  } catch (e) { next(e); }
+});
+
+router.post("/restablecer", limitarCambios, async (req, res, next) => {
+  const { token, clave } = req.body || {};
+  if (rechazar(res, { token: typeof token === "string" && /^[a-f0-9]{64}$/.test(token), clave: texto(clave, 8, 72) })) return;
+  try {
+    // Una sola consulta marca el enlace como usado y cambia la clave: el mismo enlace no puede usarse dos veces
+    const { rows } = await pool.query(`WITH usado AS (
+        UPDATE recuperaciones_clave SET usado_en = now() WHERE token_hash = $1 AND usado_en IS NULL AND expira_en > now() RETURNING usuario_id)
+      UPDATE usuarios u SET clave_hash = $2 FROM usado WHERE u.id = usado.usuario_id AND u.activo RETURNING u.id, u.nombre, u.correo`,
+      [huella(token), await cifrar(clave)]);
+    if (!rows.length) return res.status(400).json({ error: "El enlace no es válido o ya venció. Pide uno nuevo." });
+    correos.claveCambiada(rows[0]);
+    res.json({ ok: true });
   } catch (e) { next(e); }
 });
 

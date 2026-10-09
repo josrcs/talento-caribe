@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <title>Recuperar contraseña | Talento Caribe</title>
+  <meta name="description" content="Crea una contraseña nueva para tu cuenta de Talento Caribe.">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/efectos.css">
+  <link rel="stylesheet" href="css/plataforma.css">
+</head>
+<body class="page-login">
+  <main class="login login-shell">
+    <section class="login-story" aria-label="Talento Caribe">
+      <a href="index.html" class="login-logo"><img src="assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe — inicio" width="208" height="177"></a>
+      <div class="login-story-copy"><span class="eyebrow">Tu cuenta, segura</span><h1>Vuelve a entrar en un minuto.</h1><p>Te enviamos un enlace a tu correo para crear una contraseña nueva. Sirve una sola vez y vence en 1 hora.</p></div>
+      <p class="acceso-pie">Plataforma educativa gratuita · Barranquilla, Colombia</p>
+    </section>
+
+    <!-- js/recuperar.js: sin ?token pide el correo; con el enlace del correo (?token=...) crea la contraseña nueva -->
+    <section class="login-card" aria-labelledby="recuperar-titulo">
+      <div class="login-card-heading"><img class="login-card-logo" src="assets/img/logo-emblema.png" alt="" width="64" height="48"><span class="eyebrow">Recuperar contraseña</span><h2 id="recuperar-titulo">¿Olvidaste tu contraseña?</h2><p id="recuperar-intro">Escribe el correo de tu cuenta y te enviaremos un enlace para crear una nueva.</p></div>
+
+      <form id="form-pedir" class="form login-form" novalidate>
+        <div class="campo"><label for="rc-correo">Correo electrónico</label><input id="rc-correo" name="correo" type="email" autocomplete="email" required placeholder="nombre@correo.com"><small class="error" data-error-for="correo" hidden></small></div>
+        <button type="submit" class="btn btn-primary" id="rc-pedir"><span class="btn-texto">Enviarme el enlace</span><span class="spinner" aria-hidden="true" hidden></span></button>
+      </form>
+
+      <form id="form-nueva" class="form login-form" novalidate hidden>
+        <div class="campo"><label for="rc-clave">Contraseña nueva</label><input id="rc-clave" name="clave" type="password" autocomplete="new-password" required minlength="8"><small class="form-ayuda">Usa al menos 8 caracteres.</small><small class="error" data-error-for="clave" hidden></small></div>
+        <div class="campo"><label for="rc-confirmar">Confirma la contraseña</label><input id="rc-confirmar" name="confirmar" type="password" autocomplete="new-password" required minlength="8"><small class="error" data-error-for="confirmar" hidden></small></div>
+        <button type="submit" class="btn btn-primary" id="rc-guardar"><span class="btn-texto">Guardar contraseña</span><span class="spinner" aria-hidden="true" hidden></span></button>
+      </form>
+
+      <p id="rc-estado" class="form-estado" role="status" aria-live="polite" hidden></p>
+      <div class="demo-aviso" id="rc-demo" hidden><strong>Modo de demostración</strong><p>Recuperar la contraseña necesita el servidor encendido, porque se envía un correo. En la demostración puedes entrar con las cuentas de prueba.</p></div>
+      <p class="login-volver"><a href="admin/login.html" id="rc-volver">← Volver a ingresar</a></p>
+    </section>
+  </main>
+  <script src="js/config.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/recuperar.js" defer></script>
+  <script src="js/efectos.js" defer></script>
+</body>
+</html>

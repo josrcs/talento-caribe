@@ -75,6 +75,9 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .login-demo-note { display: flex; gap: .55rem; align-items: flex-start; margin: 1.1rem 0 0; padding: .75rem .85rem; border: 1px solid rgba(96, 165, 250, .16); border-radius: 12px; background: rgba(18, 104, 200, .07); color: var(--color-slate-400); font-size: .78rem; }
 .login-demo-note span { color: var(--color-primary-400); }
 .login-volver { margin-top: 1.3rem; }
+.olvide-clave { margin: -.55rem 0 0; text-align: right; font-size: .84rem; }
+.olvide-clave a { color: var(--color-primary-400); font-weight: 600; }
+.olvide-clave a:hover { color: var(--texto-fuerte); }
 .login-volver a { color: var(--color-slate-400); font-size: .88rem; }
 .login-volver a:hover { color: var(--texto-fuerte); }
 .page-login { background: radial-gradient(ellipse at 14% 18%, rgba(18, 104, 200, .19), transparent 37%), radial-gradient(ellipse at 88% 86%, rgba(26, 176, 214, .16), transparent 38%), var(--color-dark-900); }

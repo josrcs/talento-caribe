@@ -4,6 +4,7 @@ const pool = require("../db");
 const { SQL_CURSOS } = require("../consultas");
 const { EMAIL, texto, opcional, limpio, entero, rechazar } = require("../validar");
 const { iaConfigurada } = require("./chat");
+const correos = require("../correo");
 
 router.get("/salud", async (req, res) => {
   try {
@@ -39,6 +40,10 @@ router.post("/contacto", async (req, res, next) => {
     const { rows } = await pool.query(
       "INSERT INTO mensajes_contacto (nombre, correo, telefono, interes, asunto, mensaje) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id",
       [b.nombre.trim(), b.correo.trim().toLowerCase(), limpio(b.telefono), b.interes, b.asunto.trim(), b.mensaje.trim()]);
+    // Confirmación a quien escribió y copia al equipo (si CORREO_EQUIPO está configurado)
+    const mensaje = { nombre: b.nombre.trim(), correo: b.correo.trim(), telefono: limpio(b.telefono), interes: b.interes, asunto: b.asunto.trim(), mensaje: b.mensaje.trim() };
+    correos.contactoRecibido(mensaje);
+    correos.avisoEquipo(mensaje);
     res.status(201).json({ ok: true, id: rows[0].id });
   } catch (e) { next(e); }
 });

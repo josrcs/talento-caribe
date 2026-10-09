@@ -62,4 +62,17 @@ const requiereRol = (...roles) => (req, res, next) =>
 const requierePermiso = (permiso) => (req, res, next) =>
   puede(req.usuario, permiso) ? next() : res.status(403).json({ error: "Tu cargo no tiene permiso para esta acción." });
 
-module.exports = { cifrar, comparar, firmar, CARGOS, PERMISOS, AREA_CARGO, puede, requiereSesion, sesionOpcional, requiereRol, requierePermiso };
+/* Middleware: máximo de peticiones por IP en una ventana de tiempo (se cuenta en memoria).
+   Frena el abuso de las rutas que cuestan dinero (asistente IA) o que envían correos. */
+function limitePorIP(maximo, minutos, mensaje) {
+  const ventana = minutos * 60 * 1000, usos = new Map(); // ip -> { inicio, cuenta }
+  return (req, res, next) => {
+    const ahora = Date.now(), ip = req.ip || "desconocida", u = usos.get(ip);
+    if (!u || ahora - u.inicio > ventana) usos.set(ip, { inicio: ahora, cuenta: 1 });
+    else if (++u.cuenta > maximo) return res.status(429).json({ error: mensaje });
+    if (usos.size > 5000) for (const [clave, v] of usos) if (ahora - v.inicio > ventana) usos.delete(clave);
+    next();
+  };
+}
+
+module.exports = { cifrar, comparar, firmar, CARGOS, PERMISOS, AREA_CARGO, puede, requiereSesion, sesionOpcional, requiereRol, requierePermiso, limitePorIP };

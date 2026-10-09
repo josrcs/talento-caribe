@@ -4,6 +4,7 @@
    ========================================================== */
 const router = require("express").Router();
 const pool = require("../db");
+const correos = require("../correo");
 const { requiereSesion, requiereRol, requierePermiso } = require("../seguridad");
 const { texto, opcional, limpio, entero, fecha, URL_OK, rechazar } = require("../validar");
 
@@ -32,6 +33,7 @@ router.post("/inscripciones", requiereSesion, requiereRol("estudiante"), async (
     const edad = edadDesde(yo.fecha_nacimiento);
     if (edad < curso.edad_minima) return res.status(400).json({ error: `Este curso está dirigido a personas desde los ${curso.edad_minima} años. Puedes explorar otros programas.` });
     const { rows } = await pool.query("INSERT INTO inscripciones (curso_id, ficha_id, estudiante_id, edad) VALUES ($1, $2, $3, $4) RETURNING id, estado", [cursoId, ficha.id, req.usuario.id, edad]);
+    avisarInscripcion(rows[0].id, "solicitudRecibida");
     res.status(201).json(rows[0]);
   } catch (e) {
     if (e.code === "23505") return res.status(409).json({ error: "Tu cuenta ya tiene una solicitud para este curso." });
@@ -44,10 +46,23 @@ router.patch("/inscripciones/:id", requiereSesion, requierePermiso("inscripcione
   const id = entero(req.params.id), estado = req.body?.estado;
   if (!id || !["pendiente", "aprobada", "rechazada"].includes(estado)) return res.status(400).json({ error: "Estado no válido." });
   try {
-    const { rowCount } = await pool.query("UPDATE inscripciones SET estado = $1, revisado_en = now() WHERE id = $2", [estado, id]);
-    rowCount ? res.json({ ok: true }) : res.status(404).json({ error: "Inscripción no encontrada." });
+    // "anterior" ve el estado de antes del cambio: solo se avisa al estudiante si de verdad cambió
+    const { rows } = await pool.query(`WITH anterior AS (SELECT estado FROM inscripciones WHERE id = $2)
+      UPDATE inscripciones SET estado = $1, revisado_en = now() WHERE id = $2 RETURNING (SELECT estado FROM anterior) AS antes`, [estado, id]);
+    if (!rows.length) return res.status(404).json({ error: "Inscripción no encontrada." });
+    if (rows[0].antes !== estado && estado !== "pendiente") avisarInscripcion(id, "inscripcionRevisada");
+    res.json({ ok: true });
   } catch (e) { next(e); }
 });
+
+/* Correo al estudiante sobre su inscripción (se arma con los datos del curso y de la ficha) */
+async function avisarInscripcion(id, tipo) {
+  try {
+    const { rows } = await pool.query(`SELECT i.estado, u.nombre, u.correo, c.titulo, f.numero AS ficha, f.jornada, to_char(f.fecha_inicio, 'YYYY-MM-DD') AS inicio
+      FROM inscripciones i JOIN usuarios u ON u.id = i.estudiante_id JOIN cursos c ON c.id = i.curso_id LEFT JOIN fichas f ON f.id = i.ficha_id WHERE i.id = $1`, [id]);
+    if (rows.length) await correos[tipo](rows[0]);
+  } catch (error) { console.error("✖ Aviso de inscripción:", error.message); }
+}
 
 // Ficha completa de un estudiante (solo admisiones)
 router.get("/estudiantes/:correo", requiereSesion, requierePermiso("inscripciones"), async (req, res, next) => {

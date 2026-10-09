@@ -10,7 +10,7 @@
 const router = require("express").Router();
 const { Anthropic } = require("@anthropic-ai/sdk");
 const pool = require("../db");
-const { sesionOpcional } = require("../seguridad");
+const { sesionOpcional, limitePorIP } = require("../seguridad");
 const { SQL_CURSOS, SQL_FICHAS } = require("../consultas");
 const { texto, rechazar } = require("../validar");
 
@@ -23,16 +23,7 @@ let cliente = null;
 const ia = () => (cliente ??= new Anthropic()); // lee ANTHROPIC_API_KEY del .env
 
 /* ---------- Límite de uso: cada mensaje cuesta dinero, así que se frena el abuso ---------- */
-const VENTANA_MS = 10 * 60 * 1000, MAX_POR_VENTANA = 20;
-const usos = new Map(); // ip -> { inicio, cuenta }
-function limitar(req, res, next) {
-  const ahora = Date.now(), ip = req.ip || "desconocida";
-  const u = usos.get(ip);
-  if (!u || ahora - u.inicio > VENTANA_MS) usos.set(ip, { inicio: ahora, cuenta: 1 });
-  else if (++u.cuenta > MAX_POR_VENTANA) return res.status(429).json({ error: "Enviaste muchos mensajes seguidos. Espera unos minutos y vuelve a intentarlo." });
-  if (usos.size > 5000) for (const [clave, v] of usos) if (ahora - v.inicio > VENTANA_MS) usos.delete(clave);
-  next();
-}
+const limitar = limitePorIP(20, 10, "Enviaste muchos mensajes seguidos. Espera unos minutos y vuelve a intentarlo.");
 
 /* ---------- Instrucciones del asistente ----------
    Se arman con datos de la base en orden fijo (ORDER BY): mientras el catálogo no cambie,
@@ -67,7 +58,9 @@ Talento Caribe es una plataforma educativa gratuita e híbrida (presencial y vir
 - Valores: acceso para todos, aprender haciendo, comunidad e identidad caribeña.
 - Cómo funciona: 1) inscríbete gratis, 2) aprende con práctica en sesiones guiadas, 3) construye un proyecto real, 4) recibe tu certificado y la recomendación del siguiente curso.
 - Mentores: Camila Ospino (desarrollo web), Daniel Barrios (programación y datos), Valeria De la Hoz (IA aplicada a negocios), Andrés Pacheco (electrónica y robótica), Laura Mendoza (hardware e IoT).
-- Inscripción: crear la cuenta en registro.html, elegir el curso y una ficha con inscripciones abiertas en cursos.html; el equipo de admisiones aprueba la solicitud y luego el curso aparece en el portal del estudiante.
+- Inscripción: crear la cuenta en registro.html, elegir el curso y una ficha con inscripciones abiertas en cursos.html; el equipo de admisiones aprueba la solicitud, el estudiante recibe un correo y el curso aparece en su portal.
+- Contraseña olvidada: en la página de ingreso, «¿Olvidaste tu contraseña?» envía al correo un enlace para crear una nueva (vence en 1 hora).
+- Encuestas: los estudiantes las responden en su portal (sección Encuestas); el equipo solo ve resultados agrupados, sin nombres.
 - Contacto: formulario de la sección Contacto de la página de inicio o contacto@talentocaribe.co. Respondemos en máximo 3 días hábiles. Sede: Barranquilla, Colombia.
 - Todos los cursos son gratuitos.
 

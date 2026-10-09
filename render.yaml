@@ -1,5 +1,6 @@
 # Despliegue del backend (API + PostgreSQL) en Render como "Blueprint".
-# Render → New → Blueprint → elige este repositorio. Te pedirá ANTHROPIC_API_KEY y CORS_ORIGENES.
+# Render → New → Blueprint → elige este repositorio. Te pedirá la clave de la IA, la dirección
+# de la página (CORS_ORIGENES y SITIO_URL) y los datos del correo (puedes dejarlos vacíos al principio).
 # La página (frontend) se publica aparte en GitHub Pages; ver "Publicar el proyecto" en README.md.
 databases:
   - name: talento-caribe-db
@@ -26,4 +27,17 @@ services:
       - key: ANTHROPIC_API_KEY
         sync: false
       - key: CORS_ORIGENES
+        sync: false
+      # Correos (ver backend/.env.ejemplo). SITIO_URL es la dirección de la página en GitHub Pages.
+      - key: SITIO_URL
+        sync: false
+      - key: SMTP_HOST
+        value: smtp.gmail.com
+      - key: SMTP_PORT
+        value: "587"
+      - key: SMTP_USUARIO
+        sync: false
+      - key: SMTP_CLAVE
+        sync: false
+      - key: CORREO_EQUIPO
         sync: false

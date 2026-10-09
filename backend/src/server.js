@@ -8,9 +8,12 @@
      públicas      GET /api/salud · GET /api/cursos · POST /api/contacto
      asistente IA  POST /api/chat  (Claude; necesita ANTHROPIC_API_KEY en .env)
      cuenta        POST /api/auth/registro · POST /api/auth/login · GET /api/auth/yo · PUT /api/auth/perfil
+                   POST /api/auth/recuperar · POST /api/auth/restablecer  (contraseña olvidada)
      datos         GET /api/datos  (lo que el usuario actual puede ver)
      académico     inscripciones, actividades, entregas y calificaciones
+     encuestas     POST /api/encuestas/:id/respuestas  (estudiantes)
      administración cursos, mensajes, gastos y asistente
+   Los correos (bienvenida, recuperar contraseña, avisos) salen por SMTP: ver src/correo.js
    ========================================================== */
 require("dotenv").config();
 const path = require("path");
@@ -37,6 +40,7 @@ app.use("/api", require("./rutas/chat"));
 app.use("/api/auth", require("./rutas/auth"));
 app.use("/api", require("./rutas/datos"));
 app.use("/api", require("./rutas/academico"));
+app.use("/api", require("./rutas/encuestas"));
 app.use("/api", require("./rutas/admin"));
 app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta ${req.method} ${req.originalUrl}` }));
 
@@ -58,11 +62,12 @@ app.listen(PORT, async () => {
   console.log(`\n🌴 Talento Caribe en http://localhost:${PORT}`);
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
   console.log(`   Asistente IA: ${require("./rutas/chat").iaConfigurada() ? "✅ conectado a Claude" : "⚠️  sin ANTHROPIC_API_KEY (responde con reglas locales)"}`);
+  console.log(`   Correo: ${require("./correo").configurado() ? "✅ SMTP configurado" : "⚠️  sin SMTP (los correos se muestran en esta terminal)"}`);
   try {
     await pool.query("SELECT 1 FROM usuarios LIMIT 1");
     console.log("   Base de datos: ✅ conectada\n");
   } catch (error) {
-    const msj = error.code === "42P01" ? "faltan tablas o son de la versión anterior → ejecuta npm run db:reiniciar" : error.message;
+    const msj = error.code === "42P01" ? "faltan las tablas → ejecuta npm run db:init" : error.message;
     console.log(`   Base de datos: ⚠️  ${msj}`);
     console.log("   (La página funciona igual en modo demostración.)\n");
   }
