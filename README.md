@@ -74,6 +74,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Inscripción en una ficha, actividades por módulo y ficha, y seguimiento docente módulo por módulo
 - [x] Asistente conectado a IA real (Claude) en `POST /api/chat`: conoce la marca, el catálogo y las fichas desde PostgreSQL y usa el tono que define el gerente
 - [x] Efecto del cursor y destello de clics/toques solo en la página de inicio
+- [x] Animación de entrada nueva, hero interactivo, revelado al hacer scroll, cifras animadas y transiciones en toda la plataforma
 - [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
 - [x] Control de versiones con Git
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
@@ -112,9 +113,19 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 La clave se crea en https://platform.claude.com → API Keys. Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la IA todavía no está configurada». `GET /api/salud` indica si el asistente está conectado.
 
-## Efectos visuales
+## Animaciones e interacción
 
-`js/efectos.js` agrega el fondo ambiental y el revelado de títulos en todas las páginas. El **efecto que sigue el cursor** (aura y estela de luces), el reflejo en las tarjetas y el **destello al hacer clic o tocar la pantalla** solo se activan en la página de inicio (`<body class="page-home">`); en catálogo, registro, login, portal y panel la interfaz queda limpia para trabajar. Con «reducir movimiento» activado en el sistema no aparece ninguno.
+Todas las animaciones están hechas con CSS y JavaScript propios (sin librerías externas) y usan solo `transform` y `opacity`, que el navegador anima sin trabarse. Con «reducir movimiento» activado en el sistema no se muestra ninguna.
+
+| Dónde | Qué pasa |
+|---|---|
+| Entrada (`js/intro.js`) | Amanecer en el Caribe: se dibuja el horizonte, sale el sol y brilla en el agua, el emblema aparece desde su propio sol, "TALENTO" sube letra por letra y "CARIBE" se cierra. La barra espera a que la página cargue. Al salir, el telón sube como una ola y el emblema **vuela hasta el logo del hero** (técnica FLIP). Una vez por sesión; para verla otra vez: `index.html?intro`. |
+| Hero | El título sube por líneas, el texto entra en cascada y el disco del logo crece. Con mouse, la escena del logo se inclina hacia el puntero y los botones se acercan al cursor. |
+| Inicio | Cifras que cuentan desde cero (salen del catálogo), cinta de temas en movimiento, línea de tiempo en «Cómo funciona», anillo de colores en los mentores y tarjetas de cursos que giran en 3D. |
+| Todas las páginas | Revelado al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), barra superior que se esconde al bajar y vuelve al subir, línea de lectura, transición suave entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Plataforma | Cada sección del portal y del panel entra en cascada, los indicadores cuentan, las barras crecen y los anillos de avance se llenan. |
+
+El **efecto que sigue el cursor** (aura y estela de luces), el reflejo y giro de las tarjetas y el **destello al hacer clic o tocar la pantalla** solo se activan en la página de inicio (`<body class="page-home">`); en catálogo, registro, login, portal y panel la interfaz queda limpia para trabajar.
 
 ## Publicar el proyecto
 
@@ -157,7 +168,7 @@ Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-c
 
 | Archivo | Qué hace |
 |---|---|
-| `js/intro.js` | Animación de entrada (cielo y sol caribeño, olas, burbujas, emblema con anillos y órbita, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola). Una vez por sesión; se salta con clic o Esc; respeta "reducir movimiento". |
+| `js/intro.js` | Animación de entrada (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
 | `css/tema.css` | Paletas: oscuro (original) y claro "arena y mar". Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
 | `js/i18n.js` | Aplica tema e idioma antes de pintar, traduce textos y atributos (también lo que el JS pinta después) y añade los botones ☀/🌙 y ES/EN. Expone `TCIdioma` y `TCi18n.t()`. |
 | `js/i18n-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
