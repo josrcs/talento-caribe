@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <title>Inscripción | Talento Caribe</title>
+  <meta name="description" content="Crea tu cuenta de Talento Caribe y completa tus datos para inscribirte a cursos.">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/efectos.css">
+  <link rel="stylesheet" href="css/plataforma.css">
+  <link rel="stylesheet" href="css/modulos.css">
+</head>
+<body class="page-login">
+  <main class="login login-shell registro-shell">
+    <section class="login-story" aria-label="Talento Caribe">
+      <a href="index.html" class="login-logo"><img src="assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe — inicio" width="208" height="177"></a>
+      <div class="login-story-copy"><span class="eyebrow">Tu talento no tiene fronteras</span><h1>Tu aprendizaje comienza con una cuenta.</h1><p>Sin experiencia previa. Regístrate, explora los cursos y aprende a tu ritmo.</p></div>
+      <div class="login-stat"><span class="login-stat-icon" aria-hidden="true">✦</span><div><strong>Aprende haciendo</strong><small>Una comunidad abierta para todas las personas</small></div></div>
+    </section>
+    <section class="login-card registro-card" aria-labelledby="registro-titulo">
+      <div class="login-card-heading"><img class="login-card-logo" src="assets/img/logo-emblema.png" alt="" width="64" height="48"><span class="eyebrow">Comunidad Talento Caribe</span><h2 id="registro-titulo">Crea tu cuenta</h2><p id="registro-intro">Primero dinos de qué país eres para mostrarte los documentos adecuados.</p></div>
+      <form id="form-registro" class="form login-form" novalidate>
+        <div id="registro-paso-pais" class="registro-paso">
+          <div class="campo"><label for="r-pais">¿De qué país eres?</label><select id="r-pais" name="pais" autocomplete="country-name" required><option value="">Selecciona tu país</option><option>Colombia</option><option>Venezuela</option><option>Ecuador</option><option>Perú</option><option>México</option><option>Argentina</option><option>Chile</option><option>Otro país</option></select></div>
+          <button type="button" class="btn btn-primary" id="r-continuar">Continuar con mis datos <span aria-hidden="true">→</span></button>
+        </div>
+        <fieldset id="registro-datos" class="registro-datos" hidden disabled>
+          <legend>Datos personales y de contacto</legend>
+          <button type="button" class="btn btn-outline btn-sm registro-cambiar-pais" id="r-cambiar-pais">Cambiar país</button>
+          <p id="r-pais-guia" class="form-ayuda" aria-live="polite"></p>
+          <div class="campo" id="r-pais-otro-campo" hidden><label for="r-pais-otro">Escribe tu país</label><input id="r-pais-otro" name="pais_otro" type="text" autocomplete="country-name" maxlength="60"></div>
+          <div class="campo"><label for="r-nombre">Nombres y apellidos completos</label><input id="r-nombre" name="nombre" type="text" autocomplete="name" required minlength="5" maxlength="120" placeholder="Como aparecen en tu documento"></div>
+          <div class="fila-campos">
+            <div class="campo"><label for="r-tipo-documento">Tipo de documento de identidad</label><select id="r-tipo-documento" name="tipo_documento" required><option value="">Selecciona tu documento</option></select></div>
+            <div class="campo"><label for="r-numero-documento">Número del documento</label><input id="r-numero-documento" name="numero_documento" type="text" autocomplete="off" required minlength="5" maxlength="30" placeholder="Número de identificación"></div>
+          </div>
+          <div class="fila-campos">
+            <div class="campo"><label for="r-nacimiento">Fecha de nacimiento</label><input id="r-nacimiento" name="fecha_nacimiento" type="date" autocomplete="bday" required><small class="form-ayuda">La mayoría de los programas está dirigida a personas desde los 14 años; algunos cursos pueden variar.</small></div>
+            <div class="campo"><label for="r-telefono">Teléfono de contacto</label><input id="r-telefono" name="telefono" type="tel" autocomplete="tel" required minlength="7" maxlength="25" placeholder="Incluye el indicativo de país"></div>
+          </div>
+          <div class="campo"><label for="r-correo">Correo electrónico activo</label><input id="r-correo" name="correo" type="email" autocomplete="email" required maxlength="120" placeholder="nombre@correo.com"><small class="form-ayuda">Usaremos este correo para confirmaciones y avisos del proceso.</small></div>
+          <div class="campo"><label for="r-confirmar-correo">Confirma tu correo electrónico</label><input id="r-confirmar-correo" name="confirmar_correo" type="email" autocomplete="email" required maxlength="120"></div>
+          <div class="campo"><label for="r-direccion">Dirección completa de residencia</label><input id="r-direccion" name="direccion" type="text" autocomplete="street-address" required maxlength="180" placeholder="Vía, número, apartamento o barrio"></div>
+          <div class="fila-campos">
+            <div class="campo"><label for="r-ciudad">Ciudad o municipio</label><input id="r-ciudad" name="ciudad" type="text" autocomplete="address-level2" required maxlength="80"></div>
+            <div class="campo"><label for="r-region">Departamento, estado o región</label><input id="r-region" name="region" type="text" autocomplete="address-level1" required maxlength="80"></div>
+            <div class="campo"><label for="r-codigo-postal">Código postal</label><input id="r-codigo-postal" name="codigo_postal" type="text" autocomplete="postal-code" required maxlength="16"></div>
+          </div>
+          <div class="campo"><label for="r-estudios">Último nivel de estudios alcanzado</label><select id="r-estudios" name="ultimo_estudio" required><option value="">Selecciona una opción</option><option>Primaria</option><option>Secundaria o bachillerato</option><option>Técnico o tecnológico</option><option>Universitario</option><option>Otro o en curso</option><option>Prefiero no indicarlo</option></select><small class="form-ayuda">No necesitas experiencia previa ni estudios específicos para iniciar los cursos.</small></div>
+          <fieldset class="campo inscripcion-checklist"><legend>Soportes académicos disponibles (opcional)</legend><label><input type="checkbox" name="documentos_disponibles" value="certificado"> Certificado o constancia de estudios</label><label><input type="checkbox" name="documentos_disponibles" value="calificaciones"> Boletín o calificaciones</label><label><input type="checkbox" name="documentos_disponibles" value="acta_nacimiento"> Registro civil o acta de nacimiento (si aplica)</label><label><input type="checkbox" name="documentos_disponibles" value="ninguno"> Todavía no cuento con estos soportes</label><small class="form-ayuda">Son orientativos y no bloquean tu inscripción a cursos.</small></fieldset>
+          <section id="r-acudiente" class="inscripcion-tutor" hidden>
+            <h3>Información de madre, padre o acudiente</h3><p class="form-ayuda">Como tienes menos de 18 años, necesitaremos una persona adulta de contacto.</p>
+            <div class="campo"><label for="r-acudiente-nombre">Nombre completo</label><input id="r-acudiente-nombre" name="acudiente_nombre" type="text" autocomplete="off" minlength="5" maxlength="120"></div>
+            <div class="fila-campos"><div class="campo"><label for="r-acudiente-telefono">Teléfono</label><input id="r-acudiente-telefono" name="acudiente_telefono" type="tel" autocomplete="off" minlength="7" maxlength="25"></div><div class="campo"><label for="r-acudiente-correo">Correo electrónico</label><input id="r-acudiente-correo" name="acudiente_correo" type="email" autocomplete="off" maxlength="120"></div></div>
+          </section>
+          <div class="registro-credenciales" data-crear-cuenta>
+            <div class="campo"><label for="r-clave">Crea una contraseña</label><input id="r-clave" name="clave" type="password" autocomplete="new-password" required minlength="8"><small class="form-ayuda">Usa al menos 8 caracteres.</small></div>
+            <div class="campo"><label for="r-confirmar">Confirma tu contraseña</label><input id="r-confirmar" name="confirmar" type="password" autocomplete="new-password" required minlength="8"></div>
+          </div>
+          <div class="campo campo-check"><input id="r-acepto" name="acepto" type="checkbox" required><label for="r-acepto">Autorizo a Talento Caribe a usar estos datos para gestionar mi cuenta y el proceso de inscripción.</label></div>
+          <div class="demo-aviso"><strong>Modo de demostración</strong><p>El perfil y el número de documento quedan guardados en este navegador; todavía no se envía correo ni se usa un servidor seguro. No ingreses datos reales hasta conectar el sistema de registro seguro.</p></div>
+          <p id="registro-error" class="form-estado estado-error" role="alert" hidden></p>
+          <button type="submit" class="btn btn-primary" id="registro-enviar"><span class="btn-texto">Crear cuenta e inscribirme</span><span class="spinner" aria-hidden="true" hidden></span></button>
+        </fieldset>
+      </form>
+      <p class="login-volver" id="registro-login">¿Ya tienes cuenta? <a href="admin/login.html?rol=estudiante">Inicia sesión</a></p>
+      <p class="login-volver"><a href="cursos.html">← Volver a los cursos</a></p>
+    </section>
+  </main>
+  <script src="js/config.js"></script><script src="js/cursos-data.js"></script><script src="js/utils.js"></script><script src="js/auth.js"></script>
+  <script src="js/registro.js" defer></script><script src="js/iconos.js"></script><script src="js/datos.js"></script><script src="js/asistente-ia.js"></script>
+  <script src="js/asistente-global.js" defer></script>
+  <script src="js/efectos.js" defer></script>
+</body>
+</html>
