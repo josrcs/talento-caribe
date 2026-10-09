@@ -12,7 +12,9 @@
   function toast(msg, tipo = "ok") {
     const caja = $("#toasts"); if (!caja) return;
     const t = Object.assign(document.createElement("div"), { className: `toast toast-${tipo}`, textContent: msg });
-    caja.append(t); setTimeout(() => t.remove(), 4000);
+    caja.append(t);
+    setTimeout(() => t.classList.add("sale"), 3600); // se desliza hacia afuera antes de quitarlo
+    setTimeout(() => t.remove(), 4000);
   }
   /* reglas = { campo: (valor, form) => "mensaje de error" o "" }. Pinta los errores y devuelve true si todo es válido. */
   function validar(form, reglas) {

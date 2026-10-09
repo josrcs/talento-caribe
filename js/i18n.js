@@ -16,6 +16,10 @@
    ========================================================== */
 (() => {
   const raiz = document.documentElement;
+  // Con JavaScript activo, los efectos de revelado pueden ocultar contenido para mostrarlo al hacer scroll (efectos.css)
+  raiz.classList.add("js");
+  // Transición entre páginas (efectos.css): si el navegador la omite (pestaña oculta, carga lenta) no es un error
+  for (const evento of ["pageswap", "pagereveal"]) addEventListener(evento, (e) => e.viewTransition?.ready.catch(() => {}));
   const leer = (k) => { try { return localStorage.getItem(k); } catch { return null; } };
   const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch { /* sin almacenamiento */ } };
 
@@ -72,7 +76,7 @@
   }
 
   /* ---------- Logos según el tema (las versiones claras son para fondo oscuro) ---------- */
-  const LOGOS = [["logo-talento-caribe-claro.png", "logo-talento-caribe.png"], ["logo-emblema.png", "logo-emblema-color.png"]];
+  const LOGOS = [["logo-talento-caribe-claro.png", "logo-talento-caribe.png"], ["logo-emblema.png", "logo-emblema-color.png"], ["logo-emblema-hd.png", "logo-emblema-hd-color.png"]];
   function logo(img) {
     const src = img.getAttribute("src") || "";
     if (img.hasAttribute("data-logo-fijo")) return;
@@ -150,9 +154,12 @@
     if (!document.startViewTransition || matchMedia("(prefers-reduced-motion: reduce)").matches) { aplicar(); return; }
     const r = e.currentTarget.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
     const radio = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
-    document.startViewTransition(aplicar).ready.then(() => {
+    raiz.classList.add("vt-tema");
+    const transicion = document.startViewTransition(aplicar);
+    transicion.ready.then(() => {
       raiz.animate({ clipPath: [`circle(0 at ${x}px ${y}px)`, `circle(${radio}px at ${x}px ${y}px)`] }, { duration: 600, easing: "cubic-bezier(.4,0,.2,1)", pseudoElement: "::view-transition-new(root)" });
-    });
+    }).catch(() => {}); // si se cambia de tema dos veces seguidas, la primera transición se omite
+    transicion.finished.finally(() => raiz.classList.remove("vt-tema"));
   }
   function montarControles() {
     if (document.querySelector(".prefs")) return;
