@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/intro.js"></script>
+  <title>Mi espacio | Talento Caribe</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/efectos.css">
+  <link rel="stylesheet" href="css/plataforma.css">
+  <link rel="stylesheet" href="css/modulos.css">
+</head>
+<body class="page-portal app">
+  <a class="skip-link" href="#app-main">Saltar al contenido</a>
+  <header class="panel-header app-header">
+    <button type="button" class="nav-toggle app-menu-btn" id="app-menu-btn" aria-expanded="false" aria-controls="app-nav" aria-label="Abrir menú"><span class="nav-toggle-bar"></span></button>
+    <a href="index.html" class="brand"><img src="assets/img/logo-emblema.png" alt="" width="48" height="36"><span>Talento Caribe</span></a>
+    <div class="app-header-acciones">
+      <button type="button" class="btn btn-outline btn-sm" id="btn-guia" title="Ver la guía de esta página"><span data-icono="brujula"></span><span class="ocultar-movil">Guía</span></button>
+      <div class="usuario-chip" id="usuario-chip"><span class="avatar avatar-sm" id="usuario-avatar" aria-hidden="true"></span><span class="ocultar-movil"><strong id="portal-usuario">Mi espacio</strong><small id="usuario-rol"></small></span></div>
+      <button type="button" class="btn btn-outline btn-sm" id="portal-salir"><span data-icono="salir"></span><span class="ocultar-movil">Salir</span></button>
+    </div>
+  </header>
+
+  <div class="app-layout">
+    <nav id="app-nav" class="app-nav" aria-label="Secciones de mi espacio"></nav>
+    <main id="app-main" class="app-main" tabindex="-1"></main>
+  </div>
+
+  <!-- Estudiante: ver y entregar una actividad -->
+  <dialog id="modal-actividad" class="modal modal-ancho" aria-labelledby="ma-titulo">
+    <div class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <div id="ma-cuerpo"></div>
+      <form id="form-entrega" class="form" novalidate>
+        <div class="campo"><label for="me-respuesta">Tu respuesta</label><textarea id="me-respuesta" name="respuesta" rows="6" maxlength="3000" required placeholder="Escribe aquí tu trabajo. Puedes usar listas numeradas."></textarea><small class="form-ayuda"><span id="me-contador">0</span>/3000 caracteres</small><small class="error" data-error-for="respuesta" hidden></small></div>
+        <div class="campo"><label for="me-enlace">Enlace (opcional)</label><input id="me-enlace" name="enlace" type="url" placeholder="https://codepen.io/… o https://github.com/…"><small class="error" data-error-for="enlace" hidden></small></div>
+        <div class="modal-acciones"><button type="submit" class="btn btn-primary" id="me-enviar">Entregar actividad</button><button type="button" class="btn btn-outline" data-cerrar>Cerrar</button></div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Docente: crear o editar una actividad -->
+  <dialog id="modal-nueva-actividad" class="modal modal-ancho" aria-labelledby="mna-titulo">
+    <form id="form-actividad" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <span class="eyebrow">ESPACIO DOCENTE</span>
+      <h2 id="mna-titulo">Nueva actividad</h2>
+      <input type="hidden" name="id">
+      <div class="fila-campos">
+        <div class="campo"><label for="na-curso">Curso</label><select id="na-curso" name="curso_id" required></select></div>
+        <div class="campo"><label for="na-ficha">Ficha</label><select id="na-ficha" name="ficha"></select></div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo"><label for="na-modulo">Módulo</label><select id="na-modulo" name="modulo" required></select><small class="form-ayuda" id="na-modulo-temas"></small></div>
+        <div class="campo"><label for="na-fecha">Fecha límite</label><input id="na-fecha" name="fecha_limite" type="date" required><small class="error" data-error-for="fecha_limite" hidden></small></div>
+      </div>
+      <p class="form-ayuda na-alcance" id="na-alcance"></p>
+      <fieldset class="campo tipo-selector"><legend>Tipo de actividad</legend><div class="tipo-opciones" id="na-tipos"></div></fieldset>
+      <div class="plantillas"><span class="campo-titulo">Empieza con una plantilla didáctica</span><div class="plantillas-lista" id="na-plantillas"></div></div>
+      <div class="campo"><label for="na-titulo">Título</label><input id="na-titulo" name="titulo" type="text" required maxlength="90" placeholder="Ej.: Tu primera página con 5 etiquetas"><small class="error" data-error-for="titulo" hidden></small></div>
+      <div class="campo"><label for="na-objetivo">Objetivo de aprendizaje <small>¿Qué aprenderá el estudiante?</small></label><input id="na-objetivo" name="objetivo" type="text" maxlength="160" placeholder="Ej.: Usar etiquetas HTML básicas para estructurar contenido"></div>
+      <div class="campo"><label for="na-descripcion">Instrucciones paso a paso</label><textarea id="na-descripcion" name="descripcion" rows="6" required maxlength="2000" placeholder="1. …&#10;2. …&#10;3. …"></textarea><small class="error" data-error-for="descripcion" hidden></small></div>
+      <div class="campo"><label for="na-recurso">Recurso de apoyo (opcional)</label><input id="na-recurso" name="recurso" type="url" placeholder="https://…"><small class="error" data-error-for="recurso" hidden></small></div>
+      <div class="modal-acciones"><button type="submit" class="btn btn-primary">Publicar actividad</button><button type="button" class="btn btn-outline" data-cerrar>Cancelar</button></div>
+    </form>
+  </dialog>
+
+  <!-- Docente: avance de un estudiante módulo por módulo -->
+  <dialog id="modal-seguimiento" class="modal modal-ancho" aria-labelledby="ms-titulo">
+    <div class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <div id="ms-cuerpo"></div>
+      <div class="modal-acciones"><button type="button" class="btn btn-outline" data-cerrar>Cerrar</button></div>
+    </div>
+  </dialog>
+
+  <!-- Docente: revisar y calificar una entrega -->
+  <dialog id="modal-entrega" class="modal modal-ancho" aria-labelledby="mr-titulo">
+    <form id="form-calificar" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <div id="mr-cuerpo"></div>
+      <input type="hidden" name="id">
+      <div class="campo"><label for="mr-nota">Nota (1.0 a 5.0)</label><div class="nota-rapida"><input id="mr-nota" name="nota" type="number" min="1" max="5" step="0.1" required><span id="mr-botones-nota"></span></div><small class="error" data-error-for="nota" hidden></small></div>
+      <div class="campo"><label for="mr-comentario">Retroalimentación</label><textarea id="mr-comentario" name="comentario" rows="4" maxlength="800" required placeholder="Qué hizo bien, qué puede mejorar y un siguiente paso."></textarea><div class="frases-rapidas" id="mr-frases"></div><small class="error" data-error-for="comentario" hidden></small></div>
+      <div class="modal-acciones"><button type="submit" class="btn btn-primary">Guardar calificación</button><button type="button" class="btn btn-outline" data-cerrar>Cancelar</button></div>
+    </form>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <script src="js/config.js"></script>
+  <script src="js/cursos-data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/iconos.js"></script>
+  <script src="js/datos.js"></script>
+  <script src="js/asistente-ia.js"></script>
+  <script src="js/guia.js"></script>
+  <script src="js/portal.js" defer></script>
+  <script src="js/asistente-global.js" defer></script>
+  <script src="js/efectos.js" defer></script>
+</body>
+</html>
