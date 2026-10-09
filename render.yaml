@@ -1,0 +1,29 @@
+# Despliegue del backend (API + PostgreSQL) en Render como "Blueprint".
+# Render → New → Blueprint → elige este repositorio. Te pedirá ANTHROPIC_API_KEY y CORS_ORIGENES.
+# La página (frontend) se publica aparte en GitHub Pages; ver "Publicar el proyecto" en README.md.
+databases:
+  - name: talento-caribe-db
+    databaseName: talento_caribe
+    plan: free
+
+services:
+  - type: web
+    name: talento-caribe-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    # db:init crea las tablas y los datos de prueba la primera vez; si ya existen no toca nada
+    startCommand: npm run db:init && npm start
+    healthCheckPath: /api/salud
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: talento-caribe-db
+          property: connectionString
+      - key: JWT_SECRETO
+        generateValue: true
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CORS_ORIGENES
+        sync: false
