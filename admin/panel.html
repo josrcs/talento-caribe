@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="../js/i18n-en.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/intro.js"></script>
+  <title>Panel de administración | Talento Caribe</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/img/favicon.png">
+  <link rel="stylesheet" href="../css/tema.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/efectos.css">
+  <link rel="stylesheet" href="../css/plataforma.css">
+  <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body class="page-panel app">
+  <!-- js/panel.js valida la sesión local de demostración y muestra el espacio del cargo seleccionado. -->
+  <noscript><p class="estado estado-error">Este panel necesita JavaScript para funcionar.</p></noscript>
+
+  <header class="panel-header app-header">
+    <button type="button" class="nav-toggle app-menu-btn" id="panel-menu-btn" aria-expanded="false" aria-controls="panel-nav" aria-label="Abrir menú del panel"><span class="nav-toggle-bar"></span></button>
+    <a href="../index.html" class="brand"><img src="../assets/img/logo-emblema.png" alt="" width="48" height="36"><span>Talento Caribe</span></a>
+    <div class="app-header-acciones">
+      <button type="button" class="btn btn-outline btn-sm" id="btn-guia" title="Ver la guía del panel"><span data-icono="brujula"></span><span class="ocultar-movil">Guía</span></button>
+      <div class="usuario-chip"><span class="avatar avatar-sm" id="admin-avatar" aria-hidden="true"></span><span class="ocultar-movil"><strong id="admin-nombre">Administrador</strong><small id="admin-puesto"></small></span></div>
+      <button type="button" class="btn btn-outline btn-sm" id="btn-salir"><span data-icono="salir"></span><span class="ocultar-movil">Salir</span></button>
+    </div>
+  </header>
+
+  <div class="panel-layout app-layout">
+    <nav id="panel-nav" class="panel-nav app-nav" aria-label="Secciones del panel">
+      <div class="app-nav-rol"><span class="eyebrow" id="nav-area">Panel administrativo</span></div>
+      <button type="button" class="panel-link app-link activo" data-seccion="resumen" aria-current="page"><span data-icono="casa"></span><span class="lbl">Inicio</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="area"><span data-icono="maletin"></span><span class="lbl">Mi departamento</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="academico"><span data-icono="birrete"></span><span class="lbl">Actividad académica</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="cursos"><span data-icono="libro"></span><span class="lbl">Cursos</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="inscripciones"><span data-icono="portapapeles"></span><span class="lbl">Inscripciones</span><span class="badge" id="badge-inscripciones" hidden>0</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="mensajes"><span data-icono="sobre"></span><span class="lbl">Mensajes</span><span class="badge" id="badge-mensajes" hidden>0</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="encuestas"><span data-icono="chat"></span><span class="lbl">Encuestas</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="asistente"><span data-icono="destello"></span><span class="lbl">Asistente IA</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="ia"><span data-icono="engranaje"></span><span class="lbl">Configurar IA</span></button>
+      <div class="app-nav-tip"><span data-icono="escudo"></span><p>Cada cargo ve solo las secciones de su área. Los datos personales quedan en admisiones.</p></div>
+    </nav>
+
+    <main class="panel-main app-main" id="contenido" tabindex="-1">
+
+      <!-- Inicio: indicadores agregados (GET /api/admin/resumen) -->
+      <section id="sec-resumen" class="panel-seccion app-seccion" aria-labelledby="t-resumen">
+        <div class="bienvenida" data-guia="bienvenida">
+          <div><span class="eyebrow" id="saludo-area">Panel administrativo</span><h1 id="t-resumen">Hola</h1><p id="saludo-texto"></p></div>
+          <img src="../assets/img/logo-emblema.png" alt="" width="150" height="112" class="bienvenida-arte">
+        </div>
+        <div id="resumen-cargando" class="estado" role="status"><span class="spinner" aria-hidden="true"></span> Cargando datos...</div>
+        <div id="resumen-error" class="estado estado-error" role="alert" hidden>No pudimos cargar el resumen. Recarga la página.</div>
+        <dl id="resumen-tarjetas" class="kpis" data-guia="kpis" hidden>
+          <div class="kpi"><dt><span data-icono="libro"></span> Cursos en catálogo</dt><dd id="r-cursos">0</dd><small id="r-cursos-sub"></small></div>
+          <div class="kpi"><dt><span data-icono="usuarios"></span> Estudiantes</dt><dd id="r-estudiantes">0</dd><small id="r-estudiantes-sub"></small></div>
+          <div class="kpi"><dt><span data-icono="reloj"></span> Solicitudes pendientes</dt><dd id="r-pendientes">0</dd><small>por revisar en admisiones</small></div>
+          <div class="kpi"><dt><span data-icono="portapapeles"></span> Actividades docentes</dt><dd id="r-actividades">0</dd><small id="r-actividades-sub"></small></div>
+          <div class="kpi"><dt><span data-icono="sobre"></span> Mensajes sin leer</dt><dd id="r-mensajes">0</dd><small>bandeja de contacto</small></div>
+        </dl>
+        <h2 class="subtitulo">Tus accesos rápidos</h2>
+        <div id="accesos-rapidos" class="grid-accesos" data-guia="accesos"></div>
+        <div class="grid-2">
+          <article class="tarjeta" data-guia="grafica">
+            <h2 class="tarjeta-titulo"><span data-icono="grafica"></span> Solicitudes por curso</h2>
+            <p class="seccion-texto">Los 6 cursos con más solicitudes de inscripción.</p>
+            <div id="grafica-cursos" class="barras" role="img" aria-label="Gráfica de solicitudes por curso"></div>
+            <details class="tabla-detalle"><summary>Ver como tabla</summary><div class="tabla-wrap"><table class="tabla"><thead><tr><th>Curso</th><th>Solicitudes</th></tr></thead><tbody id="tabla-grafica"></tbody></table></div></details>
+          </article>
+          <article class="tarjeta">
+            <h2 class="tarjeta-titulo"><span data-icono="check"></span> Estado de las inscripciones</h2>
+            <p class="seccion-texto">Cómo va el proceso de admisión.</p>
+            <div id="grafica-estados"></div>
+            <h3 class="subtitulo-mini">Últimas solicitudes</h3>
+            <ul class="lista-filas" id="tb-ultimas"></ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- Actividad académica: actividades que publican los docentes por curso -->
+      <section id="sec-academico" class="panel-seccion app-seccion" aria-labelledby="t-academico" hidden>
+        <div class="seccion-cabecera"><div><span class="eyebrow">SEGUIMIENTO ACADÉMICO</span><h1 id="t-academico">Actividad académica</h1><p class="seccion-texto">Actividades publicadas por cada docente, entregas recibidas y promedio de notas por curso.</p></div></div>
+        <dl class="kpis" id="academico-kpis"></dl>
+        <div class="tabla-wrap"><table class="tabla"><thead><tr><th>Curso</th><th>Docente</th><th>Estudiantes</th><th>Actividades</th><th>Entregas recibidas</th><th>Promedio</th></tr></thead><tbody id="tb-academico"></tbody></table></div>
+        <h2 class="subtitulo">Últimas actividades publicadas</h2>
+        <div id="academico-recientes" class="lista-actividades"></div>
+      </section>
+
+      <!-- Asistente IA de gestión -->
+      <section id="sec-asistente" class="panel-seccion app-seccion" aria-labelledby="t-asistente" hidden>
+        <div class="seccion-cabecera"><div><span class="eyebrow">TU ASISTENTE DE GESTIÓN</span><h1 id="t-asistente">Asistente IA</h1><p class="seccion-texto">Pregúntale por indicadores, inscripciones pendientes, demanda de cursos o las funciones de tu cargo.</p></div></div>
+        <div class="chat-completo" id="chat-panel"></div>
+      </section>
+
+      <section id="sec-area" class="panel-seccion app-seccion" aria-labelledby="area-titulo" hidden>
+        <span class="eyebrow" id="area-departamento"></span>
+        <h1 id="area-titulo">Mi departamento</h1>
+        <p id="area-intro"></p>
+        <div id="area-tareas" class="department-grid"></div>
+        <section id="finanzas-panel" class="finance-panel" hidden>
+          <h2>Control de gastos del departamento</h2>
+          <p>Registro interno de demostración. Los datos se quedan en este navegador.</p>
+          <dl class="tarjetas-resumen"><div class="tarjeta-dato"><dt>Total registrado</dt><dd id="finanzas-total">$0</dd></div><div class="tarjeta-dato"><dt>Movimientos</dt><dd id="finanzas-cantidad">0</dd></div></dl>
+          <form id="form-gasto" class="form finance-form">
+            <div class="fila-campos">
+              <div class="campo"><label for="gasto-concepto">Concepto</label><input id="gasto-concepto" name="concepto" required maxlength="100"></div>
+              <div class="campo"><label for="gasto-categoria">Categoría</label><select id="gasto-categoria" name="categoria" required><option>Materiales</option><option>Conectividad</option><option>Transporte</option><option>Servicios</option><option>Otro</option></select></div>
+              <div class="campo"><label for="gasto-valor">Valor (COP)</label><input id="gasto-valor" name="valor" type="number" min="1" step="100" required></div>
+            </div>
+            <button type="submit" class="btn btn-primary">Registrar gasto</button>
+          </form>
+          <div class="tabla-wrap"><table class="tabla"><thead><tr><th>Concepto</th><th>Categoría</th><th>Valor</th><th>Fecha</th></tr></thead><tbody id="tb-gastos"></tbody></table></div>
+        </section>
+      </section>
+
+      <!-- Cursos: CRUD sobre /api/cursos (POST, PUT, DELETE requieren JWT) -->
+      <section id="sec-cursos" class="panel-seccion app-seccion" aria-labelledby="t-cursos" hidden>
+        <div class="seccion-cabecera">
+          <h1 id="t-cursos">Cursos</h1>
+          <button type="button" class="btn btn-primary" id="btn-nuevo-curso">Nuevo curso</button>
+        </div>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Curso</th><th scope="col">Área</th><th scope="col">Nivel</th>
+                <th scope="col">Modalidad</th><th scope="col">Instructor</th><th scope="col">Fichas</th><th scope="col">Fase</th>
+                <th scope="col">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tb-cursos"><tr><td colspan="8">Cargando cursos...</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="seccion-cabecera fichas-cabecera">
+          <div><span class="eyebrow">GRUPOS</span><h2 id="t-fichas">Fichas</h2><p class="seccion-texto">Cada ficha es un grupo de un curso con su número, jornada y fecha de inicio. Los estudiantes se inscriben en una ficha y los docentes la usan para publicar actividades y hacer seguimiento.</p></div>
+          <button type="button" class="btn btn-primary" id="btn-nueva-ficha">Nueva ficha</button>
+        </div>
+        <div class="filtros fichas-filtros">
+          <div class="campo"><label for="ff-buscar">Buscar ficha</label><input id="ff-buscar" type="search" inputmode="numeric" maxlength="6" placeholder="Ej. 25896"></div>
+          <div class="campo"><label for="ff-estado">Estado</label><select id="ff-estado"><option value="">Todos</option><option>Inscripciones abiertas</option><option>En formación</option><option>Próximamente</option><option>Finalizada</option></select></div>
+        </div>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead><tr><th scope="col">Ficha</th><th scope="col">Curso</th><th scope="col">Jornada</th><th scope="col">Inicio</th><th scope="col">Cupos</th><th scope="col">Estado</th><th scope="col">Acciones</th></tr></thead>
+            <tbody id="tb-fichas"><tr><td colspan="7">Cargando fichas...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="sec-encuestas" class="panel-seccion app-seccion" aria-labelledby="t-encuestas" hidden>
+        <div class="seccion-cabecera">
+          <div><span class="eyebrow">ESCUCHA A LA COMUNIDAD</span><h1 id="t-encuestas">Encuestas por departamento</h1></div>
+        </div>
+        <p>Todo el equipo administrativo puede consultar estas plantillas. Usa el filtro para ver las preguntas de cada área.</p>
+        <div class="campo encuesta-filtro">
+          <label for="filtro-encuestas">Departamento</label>
+          <select id="filtro-encuestas">
+            <option value="">Todos los departamentos</option>
+            <option>Académico</option><option>Tecnología</option><option>Admisiones</option>
+            <option>Comunicaciones</option><option>Administración y finanzas</option>
+          </select>
+        </div>
+        <div id="encuestas-lista" class="survey-departments"></div>
+        <p class="nota-requisitos">Son plantillas de ejemplo para organizar la consulta; todavía no recopilan ni guardan respuestas.</p>
+      </section>
+
+      <!-- Inscripciones: GET /api/admin/inscripciones, PATCH para cambiar el estado -->
+      <section id="sec-inscripciones" class="panel-seccion app-seccion" aria-labelledby="t-inscripciones" hidden>
+        <h1 id="t-inscripciones">Inscripciones</h1>
+        <form id="filtros-inscripciones" class="filtros" aria-label="Filtrar inscripciones">
+          <div class="campo">
+            <label for="fi-curso">Curso</label>
+            <select id="fi-curso" name="curso"><option value="">Todos</option></select>
+          </div>
+          <div class="campo">
+            <label for="fi-estado">Estado</label>
+            <select id="fi-estado" name="estado">
+              <option value="">Todos</option>
+              <option value="pendiente">Pendiente</option>
+              <option value="aprobada">Aprobada</option>
+              <option value="rechazada">Rechazada</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="fi-buscar">Buscar estudiante o n.º de ficha</label>
+            <input id="fi-buscar" name="q" type="search">
+          </div>
+        </form>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead>
+              <tr><th scope="col">Estudiante</th><th scope="col">Correo</th><th scope="col">Curso</th><th scope="col">Fecha</th><th scope="col">Ficha</th><th scope="col">Estado</th><th scope="col">Datos</th></tr>
+            </thead>
+            <tbody id="tb-inscripciones"><tr><td colspan="7">Cargando inscripciones...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Mensajes del formulario de contacto: GET /api/admin/mensajes -->
+      <section id="sec-mensajes" class="panel-seccion app-seccion" aria-labelledby="t-mensajes" hidden>
+        <h1 id="t-mensajes">Mensajes de contacto</h1>
+        <div class="tabla-wrap">
+          <table class="tabla">
+            <thead>
+              <tr>
+                <th scope="col">Nombre</th><th scope="col">Correo</th><th scope="col">Interés</th>
+                <th scope="col">Asunto</th><th scope="col">Fecha</th><th scope="col">Estado</th>
+                <th scope="col"><span class="sr-only">Acciones</span></th>
+              </tr>
+            </thead>
+            <tbody id="tb-mensajes"><tr><td colspan="7">Cargando mensajes...</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Configuración del asistente IA: se guarda con PUT /api/config-ia; POST /api/chat la usa en cada respuesta -->
+      <section id="sec-ia" class="panel-seccion app-seccion" aria-labelledby="t-ia" hidden>
+        <h1 id="t-ia">Asistente IA</h1>
+        <p>Define cómo habla el asistente y qué debe saber de Talento Caribe. Los cursos del catálogo se envían automáticamente.</p>
+        <form id="form-ia" class="form" novalidate>
+          <div class="campo">
+            <label for="ia-tono">Tono de marca</label>
+            <textarea id="ia-tono" name="tono" rows="3" maxlength="500" placeholder="Cercano, motivador, en español sencillo y con orgullo caribeño."></textarea>
+          </div>
+          <div class="campo">
+            <label for="ia-contexto">Información adicional</label>
+            <textarea id="ia-contexto" name="contexto" rows="6" maxlength="2000" placeholder="Horarios, sede, proceso de inscripción, preguntas frecuentes..."></textarea>
+          </div>
+          <button type="submit" class="btn btn-primary" id="ia-guardar">
+            <span class="btn-texto">Guardar cambios</span>
+            <span class="spinner" aria-hidden="true" hidden></span>
+          </button>
+        </form>
+        <p class="nota-requisitos">Para probar cómo responde, abre la sección «Asistente IA».</p>
+      </section>
+    </main>
+  </div>
+
+  <!-- Formulario de curso (crear y editar) -->
+  <dialog id="modal-curso-form" class="modal" aria-labelledby="mcf-titulo">
+    <form id="form-curso" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar formulario">&times;</button>
+      <h2 id="mcf-titulo">Nuevo curso</h2>
+      <input type="hidden" name="id" id="fc-id">
+      <div class="campo">
+        <label for="fc-titulo">Nombre del curso</label>
+        <input id="fc-titulo" name="titulo" type="text" required maxlength="100">
+        <small class="error" data-error-for="titulo" hidden></small>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="fc-area">Área</label>
+          <select id="fc-area" name="area" required><option value="Software">Software</option><option value="Hardware">Hardware</option></select>
+        </div>
+        <div class="campo">
+          <label for="fc-nivel">Nivel</label>
+          <select id="fc-nivel" name="nivel" required><option value="Básico">Básico</option><option value="Intermedio">Intermedio</option></select>
+        </div>
+        <div class="campo">
+          <label for="fc-duracion">Duración (semanas)</label>
+          <input id="fc-duracion" name="duracion" type="number" min="1" max="52" required>
+          <small class="error" data-error-for="duracion" hidden></small>
+        </div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="fc-modalidad">Modalidad</label>
+          <select id="fc-modalidad" name="modalidad" required><option value="Virtual">Virtual</option><option value="Presencial">Presencial</option><option value="Híbrido">Híbrido</option></select>
+        </div>
+        <div class="campo">
+          <label for="fc-fase">Fase</label>
+          <select id="fc-fase" name="fase" required><option value="Lanzamiento">Lanzamiento</option><option value="Próximamente">Próximamente</option></select>
+        </div>
+        <div class="campo">
+          <label for="fc-instructor">Instructor</label>
+          <input id="fc-instructor" name="instructor" type="text" required>
+          <small class="error" data-error-for="instructor" hidden></small>
+        </div>
+      </div>
+      <div class="campo"><label for="fc-edad-minima">Edad mínima del programa</label><input id="fc-edad-minima" name="edad_minima" type="number" min="0" max="100" value="14" required><small class="form-ayuda">La mayoría de cursos parte de los 14 años. Usa 0 si el programa no tiene mínimo de edad.</small></div>
+      <div class="campo">
+        <label for="fc-descripcion">Descripción</label>
+        <textarea id="fc-descripcion" name="descripcion" rows="4" required></textarea>
+        <small class="error" data-error-for="descripcion" hidden></small>
+      </div>
+      <div class="campo">
+        <label for="fc-objetivo">Objetivo</label>
+        <textarea id="fc-objetivo" name="objetivo" rows="2"></textarea>
+      </div>
+      <div class="campo">
+        <label for="fc-temario">Módulos (uno por línea)</label>
+        <textarea id="fc-temario" name="temario" rows="6" placeholder="Fundamentos: variables, tipos de datos y operadores&#10;Decisiones: condicionales y ciclos"></textarea>
+        <small class="form-ayuda">Escribe «Nombre del módulo: tema 1, tema 2, tema 3». Cada línea es un módulo.</small>
+      </div>
+      <div class="campo">
+        <label for="fc-proyecto">Proyecto final</label>
+        <input id="fc-proyecto" name="proyecto" type="text">
+      </div>
+      <div class="modal-acciones">
+        <button type="submit" class="btn btn-primary" id="curso-guardar">
+          <span class="btn-texto">Guardar curso</span>
+          <span class="spinner" aria-hidden="true" hidden></span>
+        </button>
+        <button type="button" class="btn btn-outline" data-cerrar>Cancelar</button>
+      </div>
+      <p id="curso-estado" class="form-estado" role="status" aria-live="polite" hidden></p>
+    </form>
+  </dialog>
+
+  <dialog id="modal-curso-detalle" class="modal" aria-labelledby="mcd-titulo">
+    <article class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar detalle">&times;</button>
+      <span class="eyebrow" id="mcd-area"></span>
+      <h2 id="mcd-titulo"></h2>
+      <p id="mcd-descripcion"></p>
+      <dl class="curso-meta">
+        <div><dt>Nivel</dt><dd id="mcd-nivel"></dd></div><div><dt>Duración</dt><dd id="mcd-duracion"></dd></div>
+        <div><dt>Modalidad</dt><dd id="mcd-modalidad"></dd></div><div><dt>Instructor</dt><dd id="mcd-instructor"></dd></div><div><dt>Edad mínima</dt><dd id="mcd-edad"></dd></div>
+      </dl>
+      <h3>Lo que lograrán</h3><p id="mcd-objetivo"></p>
+      <h3>Módulos</h3><div id="mcd-modulos" class="modulos-lista"></div>
+      <h3>Fichas</h3><div id="mcd-fichas" class="fichas-lista"></div>
+      <h3>Proyecto final</h3><p id="mcd-proyecto"></p>
+      <div class="modal-acciones"><button type="button" class="btn btn-outline" data-cerrar>Cerrar</button></div>
+    </article>
+  </dialog>
+
+  <!-- Crear o editar una ficha -->
+  <dialog id="modal-ficha-form" class="modal" aria-labelledby="mff-titulo">
+    <form id="form-ficha" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <span class="eyebrow">GRUPOS</span>
+      <h2 id="mff-titulo">Nueva ficha</h2>
+      <input type="hidden" name="existente">
+      <div class="fila-campos">
+        <div class="campo"><label for="ff-numero">Número de ficha</label><input id="ff-numero" name="numero" type="text" inputmode="numeric" pattern="[0-9]{4,6}" maxlength="6" required><small class="form-ayuda">De 4 a 6 dígitos. Te sugerimos el siguiente libre.</small></div>
+        <div class="campo"><label for="ff-curso">Curso</label><select id="ff-curso" name="curso_id" required></select></div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo"><label for="ff-jornada">Jornada</label><select id="ff-jornada" name="jornada" required><option>Mañana</option><option>Tarde</option><option>Noche</option><option>Sábados</option></select></div>
+        <div class="campo"><label for="ff-inicio">Fecha de inicio</label><input id="ff-inicio" name="inicio" type="date" required></div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo"><label for="ff-cupos">Cupos</label><input id="ff-cupos" name="cupos" type="number" min="1" max="200" required></div>
+        <div class="campo"><label for="ff-estado-f">Estado</label><select id="ff-estado-f" name="estado" required><option>Inscripciones abiertas</option><option>En formación</option><option>Próximamente</option><option>Finalizada</option></select></div>
+      </div>
+      <div class="modal-acciones"><button type="submit" class="btn btn-primary">Guardar ficha</button><button type="button" class="btn btn-outline" data-cerrar>Cancelar</button></div>
+    </form>
+  </dialog>
+
+  <!-- Lectura de un mensaje de contacto -->
+  <dialog id="modal-mensaje" class="modal" aria-labelledby="mm-asunto">
+    <article class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar mensaje">&times;</button>
+      <h2 id="mm-asunto"></h2>
+      <p id="mm-remitente"></p>
+      <p id="mm-texto" class="mensaje-texto"></p>
+      <div class="modal-acciones">
+        <a class="btn btn-primary" id="mm-responder" href="#">Responder por correo</a>
+        <button type="button" class="btn btn-outline" data-cerrar>Cerrar</button>
+      </div>
+    </article>
+  </dialog>
+
+  <dialog id="modal-ficha-estudiante" class="modal" aria-labelledby="mf-nombre">
+    <article class="modal-contenido"><button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button><span class="eyebrow">DATOS PARA ADMISIONES</span><h2 id="mf-nombre">Datos del estudiante</h2><dl class="curso-meta"><div><dt>Correo</dt><dd id="mf-correo"></dd></div><div><dt>Documento</dt><dd id="mf-documento"></dd></div><div><dt>Fecha de nacimiento</dt><dd id="mf-nacimiento"></dd></div><div><dt>Teléfono</dt><dd id="mf-telefono"></dd></div><div><dt>Dirección</dt><dd id="mf-direccion"></dd></div><div><dt>Ciudad y país</dt><dd id="mf-ciudad"></dd></div><div><dt>Nivel de estudios</dt><dd id="mf-estudios"></dd></div><div><dt>Soportes indicados</dt><dd id="mf-soportes"></dd></div><div><dt>Acudiente</dt><dd id="mf-acudiente"></dd></div></dl><p class="nota-requisitos">Datos de demostración guardados en este navegador. La consulta de expedientes debe protegerse en el servidor en producción.</p></article>
+  </dialog>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="../js/config.js"></script>
+  <script src="../js/cursos-data.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/iconos.js"></script>
+  <script src="../js/datos.js"></script>
+  <script src="../js/asistente-ia.js"></script>
+  <script src="../js/guia.js"></script>
+  <script src="../js/panel.js" defer></script>
+  <script src="../js/asistente-global.js" defer></script>
+  <script src="../js/efectos.js" defer></script>
+</body>
+</html>
