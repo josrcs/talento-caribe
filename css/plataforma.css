@@ -509,3 +509,14 @@ dialog.modal { margin: auto; }
 .btn-texto-plano { display: inline-flex; align-items: center; gap: .35rem; }
 /* Filas de campos: se acomodan al ancho disponible (antes eran siempre 3 columnas y quedaban apretadas) */
 .fila-campos { grid-template-columns: repeat(auto-fit, minmax(min(100%, 12.5rem), 1fr)) !important; align-items: start; }
+
+/* Seguridad de la cuenta (js/cuenta.js) y registro de seguridad del panel */
+#form-clave fieldset { border: 0; padding: 0; margin: 0; display: grid; gap: .9rem; min-width: 0; }
+#form-clave fieldset:disabled { opacity: .55; }
+#form-clave legend { padding: 0; margin-bottom: .2rem; }
+.separador { border: 0; border-top: 1px solid rgba(var(--tinte), .12); margin: 1.4rem 0 .4rem; }
+.seguridad-aviso { display: flex; gap: .7rem; align-items: flex-start; padding: .9rem 1rem; border-radius: 14px; background: rgba(239, 68, 68, .1); border: 1px solid rgba(239, 68, 68, .25); }
+.seguridad-aviso .icono { color: var(--color-red-400); flex: 0 0 auto; margin-top: .1rem; }
+.seguridad-filtros { display: flex; flex-wrap: wrap; gap: .6rem; align-items: end; margin: 1rem 0 .6rem; }
+.seguridad-filtros .campo { min-width: min(100%, 14rem); }
+.celda-agente { max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--color-slate-500); font-size: .8rem; }

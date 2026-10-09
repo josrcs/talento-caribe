@@ -30,9 +30,20 @@
     }
     return ok;
   }
+  // Mismas reglas que el servidor (backend/src/validar.js)
+  const COMUNES = ["12345678", "123456789", "password", "password1", "password123", "contraseña", "contrasena", "qwerty123", "abc12345", "abcd1234", "admin123", "talento123", "talentocaribe", "colombia123"];
+  function problemaClave(clave, correo = "") {
+    if (clave.length < 8) return "Usa al menos 8 caracteres.";
+    if (new TextEncoder().encode(clave).length > 72) return "La contraseña es demasiado larga.";
+    if (!/\p{L}/u.test(clave) || !/\d/.test(clave)) return "Combina letras y números.";
+    if (COMUNES.includes(clave.toLowerCase())) return "Esa contraseña es muy común. Elige otra.";
+    const usuario = correo.toLowerCase().split("@")[0];
+    if (usuario.length >= 4 && clave.toLowerCase().includes(usuario)) return "No uses tu correo dentro de la contraseña.";
+    return "";
+  }
   /* Botón con estado de carga (necesita .btn-texto y .spinner dentro) */
   function cargando(btn, on) { btn.disabled = on; $(".btn-texto", btn).hidden = on; $(".spinner", btn).hidden = !on; }
 
   window.CURSOS = window.TALENTO_CARIBE_CURSOS || [];
-  window.TCUtil = { $, $$, esc, EMAIL, espera, leer, guardar, sesion, toast, validar, cargando };
+  window.TCUtil = { $, $$, esc, EMAIL, espera, leer, guardar, sesion, toast, validar, cargando, problemaClave };
 })();

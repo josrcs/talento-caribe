@@ -34,12 +34,15 @@
   const ACADEMICOS = ["Gerente", "Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología", "Coordinador(a) académico(a)", "Coordinador(a) de tecnología"];
   perfil.sections = ["resumen", ...perfil.sections.filter((x) => x !== "resumen"), "asistente"];
   if (ACADEMICOS.includes(s.puesto)) { perfil.sections.splice(1, 0, "academico"); perfil.tasks.push(["Actividad académica", "Mira qué actividades publican los docentes y cómo van las entregas.", "academico"]); }
+  // Registro de seguridad: los mismos cargos que permite el servidor (PERMISOS.seguridad en backend/src/seguridad.js)
+  const SEGURIDAD = ["Gerente", "Director(a) general", "Director(a) de tecnología"];
+  if (SEGURIDAD.includes(s.puesto)) { perfil.sections.splice(perfil.sections.length - 1, 0, "seguridad"); perfil.tasks.push(["Seguridad", "Revisa ingresos, intentos fallidos y bloqueos de cuentas.", "seguridad"]); }
   perfil.tasks.push(["Asistente de gestión", "Pregúntale por cifras, pendientes y funciones de tu cargo.", "asistente"]);
   perfil.start = "resumen";
   window.TCPanelPerfil = perfil;
   const D = window.TCDatos;
   const iniciales = (n) => String(n || "?").split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase();
-  const ICONO_SECCION = { resumen: "casa", area: "maletin", academico: "birrete", cursos: "libro", inscripciones: "portapapeles", mensajes: "sobre", encuestas: "chat", ia: "engranaje", asistente: "destello" };
+  const ICONO_SECCION = { resumen: "casa", area: "maletin", academico: "birrete", cursos: "libro", inscripciones: "portapapeles", mensajes: "sobre", encuestas: "chat", ia: "engranaje", asistente: "destello", seguridad: "escudo" };
   $("#admin-nombre").textContent = s.nombre || "Administrador";
   $("#admin-puesto").textContent = s.puesto || "Administrativo";
   $("#admin-avatar").textContent = iniciales(s.nombre);
@@ -61,6 +64,7 @@
     $("#panel-menu-btn").setAttribute("aria-expanded", "false"); $("#panel-nav").classList.remove("is-abierto");
     if (nombre === "asistente" && !$("#chat-panel").classList.contains("ia-chat")) TCChatUI.montar($("#chat-panel"), { modo: "completo" });
     if (nombre === "academico") pintarAcademico();
+    if (nombre === "seguridad") pintarSeguridad();
     history.replaceState(null, "", "#" + nombre);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -71,7 +75,7 @@
     button.hidden = !allowed.has(button.dataset.seccion);
     button.addEventListener("click", () => abrirSeccion(button.dataset.seccion));
   });
-  const sections = new Set(["resumen", "area", "academico", "cursos", "inscripciones", "mensajes", "ia", "encuestas", "asistente"]);
+  const sections = new Set(["resumen", "area", "academico", "cursos", "inscripciones", "mensajes", "ia", "encuestas", "asistente", "seguridad"]);
   sections.forEach((name) => { const section = $("#sec-" + name); if (section) section.hidden = !allowed.has(name); });
   $("#area-departamento").textContent = perfil.area;
   $("#area-titulo").textContent = perfil.title;
@@ -310,6 +314,46 @@
     $("#academico-recientes").innerHTML = recientes.map((a) => '<article class="tarjeta act-docente"><span class="tipo-icono" style="--tipo:' + (D.TIPOS[a.tipo]?.color || "#1ab0d6") + '">' + TCIcono(D.TIPOS[a.tipo]?.icono || "lapiz", 18) + '</span><div class="act-docente-info"><span class="act-curso">' + esc(cursoTitulo(a.curso_id)) + " · " + esc(a.tipo) + "</span><h3>" + esc(a.titulo) + '</h3><p class="act-vence">' + TCIcono("pizarra", 14) + " " + esc(a.docente) + " · " + esc(D.textoVence(a.fecha_limite)) + "</p></div></article>").join("") || '<p class="seccion-texto">Los docentes aún no han publicado actividades.</p>';
   }
 
+  /* ---------- Registro de seguridad ----------
+     Lo arma el servidor (tabla eventos_seguridad). Las IP con 5 o más fallos en 24 horas se
+     destacan arriba como posibles ataques de fuerza bruta. */
+  const EVENTOS = {
+    ingreso: ["Ingreso", "pill-ok"], ingreso_fallido: ["Intento fallido", "pill-pendiente"], bloqueo: ["Bloqueo", "pill-no"],
+    clave_cambiada: ["Contraseña cambiada", ""], recuperacion_pedida: ["Pidió recuperar la contraseña", ""], clave_restablecida: ["Contraseña restablecida", ""],
+    sesiones_cerradas: ["Cerró todas sus sesiones", ""], registro: ["Cuenta nueva", "pill-ok"],
+  };
+  const fechaHora = (iso) => new Date(iso).toLocaleString(window.TCIdioma?.locale || "es-CO", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
+  async function pintarSeguridad() {
+    const tabla = $("#tb-seguridad");
+    if (!API) {
+      $("#seguridad-kpis").innerHTML = "";
+      tabla.innerHTML = fila(5, "El registro de seguridad lo guarda el servidor. Abre la página con npm start para verlo.");
+      return;
+    }
+    tabla.innerHTML = fila(5, "Cargando…");
+    try {
+      const { eventos, resumen, sospechosas } = await TCApi.pedir("GET", "/seguridad/eventos?tipo=" + encodeURIComponent($("#seguridad-tipo").value));
+      const n = (tipo) => resumen[tipo] || 0;
+      $("#seguridad-kpis").innerHTML = [["check", "Ingresos (24 h)", n("ingreso")], ["reloj", "Intentos fallidos (24 h)", n("ingreso_fallido") + n("bloqueo")], ["escudo", "Bloqueos (24 h)", n("bloqueo")], ["usuarios", "Cuentas nuevas (24 h)", n("registro")]]
+        .map(([i, t, v]) => '<div class="kpi"><dt>' + TCIcono(i, 18) + " " + t + "</dt><dd>" + v + "</dd></div>").join("");
+      $("#seguridad-sospechosas").innerHTML = sospechosas.length
+        ? '<div class="seguridad-aviso" role="status">' + TCIcono("escudo", 20) + "<div><strong>Conexiones con muchos intentos fallidos en las últimas 24 horas</strong><ul>" +
+          sospechosas.map((x) => "<li>" + esc(x.ip) + ": " + x.fallos + " fallos contra " + x.cuentas + " cuenta(s), el último " + fechaHora(x.ultimo) + "</li>").join("") +
+          "</ul><small>El servidor ya las frena: tras 10 fallos una conexión queda bloqueada 15 minutos, y tras 8 fallos también la cuenta atacada.</small></div></div>"
+        : "";
+      const badge = $("#badge-seguridad"); badge.textContent = sospechosas.length; badge.hidden = !sospechosas.length;
+      tabla.innerHTML = eventos.map((e) => {
+        const [texto, clase] = EVENTOS[e.tipo] || [e.tipo, ""];
+        return "<tr><td>" + fechaHora(e.creado) + '</td><td><span class="pill ' + clase + '">' + esc(texto) + "</span></td><td>" + (e.nombre ? esc(e.nombre) + "<br>" : "") + "<small>" + esc(e.correo || "—") +
+          "</small></td><td>" + esc(e.ip || "—") + '<div class="celda-agente" title="' + esc(e.agente || "") + '">' + esc(e.agente || "") + "</div></td><td>" + esc(e.detalle || "") + "</td></tr>";
+      }).join("") || fila(5, "Todavía no hay eventos de este tipo.");
+    } catch (error) {
+      tabla.innerHTML = fila(5, esc(error.message));
+    }
+  }
+  $("#seguridad-tipo").addEventListener("change", pintarSeguridad);
+  $("#seguridad-actualizar").addEventListener("click", pintarSeguridad);
+
   /* Guía de bienvenida del panel */
   const GUIA = [
     { sel: "#panel-nav", titulo: "Tu menú por cargo", texto: "Solo ves las secciones que corresponden a tu cargo. El número rojo indica pendientes." },
@@ -320,6 +364,7 @@
   ];
   $("#btn-guia").addEventListener("click", () => { abrirSeccion("resumen"); setTimeout(() => TCGuia.iniciar(GUIA, null, true), 300); });
   pintar(); pintarEncuestas();
+  if (API && allowed.has("seguridad")) pintarSeguridad(); // para mostrar en el menú si hay conexiones sospechosas
   const hash = location.hash.slice(1);
   abrirSeccion(allowed.has(hash) ? hash : perfil.start);
   setTimeout(() => TCGuia.iniciar(GUIA, "tc_guia_admin"), 900);

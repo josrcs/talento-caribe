@@ -53,8 +53,10 @@ app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta $
    Lista blanca: solo se publican las páginas y las carpetas del frontend. Nunca la carpeta del
    servidor (código y .env), los scripts SQL, el README ni la configuración. (Bloquear solo
    "/backend" no basta: "/%62ackend" es la misma ruta escrita de otra forma.) */
-const estaticos = { dotfiles: "deny", index: false, extensions: ["html"], maxAge: "1h" };
-for (const carpeta of ["css", "js", "assets", "admin"]) app.use(`/${carpeta}`, express.static(path.join(RAIZ, carpeta), estaticos));
+const estaticos = { dotfiles: "deny", index: false, extensions: ["html"] };
+// HTML, CSS y JS se revalidan siempre (así una actualización se ve de inmediato); las imágenes se guardan 7 días
+for (const carpeta of ["css", "js", "admin"]) app.use(`/${carpeta}`, express.static(path.join(RAIZ, carpeta), estaticos));
+app.use("/assets", express.static(path.join(RAIZ, "assets"), { ...estaticos, maxAge: "7d" }));
 const PAGINAS = ["index", "cursos", "portal", "registro", "recuperar"];
 app.get(/^\/(?:([a-z]+)(?:\.html)?)?$/, (req, res, next) => {
   const pagina = req.params[0] || "index";

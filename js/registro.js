@@ -79,6 +79,12 @@
     const edadMinima = curso ? Number(curso.edadMinima ?? curso.edad_minima ?? 14) : 0;
     const years = edad(form.elements.fecha_nacimiento.value);
     if (curso && years < edadMinima) { error.textContent = `Este curso está dirigido a personas desde los ${edadMinima} años. Puedes explorar otros programas.`; error.hidden = false; return; }
+    // Misma regla de contraseña que el servidor: letras y números, no muy común ni con el correo dentro
+    const problema = editandoPerfil ? "" : TCUtil.problemaClave(form.elements.clave.value, form.elements.correo.value.trim());
+    if (problema) {
+      form.elements.clave.setCustomValidity(problema); form.elements.clave.reportValidity();
+      form.elements.clave.addEventListener("input", () => form.elements.clave.setCustomValidity(""), { once: true }); return;
+    }
     if (!editandoPerfil && form.elements.clave.value !== form.elements.confirmar.value) {
       form.elements.confirmar.setCustomValidity("Las contraseñas no coinciden."); form.elements.confirmar.reportValidity();
       form.elements.confirmar.addEventListener("input", () => form.elements.confirmar.setCustomValidity(""), { once: true }); return;

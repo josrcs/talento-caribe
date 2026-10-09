@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (en GitHub Pages no hay cabeceras propias; el servidor envía la suya). Si la API se publica en otro dominio, agrégalo a connect-src. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:3000 https://*.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
   <script src="js/i18n-en.js"></script>
@@ -25,6 +27,7 @@
     <div class="app-header-acciones">
       <button type="button" class="btn btn-outline btn-sm" id="btn-guia" title="Ver la guía de esta página"><span data-icono="brujula"></span><span class="ocultar-movil">Guía</span></button>
       <div class="usuario-chip" id="usuario-chip"><span class="avatar avatar-sm" id="usuario-avatar" aria-hidden="true"></span><span class="ocultar-movil"><strong id="portal-usuario">Mi espacio</strong><small id="usuario-rol"></small></span></div>
+      <button type="button" class="btn btn-outline btn-sm" data-cuenta title="Cambiar tu contraseña o cerrar sesión en todos los equipos"><span data-icono="escudo"></span><span class="ocultar-movil">Mi cuenta</span></button>
       <button type="button" class="btn btn-outline btn-sm" id="portal-salir"><span data-icono="salir"></span><span class="ocultar-movil">Salir</span></button>
     </div>
   </header>
@@ -103,6 +106,7 @@
   <script src="js/datos.js"></script>
   <script src="js/asistente-ia.js"></script>
   <script src="js/guia.js"></script>
+  <script src="js/cuenta.js" defer></script>
   <script src="js/portal.js" defer></script>
   <script src="js/asistente-global.js" defer></script>
   <script src="js/efectos.js" defer></script>

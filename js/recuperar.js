@@ -10,6 +10,9 @@
 (() => {
   const { $, EMAIL, validar, cargando } = TCUtil;
   const token = new URLSearchParams(location.search).get("token") || "";
+  // El enlace se quita de la barra de direcciones apenas se lee: así no queda en el historial ni en capturas de pantalla.
+  // (Si se recarga la página, basta con abrir de nuevo el enlace del correo mientras no se haya usado.)
+  if (token) history.replaceState(null, "", location.pathname);
   const estado = $("#rc-estado");
   const mostrar = (texto, error = false) => { estado.textContent = texto; estado.className = "form-estado" + (error ? " estado-error" : ""); estado.hidden = false; };
 
@@ -53,7 +56,7 @@
     e.preventDefault();
     const form = e.currentTarget, boton = $("#rc-guardar");
     const ok = validar(form, {
-      clave: (v) => (v.length < 8 ? "Usa al menos 8 caracteres." : ""),
+      clave: () => TCUtil.problemaClave(form.elements.clave.value), // misma regla que el servidor
       confirmar: (v, f) => (v !== f.elements.clave.value.trim() ? "Las contraseñas no coinciden." : ""),
     });
     if (!ok) return;
@@ -61,7 +64,6 @@
     try {
       await enviar("/auth/restablecer", { token, clave: form.elements.clave.value });
       form.hidden = true;
-      history.replaceState(null, "", location.pathname); // el enlace ya se usó: se quita de la barra de direcciones
       mostrar("¡Listo! Tu contraseña cambió. Ya puedes ingresar con ella.");
       $("#rc-volver").textContent = "Ingresar ahora →";
     } catch (error) {

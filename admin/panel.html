@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (en GitHub Pages no hay cabeceras propias; el servidor envía la suya). Si la API se publica en otro dominio, agrégalo a connect-src. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:3000 https://*.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
   <script src="../js/i18n-en.js"></script>
@@ -27,6 +29,7 @@
     <div class="app-header-acciones">
       <button type="button" class="btn btn-outline btn-sm" id="btn-guia" title="Ver la guía del panel"><span data-icono="brujula"></span><span class="ocultar-movil">Guía</span></button>
       <div class="usuario-chip"><span class="avatar avatar-sm" id="admin-avatar" aria-hidden="true"></span><span class="ocultar-movil"><strong id="admin-nombre">Administrador</strong><small id="admin-puesto"></small></span></div>
+      <button type="button" class="btn btn-outline btn-sm" data-cuenta title="Cambiar tu contraseña o cerrar sesión en todos los equipos"><span data-icono="escudo"></span><span class="ocultar-movil">Mi cuenta</span></button>
       <button type="button" class="btn btn-outline btn-sm" id="btn-salir"><span data-icono="salir"></span><span class="ocultar-movil">Salir</span></button>
     </div>
   </header>
@@ -43,6 +46,7 @@
       <button type="button" class="panel-link app-link" data-seccion="encuestas"><span data-icono="chat"></span><span class="lbl">Encuestas</span></button>
       <button type="button" class="panel-link app-link" data-seccion="asistente"><span data-icono="destello"></span><span class="lbl">Asistente IA</span></button>
       <button type="button" class="panel-link app-link" data-seccion="ia"><span data-icono="engranaje"></span><span class="lbl">Configurar IA</span></button>
+      <button type="button" class="panel-link app-link" data-seccion="seguridad"><span data-icono="escudo"></span><span class="lbl">Seguridad</span><span class="badge" id="badge-seguridad" hidden>0</span></button>
       <div class="app-nav-tip"><span data-icono="escudo"></span><p>Cada cargo ve solo las secciones de su área. Los datos personales quedan en admisiones.</p></div>
     </nav>
 
@@ -239,6 +243,15 @@
         </form>
         <p class="nota-requisitos">Para probar cómo responde, abre la sección «Asistente IA».</p>
       </section>
+
+      <!-- Registro de seguridad: GET /api/seguridad/eventos (gerencia, dirección general y tecnología) -->
+      <section id="sec-seguridad" class="panel-seccion app-seccion" aria-labelledby="t-seguridad" hidden>
+        <div class="seccion-cabecera"><div><span class="eyebrow">PROTECCIÓN DE LA PLATAFORMA</span><h1 id="t-seguridad">Registro de seguridad</h1><p class="seccion-texto">Ingresos, intentos fallidos, bloqueos y cambios de contraseña de los últimos 90 días. Muchos fallos seguidos desde una misma conexión pueden ser un ataque: el servidor la bloquea 15 minutos.</p></div><button type="button" class="btn btn-outline btn-sm" id="seguridad-actualizar"><span data-icono="reiniciar"></span> Actualizar</button></div>
+        <dl class="kpis" id="seguridad-kpis"></dl>
+        <div id="seguridad-sospechosas"></div>
+        <div class="seguridad-filtros"><div class="campo"><label for="seguridad-tipo">Tipo de evento</label><select id="seguridad-tipo"><option value="">Todos</option><option value="ingreso">Ingresos</option><option value="ingreso_fallido">Intentos fallidos</option><option value="bloqueo">Bloqueos</option><option value="clave_cambiada">Contraseñas cambiadas</option><option value="recuperacion_pedida">Recuperaciones pedidas</option><option value="clave_restablecida">Contraseñas restablecidas</option><option value="sesiones_cerradas">Sesiones cerradas</option><option value="registro">Cuentas nuevas</option></select></div></div>
+        <div class="tabla-wrap"><table class="tabla"><thead><tr><th scope="col">Fecha</th><th scope="col">Evento</th><th scope="col">Cuenta</th><th scope="col">Conexión (IP)</th><th scope="col">Detalle</th></tr></thead><tbody id="tb-seguridad"><tr><td colspan="5">Cargando…</td></tr></tbody></table></div>
+      </section>
     </main>
   </div>
 
@@ -382,6 +395,7 @@
   <script src="../js/datos.js"></script>
   <script src="../js/asistente-ia.js"></script>
   <script src="../js/guia.js"></script>
+  <script src="../js/cuenta.js" defer></script>
   <script src="../js/panel.js" defer></script>
   <script src="../js/asistente-global.js" defer></script>
   <script src="../js/efectos.js" defer></script>

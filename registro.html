@@ -2,6 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (en GitHub Pages no hay cabeceras propias; el servidor envía la suya). Si la API se publica en otro dominio, agrégalo a connect-src. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:3000 https://*.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
   <script src="js/i18n-en.js"></script>
@@ -60,7 +62,7 @@
             <div class="fila-campos"><div class="campo"><label for="r-acudiente-telefono">Teléfono</label><input id="r-acudiente-telefono" name="acudiente_telefono" type="tel" autocomplete="off" minlength="7" maxlength="25"></div><div class="campo"><label for="r-acudiente-correo">Correo electrónico</label><input id="r-acudiente-correo" name="acudiente_correo" type="email" autocomplete="off" maxlength="120"></div></div>
           </section>
           <div class="registro-credenciales" data-crear-cuenta>
-            <div class="campo"><label for="r-clave">Crea una contraseña</label><input id="r-clave" name="clave" type="password" autocomplete="new-password" required minlength="8"><small class="form-ayuda">Usa al menos 8 caracteres.</small></div>
+            <div class="campo"><label for="r-clave">Crea una contraseña</label><input id="r-clave" name="clave" type="password" autocomplete="new-password" required minlength="8" maxlength="72"><small class="form-ayuda">Mínimo 8 caracteres, con letras y números.</small></div>
             <div class="campo"><label for="r-confirmar">Confirma tu contraseña</label><input id="r-confirmar" name="confirmar" type="password" autocomplete="new-password" required minlength="8"></div>
           </div>
           <div class="campo campo-check"><input id="r-acepto" name="acepto" type="checkbox" required><label for="r-acepto">Autorizo a Talento Caribe a usar estos datos para gestionar mi cuenta y el proceso de inscripción.</label></div>
