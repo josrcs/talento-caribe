@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <title>Cursos | Talento Caribe</title>
+  <meta name="description" content="Catálogo de cursos gratuitos de software y hardware de Talento Caribe.">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/efectos.css">
+  <link rel="stylesheet" href="css/plataforma.css">
+  <link rel="stylesheet" href="css/modulos.css">
+</head>
+<body class="page-cursos">
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+
+  <header class="site-header">
+    <nav class="nav container" aria-label="Principal">
+      <a href="index.html" class="brand">
+        <img src="assets/img/logo-emblema.png" alt="" width="48" height="36">
+        <span>Talento Caribe</span>
+      </a>
+      <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="menu" aria-label="Abrir menú">
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <ul id="menu" class="nav-links">
+        <li><a href="index.html#nosotros">Nosotros</a></li>
+        <li><a href="cursos.html" aria-current="page">Cursos</a></li>
+        <li><a href="index.html#mentores">Mentores</a></li>
+        <li><a href="index.html#asistente">Asistente IA</a></li>
+        <li><a href="index.html#contacto">Contacto</a></li>
+        <li><a href="#lista-cursos-seccion" class="btn btn-primary">Inscríbete</a></li>
+        <li><a href="admin/login.html" class="btn btn-outline">Ingresar</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="contenido">
+    <section class="page-intro">
+      <div class="container">
+        <h1>Catálogo de cursos</h1>
+        <p>Todos son gratuitos y puedes empezar sin experiencia previa. Aprende desde cero, a tu ritmo y con acompañamiento.</p>
+      </div>
+    </section>
+
+    <section id="lista-cursos-seccion" class="section" aria-label="Catálogo">
+      <div class="container">
+        <!-- Filtros sobre el catálogo local; se conectará a la API al completar el backend. -->
+        <form id="filtros" class="filtros" role="search" aria-label="Filtrar cursos">
+          <div class="campo">
+            <label for="f-buscar">Buscar</label>
+            <input id="f-buscar" name="q" type="search" placeholder="Python, Arduino, páginas web...">
+          </div>
+          <div class="campo campo-ficha">
+            <label for="f-ficha">N.º de ficha</label>
+            <input id="f-ficha" name="ficha" type="search" inputmode="numeric" maxlength="6" placeholder="Ej. 25896" autocomplete="off">
+          </div>
+          <div class="campo">
+            <label for="f-area">Área</label>
+            <select id="f-area" name="area">
+              <option value="">Todas</option>
+              <option value="Software">Software</option>
+              <option value="Hardware">Hardware</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="f-nivel">Nivel</label>
+            <select id="f-nivel" name="nivel">
+              <option value="">Todos</option>
+              <option value="Básico">Básico</option>
+              <option value="Intermedio">Intermedio</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label for="f-modalidad">Modalidad</label>
+            <select id="f-modalidad" name="modalidad">
+              <option value="">Todas</option>
+              <option value="Virtual">Virtual</option>
+              <option value="Presencial">Presencial</option>
+              <option value="Híbrido">Híbrido</option>
+            </select>
+          </div>
+          <button type="reset" class="btn btn-outline" id="f-limpiar">Limpiar filtros</button>
+        </form>
+
+        <p id="resumen-resultados" class="resumen-resultados" role="status" aria-live="polite"></p>
+
+        <div id="cursos-cargando" class="estado" role="status" hidden>
+          <span class="spinner" aria-hidden="true"></span> Cargando cursos...
+        </div>
+        <div id="cursos-vacio" class="estado" hidden>
+          <p>No hay cursos con esos filtros. Prueba quitando alguno.</p>
+        </div>
+        <div id="cursos-error" class="estado estado-error" role="alert" hidden>
+          <p>No pudimos cargar el catálogo. Revisa tu conexión e inténtalo de nuevo.</p>
+          <button type="button" class="btn btn-outline" id="cursos-reintentar">Reintentar</button>
+        </div>
+        <!-- Cada tarjeta lleva data-id y abre el diálogo de detalle -->
+        <div id="lista-cursos" class="grid-cursos"></div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Detalle del curso -->
+  <dialog id="modal-curso" class="modal" aria-labelledby="mc-titulo">
+    <article class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar detalle">&times;</button>
+      <h2 id="mc-titulo"></h2>
+      <dl class="curso-meta">
+        <div><dt>Área</dt><dd id="mc-area"></dd></div>
+        <div><dt>Nivel</dt><dd id="mc-nivel"></dd></div>
+        <div><dt>Duración</dt><dd id="mc-duracion"></dd></div>
+        <div><dt>Modalidad</dt><dd id="mc-modalidad"></dd></div>
+        <div><dt>Instructor</dt><dd id="mc-instructor"></dd></div>
+        <div><dt>Edad mínima</dt><dd id="mc-edad-minima"></dd></div>
+      </dl>
+      <h3>De qué trata</h3>
+      <p id="mc-descripcion"></p>
+      <h3>Lo que lograrás</h3>
+      <p id="mc-objetivo"></p>
+      <h3>Módulos del curso</h3>
+      <p class="modal-sub">Cada módulo agrupa los temas que se verán y las actividades para practicarlos.</p>
+      <div id="mc-modulos" class="modulos-lista"></div>
+      <h3>Proyecto final</h3>
+      <p id="mc-proyecto"></p>
+      <h3>Fichas</h3>
+      <p class="modal-sub">Cada grupo del curso tiene un número de ficha. Elige el que mejor se acomode a tu horario.</p>
+      <div id="mc-fichas" class="fichas-lista" role="radiogroup" aria-label="Fichas del curso"></div>
+      <div class="modal-acciones">
+        <button type="button" class="btn btn-primary" id="mc-inscribirme">Inscribirme</button>
+        <button type="button" class="btn btn-outline" data-cerrar>Cerrar</button>
+      </div>
+    </article>
+  </dialog>
+
+  <dialog id="modal-acceso-requerido" class="modal" aria-labelledby="mar-titulo">
+    <article class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <span class="eyebrow">Un paso antes de tu curso</span>
+      <h2 id="mar-titulo">Necesitas una cuenta de estudiante</h2>
+      <p>Inicia sesión o crea una cuenta gratuita para solicitar tu cupo.</p>
+      <div class="modal-acciones">
+        <a id="mar-ingresar" class="btn btn-primary" href="admin/login.html?rol=estudiante">Iniciar sesión</a>
+        <a id="mar-registrarse" class="btn btn-outline" href="registro.html">Crear cuenta</a>
+      </div>
+    </article>
+  </dialog>
+
+  <!-- Preinscripción de curso para estudiante registrado; los datos del perfil ya se capturaron en registro.html. -->
+  <dialog id="modal-inscripcion" class="modal" aria-labelledby="mi-titulo">
+    <form id="form-inscripcion" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar formulario">&times;</button>
+      <span class="eyebrow">Preinscripción gratuita</span>
+      <h2 id="mi-titulo">Revisa tu información</h2>
+      <p id="mi-curso" class="modal-sub"></p>
+      <input type="hidden" name="curso_id" id="mi-curso-id">
+      <div class="campo">
+        <label for="i-pais">¿De qué país eres?</label>
+        <select id="i-pais" name="pais" required>
+          <option value="">Selecciona tu país</option>
+          <option value="Colombia">Colombia</option>
+          <option value="Venezuela">Venezuela</option>
+          <option value="Ecuador">Ecuador</option>
+          <option value="Perú">Perú</option>
+          <option value="México">México</option>
+          <option value="Argentina">Argentina</option>
+          <option value="Chile">Chile</option>
+          <option value="Otro">Otro país</option>
+        </select>
+      </div>
+      <div id="i-pais-otro-campo" class="campo" hidden>
+        <label for="i-pais-otro">Escribe el nombre de tu país</label>
+        <input id="i-pais-otro" name="pais_otro" type="text" autocomplete="country-name" maxlength="60">
+      </div>
+      <section id="i-requisitos" class="inscripcion-requisitos" aria-live="polite" hidden>
+        <h3 id="i-requisitos-titulo">Documentos para tener a mano</h3>
+        <p id="i-requisitos-texto"></p>
+        <p id="i-requisitos-fuente-wrap" class="nota-requisitos" hidden>Consulta también la <a id="i-requisitos-fuente" href="#" target="_blank" rel="noopener noreferrer">guía oficial</a>.</p>
+        <p class="nota-requisitos">Esta es una guía inicial para una preinscripción a cursos. La institución puede confirmar requisitos adicionales al abrir la matrícula.</p>
+      </section>
+      <div id="i-datos-persona" class="inscripcion-datos" hidden>
+      <div class="campo">
+        <label for="i-nombre">Nombre completo</label>
+        <input id="i-nombre" name="nombre" type="text" autocomplete="name" required minlength="3">
+        <small class="error" data-error-for="nombre" hidden></small>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="i-tipo-documento">Tipo de documento</label>
+          <select id="i-tipo-documento" name="tipo_documento" required disabled>
+            <option value="">Selecciona un país primero</option>
+          </select>
+        </div>
+        <div class="campo">
+          <label for="i-numero-documento">Número de identificación</label>
+          <input id="i-numero-documento" name="numero_documento" type="text" autocomplete="off" required maxlength="40" disabled>
+        </div>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="i-nacimiento">Fecha de nacimiento</label>
+          <input id="i-nacimiento" name="fecha_nacimiento" type="date" autocomplete="bday" required disabled>
+        </div>
+        <div class="campo">
+          <label for="i-correo">Correo electrónico</label>
+          <input id="i-correo" name="correo" type="email" autocomplete="email" required disabled>
+          <small class="error" data-error-for="correo" hidden></small>
+        </div>
+        <div class="campo">
+          <label for="i-telefono">Teléfono / WhatsApp</label>
+          <input id="i-telefono" name="telefono" type="tel" autocomplete="tel" required maxlength="25" disabled>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="i-direccion">Dirección completa</label>
+        <input id="i-direccion" name="direccion" type="text" autocomplete="street-address" required maxlength="180" disabled>
+      </div>
+      <div class="fila-campos">
+        <div class="campo">
+          <label for="i-ciudad">Ciudad / municipio</label>
+          <input id="i-ciudad" name="ciudad" type="text" autocomplete="address-level2" required maxlength="80" disabled>
+        </div>
+        <div class="campo">
+          <label for="i-region">Departamento / estado / región</label>
+          <input id="i-region" name="region" type="text" autocomplete="address-level1" required maxlength="80" disabled>
+        </div>
+        <div class="campo">
+          <label for="i-codigo-postal">Código postal</label>
+          <input id="i-codigo-postal" name="codigo_postal" type="text" autocomplete="postal-code" required maxlength="16" disabled>
+        </div>
+      </div>
+      <div class="campo">
+        <label for="i-ultimo-estudio">Último nivel de estudios aprobado</label>
+        <select id="i-ultimo-estudio" name="ultimo_estudio" required disabled>
+          <option value="">Selecciona una opción</option>
+          <option>Primaria</option><option>Secundaria o bachillerato</option><option>Técnico o tecnológico</option><option>Universitario</option><option>Otro o en curso</option><option>Prefiero no indicarlo</option>
+        </select>
+      </div>
+      <fieldset class="campo inscripcion-checklist">
+        <legend>Documentos académicos que tienes disponibles</legend>
+        <label><input type="checkbox" name="documentos_disponibles" value="acta_nacimiento"> Registro civil / acta de nacimiento (si aplica)</label>
+        <label><input type="checkbox" name="documentos_disponibles" value="domicilio"> Comprobante de domicilio (si aplica)</label>
+        <label><input type="checkbox" name="documentos_disponibles" value="certificado"> Certificado o constancia de estudios</label>
+        <label><input type="checkbox" name="documentos_disponibles" value="calificaciones"> Boletín o certificado de calificaciones</label>
+        <label><input type="checkbox" name="documentos_disponibles" value="acudiente"> Documento de madre, padre o acudiente (si eres menor)</label>
+        <label><input type="checkbox" name="documentos_disponibles" value="ninguno"> Aún no tengo esos documentos</label>
+      </fieldset>
+      <div id="i-tutor-campos" class="inscripcion-tutor" hidden>
+        <h3>Datos de tu madre, padre o acudiente</h3>
+        <div class="campo"><label for="i-tutor-nombre">Nombre completo del acudiente</label><input id="i-tutor-nombre" name="tutor_nombre" type="text" autocomplete="off" maxlength="100" disabled></div>
+        <div class="fila-campos">
+          <div class="campo"><label for="i-tutor-documento">Documento del acudiente</label><input id="i-tutor-documento" name="tutor_documento" type="text" maxlength="40" disabled></div>
+          <div class="campo"><label for="i-tutor-telefono">Teléfono del acudiente</label><input id="i-tutor-telefono" name="tutor_telefono" type="tel" autocomplete="off" maxlength="25" disabled></div>
+        </div>
+      </div>
+      <div class="campo campo-check">
+        <input id="i-acepto" name="acepto" type="checkbox" required disabled>
+        <label for="i-acepto">Autorizo a Talento Caribe a usar estos datos para gestionar mi preinscripción y contactarme.</label>
+      </div>
+      <p class="nota-requisitos" id="i-nota-modo">Modo de demostración: el perfil y la solicitud se guardan en este navegador y no se envían a un servidor seguro. No ingreses datos reales en esta versión.</p>
+      </div>
+      <div class="modal-acciones" id="i-acciones" hidden>
+        <button type="submit" class="btn btn-primary" id="inscripcion-enviar">
+          <span class="btn-texto">Enviar preinscripción</span>
+          <span class="spinner" aria-hidden="true" hidden></span>
+        </button>
+        <button type="button" class="btn btn-outline" data-cerrar>Cancelar</button>
+      </div>
+      <p id="inscripcion-estado" class="form-estado" role="status" aria-live="polite" hidden></p>
+    </form>
+  </dialog>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <a href="index.html" class="footer-logo"><img src="assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe" width="152" height="130" loading="lazy"></a>
+        <p>Tu talento no tiene fronteras.</p>
+      </div>
+      <nav aria-label="Pie de página">
+        <ul>
+          <li><a href="index.html">Inicio</a></li>
+          <li><a href="index.html#contacto">Contacto</a></li>
+          <li><a href="admin/login.html">Ingresar</a></li>
+        </ul>
+      </nav>
+      <p class="copy">&copy; 2026 Talento Caribe. Barranquilla, Colombia.</p>
+    </div>
+  </footer>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+  <script src="js/config.js"></script>
+  <script src="js/cursos-data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/main.js" defer></script>
+  <script src="js/cursos.js" defer></script>
+  <script src="js/iconos.js"></script><script src="js/datos.js"></script><script src="js/asistente-ia.js"></script>
+  <script src="js/asistente-global.js" defer></script>
+  <script src="js/efectos.js" defer></script>
+</body>
+</html>
