@@ -1,0 +1,159 @@
+/* ==========================================================
+   tema.css - Paletas de color de Talento Caribe
+   Se carga ANTES de style.css. El atributo data-tema en <html>
+   (lo pone js/i18n.js) elige la paleta: "oscuro" o "claro".
+
+   Oscuro: azul noche con brillos de mar (diseño original).
+   Claro ("arena y mar"): fondo arena muy claro, vidrio blanco,
+   textos en el azul marino del logo y acentos océano, mar, sol y palma.
+   ========================================================== */
+
+/* ---------- Paleta oscura (valores por defecto) ---------- */
+:root {
+  --texto-fuerte: #fff;
+  --celeste: #7dd3fc;
+  --celeste-suave: #bae6fd;
+  --verde-texto: #6ee7b7;
+  --azul-texto: #60a5fa;
+  --turquesa: #5eead4;
+  --tinte: 255, 255, 255;              /* velos y bordes translúcidos */
+  --sombra: 2, 6, 23;                  /* sombras */
+  /* Superficies oscuras translúcidas (mismo valor que tenían antes) */
+  --o-2-6-23: 2, 6, 23; --o-17-24-39: 17, 24, 39; --o-15-23-42: 15, 23, 42; --o-8-16-32: 8, 16, 32;
+  --o-5-11-22: 5, 11, 22; --o-30-41-59: 30, 41, 59; --o-20-34-60: 20, 34, 60; --o-11-18-34: 11, 18, 34;
+  --o-24-33-66: 24, 33, 66; --o-13-19-37: 13, 19, 37; --o-14-26-48: 14, 26, 48; --o-12-24-43: 12, 24, 43; --o-10-20-38: 10, 20, 38;
+}
+
+/* ---------- Paleta clara: arena y mar ---------- */
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --texto-fuerte: #0a2d5e;             /* azul marino del logo */
+  --celeste: #0b6db7;
+  --celeste-suave: #0a5a96;
+  --verde-texto: #0b7a5e;
+  --azul-texto: #1268c8;
+  --turquesa: #0f8a72;
+  --tinte: 10, 45, 94;
+  --sombra: 10, 45, 94;
+  --o-2-6-23: 255, 255, 255; --o-17-24-39: 255, 255, 255; --o-15-23-42: 255, 255, 255; --o-8-16-32: 255, 255, 255;
+  --o-5-11-22: 255, 255, 255; --o-30-41-59: 244, 248, 252; --o-20-34-60: 255, 255, 255; --o-11-18-34: 255, 255, 255;
+  --o-24-33-66: 255, 255, 255; --o-13-19-37: 255, 255, 255; --o-14-26-48: 255, 255, 255; --o-12-24-43: 255, 255, 255; --o-10-20-38: 255, 255, 255;
+
+  --color-primary-400: #0b6db7;
+  --color-accent-400: #0f8a72;
+  --color-dark-900: #f4f8fb;           /* arena clara */
+  --color-dark-800: #ffffff;
+  --color-slate-200: #1c3a5f;
+  --color-slate-300: #2c4a6e;
+  --color-slate-400: #4b6787;
+  --color-slate-500: #647a97;
+  --color-slate-700: #c9d6e6;
+  --color-red-400: #b42318;
+  --color-green-400: #067a57;
+  --color-yellow-400: #a15c07;
+  --borde: rgba(10, 45, 94, .12);
+  --shadow-lg: 0 20px 45px rgba(10, 45, 94, .12);
+  --shadow-primary: 0 14px 30px rgba(18, 104, 200, .25);
+
+  /* Vidrio blanco */
+  --vidrio: linear-gradient(140deg, rgba(255, 255, 255, .82), rgba(255, 255, 255, .58) 55%, rgba(225, 245, 252, .62));
+  --vidrio-fuerte: linear-gradient(140deg, rgba(255, 255, 255, .92), rgba(255, 255, 255, .7) 60%, rgba(225, 245, 252, .7));
+  --vidrio-borde: rgba(10, 45, 94, .1);
+  --vidrio-borde-hover: rgba(18, 104, 200, .35);
+  --vidrio-blur: blur(18px) saturate(160%);
+  --vidrio-sombra: 0 14px 34px rgba(10, 45, 94, .08), inset 0 1px 0 rgba(255, 255, 255, .95);
+  --vidrio-luz: radial-gradient(380px circle at var(--mx, 50%) var(--my, -60%), rgba(26, 176, 214, .14), transparent 45%);
+  --vidrio-filo: linear-gradient(140deg, rgba(255, 255, 255, 1), rgba(10, 45, 94, .1) 40%, rgba(10, 45, 94, .06) 62%, rgba(26, 176, 214, .4));
+
+  /* Animación de entrada */
+  --intro-fondo: #f4f8fb; --intro-cielo: #d6effa; --intro-texto: #0a2d5e; --intro-acento: #0e8fb3; --intro-linea: rgba(18, 104, 200, .45);
+  --intro-sol: rgba(248, 172, 36, .45); --intro-ola-1: #0e8fb3; --intro-ola-2: rgba(26, 176, 214, .35); --intro-ola-3: rgba(18, 104, 200, .2);
+}
+
+/* ---------- Ajustes puntuales del modo claro ---------- */
+[data-tema="claro"] body {
+  background:
+    radial-gradient(circle at top, rgba(26, 176, 214, .16), transparent 32%),
+    radial-gradient(circle at bottom right, rgba(248, 172, 36, .12), transparent 28%),
+    var(--color-dark-900);
+  color: var(--texto-fuerte);
+}
+[data-tema="claro"] .fondo-caribe span { opacity: .35; }
+[data-tema="claro"] .fondo-caribe span:nth-child(1) { background: radial-gradient(circle, rgba(26, 176, 214, .45), transparent 65%); }
+[data-tema="claro"] .fondo-caribe span:nth-child(4) { background: radial-gradient(circle, rgba(248, 172, 36, .3), transparent 65%); }
+[data-tema="claro"] input, [data-tema="claro"] select, [data-tema="claro"] textarea { background-color: rgba(255, 255, 255, .85); border-color: rgba(10, 45, 94, .16); color: var(--texto-fuerte); }
+[data-tema="claro"] input:focus, [data-tema="claro"] select:focus, [data-tema="claro"] textarea:focus { background-color: #fff; border-color: #1268c8; box-shadow: 0 0 0 4px rgba(18, 104, 200, .14); }
+[data-tema="claro"] select option { background: #fff; color: #0a2d5e; }
+[data-tema="claro"] .cargo-buscar input, [data-tema="claro"] .ia-form textarea { background: none; }
+[data-tema="claro"] .btn-outline, [data-tema="claro"] .chip { background: rgba(255, 255, 255, .7); border-color: rgba(10, 45, 94, .16); color: var(--texto-fuerte); }
+[data-tema="claro"] .btn-outline:hover, [data-tema="claro"] .chip:hover { background: #fff; border-color: rgba(18, 104, 200, .5); color: #0f56a8; }
+[data-tema="claro"] .btn-primary { box-shadow: 0 10px 22px rgba(18, 104, 200, .28); }
+[data-tema="claro"] .modal::backdrop { background: rgba(10, 45, 94, .32); }
+[data-tema="claro"] .modal { background: linear-gradient(160deg, rgba(255, 255, 255, .96), rgba(244, 249, 253, .95)); box-shadow: 0 30px 70px rgba(10, 45, 94, .25); }
+[data-tema="claro"] .modal-cerrar { background: #fff; border-color: rgba(10, 45, 94, .15); color: var(--texto-fuerte); }
+[data-tema="claro"] .modal-cerrar:hover { color: #fff; }
+[data-tema="claro"] .site-header.con-scroll { background: rgba(255, 255, 255, .78); box-shadow: 0 10px 30px rgba(10, 45, 94, .08); }
+[data-tema="claro"] .nav-toggle-bar, [data-tema="claro"] .nav-toggle-bar::before, [data-tema="claro"] .nav-toggle-bar::after { background: var(--texto-fuerte); }
+[data-tema="claro"] .nav-toggle[aria-expanded="true"] .nav-toggle-bar { background: transparent; }
+[data-tema="claro"] .brand { text-shadow: none; }
+
+/* Números grandes: degradado legible sobre fondo claro */
+[data-tema="claro"] .kpi dd, [data-tema="claro"] .tarjeta-dato dd { background: linear-gradient(135deg, #0a2d5e, #1268c8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+[data-tema="claro"] .texto-caribe { background-image: linear-gradient(90deg, #1268c8, #0e8fb3, #0f9a80, #1268c8); }
+[data-tema="claro"] .hero-texto h1 { text-shadow: none; }
+
+/* Hero: disco de vidrio blanco y logo a color */
+[data-tema="claro"] .hero-disco { background: radial-gradient(circle at 30% 25%, rgba(255, 255, 255, .95), rgba(255, 255, 255, .55) 60%), rgba(225, 245, 252, .5); border-color: rgba(10, 45, 94, .1); box-shadow: inset 0 1px 0 #fff, 0 30px 70px rgba(10, 45, 94, .14), 0 0 90px rgba(26, 176, 214, .22); }
+[data-tema="claro"] .hero-logo-img { filter: drop-shadow(0 16px 26px rgba(10, 45, 94, .18)); }
+[data-tema="claro"] .hero-orbita { border-color: rgba(18, 104, 200, .25); }
+[data-tema="claro"] .hero-olas .ola-3 { fill: rgba(255, 255, 255, .6); }
+[data-tema="claro"] .hero-burbujas span { background: radial-gradient(circle at 32% 30%, #fff, rgba(26, 176, 214, .25) 55%, transparent 72%); border-color: rgba(18, 104, 200, .25); }
+[data-tema="claro"] #nosotros::after, [data-tema="claro"] .ia-bienvenida-logo { background-image: url("../assets/img/logo-emblema-color.png"); }
+[data-tema="claro"] #nosotros::after { opacity: .06; }
+[data-tema="claro"] .chat-cabecera img, [data-tema="claro"] .hero-chip img { background: rgba(255, 255, 255, .9); border-color: rgba(10, 45, 94, .1); }
+
+/* Aura del cursor en claro: colores más presentes para que se note sobre blanco */
+[data-tema="claro"] .cursor-aura span:nth-child(1) { background: radial-gradient(circle at 40% 40%, rgba(26, 176, 214, .3), rgba(18, 104, 200, .12) 55%, transparent 70%); }
+[data-tema="claro"] .cursor-aura span:nth-child(2) { background: radial-gradient(circle at 60% 55%, rgba(248, 172, 36, .26), rgba(15, 154, 128, .14) 55%, transparent 70%); }
+
+/* Plataforma */
+[data-tema="claro"] .ruta-punto { background: radial-gradient(closest-side, #fff 78%, transparent 80% 100%), conic-gradient(#1ab0d6 calc(var(--pct) * 1%), rgba(10, 45, 94, .1) 0); box-shadow: 0 6px 18px rgba(18, 104, 200, .18); }
+[data-tema="claro"] .ruta-parada.is-completa .ruta-punto { background: radial-gradient(closest-side, #0f9a80 78%, transparent 80% 100%), conic-gradient(#0f9a80 100%, transparent 0); color: #fff; }
+[data-tema="claro"] .app-link.activo { background: linear-gradient(135deg, rgba(26, 176, 214, .18), rgba(18, 104, 200, .12)); box-shadow: inset 0 0 0 1px rgba(18, 104, 200, .25); }
+[data-tema="claro"] .app .app-nav { background: var(--vidrio-luz) padding-box, linear-gradient(160deg, rgba(255, 255, 255, .95), rgba(244, 249, 253, .95)) padding-box, var(--vidrio-filo) border-box; }
+@media (min-width: 900px) { [data-tema="claro"] .app .app-nav { background: var(--vidrio-luz) padding-box, var(--vidrio) padding-box, var(--vidrio-filo) border-box; } }
+[data-tema="claro"] .app-nav-tip { background: rgba(248, 172, 36, .1); border-color: rgba(217, 138, 6, .25); color: #b26a00; }
+[data-tema="claro"] .acceso-aviso [data-icono] { color: #b26a00; }
+[data-tema="claro"] .sabias h3 { color: #b26a00; }
+[data-tema="claro"] .plantillas { background: rgba(248, 172, 36, .08); border-color: rgba(217, 138, 6, .35); }
+[data-tema="claro"] .logro.is-ganado .logro-icono { color: #4a2c00; }
+[data-tema="claro"] .ia-burbuja { background: rgba(255, 255, 255, .85); border-color: rgba(10, 45, 94, .1); box-shadow: 0 4px 14px rgba(10, 45, 94, .05); }
+[data-tema="claro"] .ia-msg-yo .ia-burbuja { background: linear-gradient(135deg, #1268c8, #0a809f); }
+[data-tema="claro"] .ia-burbuja code { background: rgba(18, 104, 200, .08); }
+[data-tema="claro"] .ia-form { background: rgba(255, 255, 255, .9); }
+[data-tema="claro"] .tc-chat-panel { background: var(--vidrio-luz) padding-box, linear-gradient(155deg, rgba(255, 255, 255, .92), rgba(244, 249, 253, .9)) padding-box, var(--vidrio-filo) border-box; box-shadow: 0 24px 70px rgba(10, 45, 94, .2); }
+[data-tema="claro"] .guia-globo { background: var(--vidrio-luz) padding-box, linear-gradient(160deg, #fff, #f4f9fd) padding-box, var(--vidrio-filo) border-box; }
+[data-tema="claro"] .instrucciones { background: rgba(244, 248, 252, .9); }
+[data-tema="claro"] .tabla thead th { background: rgba(18, 104, 200, .06); }
+[data-tema="claro"] .barra-relleno { background: linear-gradient(90deg, rgba(18, 104, 200, .55), #1268c8); }
+[data-tema="claro"] .pill-pendiente { background: rgba(245, 158, 11, .16); }
+[data-tema="claro"] .intro-saltar { border-color: rgba(10, 45, 94, .15); }
+[data-tema="claro"] .intro-saltar kbd { background: rgba(10, 45, 94, .07); }
+
+/* ---------- Controles de tema e idioma (en todas las páginas) ---------- */
+.prefs { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem; border-radius: 999px; background: rgba(var(--tinte), .06); border: 1px solid rgba(var(--tinte), .12); }
+.pref-btn { position: relative; display: inline-grid; place-items: center; min-width: 2.1rem; height: 2.1rem; padding: 0 .55rem; border-radius: 999px; color: var(--texto-fuerte); font-size: .74rem; font-weight: 800; letter-spacing: .04em; transition: background .2s, color .2s, transform .2s; }
+.pref-btn:hover { background: rgba(var(--tinte), .1); }
+.pref-btn:active { transform: scale(.92); }
+.pref-btn svg { transition: transform .5s cubic-bezier(.3, 1.4, .5, 1); }
+.pref-btn:hover svg { transform: rotate(25deg); }
+.pref-idioma { display: inline-flex; gap: .25rem; }
+.pref-idioma-actual { color: var(--texto-fuerte); }
+.pref-idioma-otro { color: var(--color-slate-500); font-weight: 600; }
+.pref-idioma:hover .pref-idioma-otro { color: var(--celeste); }
+.prefs-li { display: flex; align-items: center; }
+.prefs-flotante { position: fixed; top: .9rem; right: .9rem; z-index: 60; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(var(--o-15-23-42), .6); }
+/* Transición circular al cambiar de tema (View Transitions API) */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-new(root) { z-index: 1; }
+@media (max-width: 859px) { [data-tema="claro"] .nav-links { background: rgba(250, 252, 254, .98); box-shadow: 0 18px 40px rgba(10, 45, 94, .12); } }
