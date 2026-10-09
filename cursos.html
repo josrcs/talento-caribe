@@ -9,7 +9,6 @@
   <title>Cursos | Talento Caribe</title>
   <meta name="description" content="Catálogo de cursos gratuitos de software y hardware de Talento Caribe.">
   <link rel="icon" href="assets/img/favicon.png">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   <link rel="stylesheet" href="css/tema.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/efectos.css">
@@ -43,15 +42,15 @@
   <main id="contenido">
     <section class="page-intro">
       <div class="container">
-        <h1>Catálogo de cursos</h1>
-        <p>Todos son gratuitos y puedes empezar sin experiencia previa. Aprende desde cero, a tu ritmo y con acompañamiento.</p>
+        <h1 data-revelar="titulo">Catálogo de cursos</h1>
+        <p data-revelar>Todos son gratuitos y puedes empezar sin experiencia previa. Aprende desde cero, a tu ritmo y con acompañamiento.</p>
       </div>
     </section>
 
     <section id="lista-cursos-seccion" class="section" aria-label="Catálogo">
       <div class="container">
         <!-- Filtros sobre el catálogo local; se conectará a la API al completar el backend. -->
-        <form id="filtros" class="filtros" role="search" aria-label="Filtrar cursos">
+        <form id="filtros" class="filtros" role="search" aria-label="Filtrar cursos" data-revelar>
           <div class="campo">
             <label for="f-buscar">Buscar</label>
             <input id="f-buscar" name="q" type="search" placeholder="Python, Arduino, páginas web...">
@@ -100,8 +99,12 @@
           <p>No pudimos cargar el catálogo. Revisa tu conexión e inténtalo de nuevo.</p>
           <button type="button" class="btn btn-outline" id="cursos-reintentar">Reintentar</button>
         </div>
-        <!-- Cada tarjeta lleva data-id y abre el diálogo de detalle -->
-        <div id="lista-cursos" class="grid-cursos"></div>
+        <!-- Cada tarjeta abre el diálogo de detalle. Mientras llegan los datos se ven tarjetas esqueleto. -->
+        <div id="lista-cursos" class="grid-cursos" aria-busy="true">
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
       </div>
     </section>
   </main>
@@ -294,7 +297,6 @@
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <script src="js/config.js"></script>
   <script src="js/cursos-data.js"></script>
   <script src="js/utils.js"></script>

@@ -93,13 +93,15 @@
       (!fichaBuscada || fichasDe(c.id).some(f => f.numero.startsWith(fichaBuscada))) &&
       (!data.get('area') || c.area === data.get('area')) && (!data.get('nivel') || c.nivel === data.get('nivel')) &&
       (!data.get('modalidad') || c.modalidad === data.get('modalidad')));
-    grid.innerHTML = result.map(c => `<article class="curso-card" data-tilt>
+    grid.innerHTML = result.map(c => `<article class="curso-card" data-revelar="rapido">
       <div class="curso-etiquetas"><span class="tag">${esc(c.area)}</span><span class="tag">${esc(c.nivel)}</span><span class="tag ${c.fase === 'Lanzamiento' ? 'tag-lanzamiento' : ''}">${c.fase === 'Lanzamiento' ? 'Inscripciones abiertas' : 'Próximamente'}</span></div>
       <h2>${esc(c.titulo)}</h2><p>${esc(c.descripcion)}</p>
       <p class="curso-duracion">${c.duracion} semanas · ${(c.modulos || []).length} módulos · ${esc(c.modalidad)} · ${esc(c.instructor)}</p>
       ${fichasDe(c.id).length ? `<p class="curso-fichas"><span>Fichas</span>${fichasDe(c.id).map(f => `<span class="ficha-chip ${fichaBuscada && f.numero.startsWith(fichaBuscada) ? 'is-encontrada' : ''}" title="${esc(f.jornada)} · ${esc(f.estado)}">${esc(f.numero)}</span>`).join('')}</p>` : ''}
       <div class="curso-card-pie"><button type="button" class="btn btn-outline" data-detalle="${c.id}">Conocer el curso</button></div>
     </article>`).join('');
+    grid.removeAttribute('aria-busy');
+    window.TCRevelar?.(grid); // las tarjetas entran escalonadas cada vez que cambian los filtros
     document.querySelector('#resumen-resultados').textContent = `${result.length} ${result.length === 1 ? 'curso encontrado' : 'cursos encontrados'}`;
     document.querySelector('#cursos-vacio').hidden = result.length > 0;
   }
