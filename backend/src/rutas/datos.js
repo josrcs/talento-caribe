@@ -2,9 +2,11 @@
    GET /api/datos - Todo lo que el usuario actual puede ver, en una sola respuesta.
    Cada rol recibe SOLO sus datos:
    - visitante:      catálogo
-   - estudiante:     sus inscripciones, las actividades de sus cursos aprobados y sus entregas
+   - estudiante:     sus inscripciones, las actividades de sus cursos aprobados, sus entregas
+                     y qué encuestas ya respondió
    - docente:        estudiantes aprobados de sus cursos, sus actividades y las entregas recibidas
-   - administrativo: según su cargo (los datos personales solo para admisiones)
+   - administrativo: según su cargo (los datos personales solo para admisiones) y los
+                     resultados de las encuestas, sin nombres
    ========================================================== */
 const router = require("express").Router();
 const pool = require("../db");
@@ -13,9 +15,17 @@ const { SQL_CURSOS, SQL_FICHAS, SQL_INSCRIPCIONES, SQL_ACTIVIDADES, SQL_ENTREGAS
 
 router.get("/datos", sesionOpcional, async (req, res, next) => {
   const u = req.usuario, q = (sql, p = []) => pool.query(sql, p).then((r) => r.rows);
+  // Si la base es de una versión anterior y aún no tiene la tabla de encuestas, el resto de la página sigue funcionando
+  const encuestas = (sql, p) => q(sql, p).catch((e) => {
+    if (e.code !== "42P01") throw e;
+    console.warn("⚠️  Falta la tabla de encuestas: ejecuta npm run db:actualizar");
+    return [];
+  });
   try {
-    const datos = { cursos: await q(SQL_CURSOS + " ORDER BY id"), fichas: await q(SQL_FICHAS + " ORDER BY f.numero"), inscripciones: [], actividades: [], entregas: [], mensajes: [], gastos: [], ia: null };
+    const datos = { cursos: await q(SQL_CURSOS + " ORDER BY id"), fichas: await q(SQL_FICHAS + " ORDER BY f.numero"), inscripciones: [], actividades: [], entregas: [], mensajes: [], gastos: [], ia: null, encuestas: [] };
     if (u?.rol === "estudiante") {
+      // Solo cuáles encuestas ya respondió (para no mostrárselas de nuevo)
+      datos.encuestas = await encuestas("SELECT encuesta, creado_en AS creado FROM respuestas_encuesta WHERE estudiante_id = $1", [u.id]);
       datos.inscripciones = await q(SQL_INSCRIPCIONES + " WHERE i.estudiante_id = $1 ORDER BY i.creado_en", [u.id]);
       // Solo las actividades de sus cursos aprobados que son para todas las fichas o para SU ficha
       datos.actividades = await q(SQL_ACTIVIDADES + ` JOIN inscripciones mi ON mi.curso_id = a.curso_id AND mi.estudiante_id = $1 AND mi.estado = 'aprobada'
@@ -37,6 +47,8 @@ router.get("/datos", sesionOpcional, async (req, res, next) => {
       if (puede(u, "mensajes")) datos.mensajes = await q("SELECT id, nombre, correo, telefono, interes, asunto, mensaje, leido, creado_en FROM mensajes_contacto ORDER BY creado_en");
       if (puede(u, "finanzas")) datos.gastos = await q("SELECT id, concepto, categoria, valor, creado_en AS creado FROM gastos ORDER BY creado_en");
       datos.ia = (await q("SELECT tono, contexto FROM config_ia WHERE id = 1"))[0] || { tono: "", contexto: "" };
+      // Resultados de encuestas para todo el equipo, sin el estudiante que respondió
+      datos.encuestas = await encuestas("SELECT encuesta, respuestas, creado_en AS creado FROM respuestas_encuesta ORDER BY creado_en DESC");
     }
     res.json(datos);
   } catch (e) { next(e); }

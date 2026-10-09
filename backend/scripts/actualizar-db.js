@@ -7,6 +7,10 @@
    - Crea la tabla fichas con las fichas del catálogo.
    - Agrega ficha_id a inscripciones y modulo/ficha_id a actividades. Las inscripciones
      que no tienen ficha quedan en la primera ficha de su curso.
+   - Corrige la duración de los cursos que tienen menos semanas de las que necesitan sus
+     módulos (cada módulo dura 2 semanas): toma la duración del catálogo.
+   - Crea las tablas de respuestas de encuestas y de recuperación de contraseña, y carga
+     respuestas de ejemplo de los estudiantes de prueba si la tabla está vacía.
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -19,8 +23,10 @@ const RAIZ = path.join(__dirname, "..", "..");
 const contexto = { window: {}, localStorage: { getItem: () => null } };
 vm.createContext(contexto);
 vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "cursos-data.js"), "utf8"), contexto);
+vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "encuestas-data.js"), "utf8"), contexto);
 const cursos = contexto.window.TALENTO_CARIBE_CURSOS;
 const fichas = contexto.window.TALENTO_CARIBE_FICHAS;
+const respuestasEjemplo = contexto.window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO;
 
 if (!process.env.DATABASE_URL) { console.error("✖ Falta DATABASE_URL en backend/.env (copia .env.ejemplo como .env)."); process.exit(1); }
 const ssl = process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined;
@@ -44,7 +50,24 @@ const ESTRUCTURA = `
   ALTER TABLE actividades   ADD COLUMN IF NOT EXISTS ficha_id INTEGER REFERENCES fichas(id) ON DELETE CASCADE;
   CREATE INDEX IF NOT EXISTS idx_fichas_curso        ON fichas (curso_id);
   CREATE INDEX IF NOT EXISTS idx_inscripciones_ficha ON inscripciones (ficha_id);
-  CREATE INDEX IF NOT EXISTS idx_actividades_modulo  ON actividades (curso_id, modulo);`;
+  CREATE INDEX IF NOT EXISTS idx_actividades_modulo  ON actividades (curso_id, modulo);
+  CREATE TABLE IF NOT EXISTS respuestas_encuesta (
+    id             SERIAL PRIMARY KEY,
+    encuesta       VARCHAR(40) NOT NULL,
+    estudiante_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    respuestas     JSONB       NOT NULL,
+    creado_en      TIMESTAMPTZ NOT NULL DEFAULT now(),
+    UNIQUE (encuesta, estudiante_id)
+  );
+  CREATE TABLE IF NOT EXISTS recuperaciones_clave (
+    id          SERIAL PRIMARY KEY,
+    usuario_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    token_hash  CHAR(64)    NOT NULL UNIQUE,
+    expira_en   TIMESTAMPTZ NOT NULL,
+    usado_en    TIMESTAMPTZ,
+    creado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS idx_recuperaciones_usuario ON recuperaciones_clave (usuario_id);`;
 
 async function main() {
   const db = new Client({ connectionString: process.env.DATABASE_URL, ssl });
@@ -56,7 +79,7 @@ async function main() {
   try {
     await db.query("BEGIN");
     await db.query(ESTRUCTURA);
-    console.log("✔ Columnas y tabla de fichas al día");
+    console.log("✔ Columnas y tablas al día (fichas, encuestas y recuperación de contraseña)");
 
     let conModulos = 0;
     for (const c of cursos) {
@@ -66,6 +89,15 @@ async function main() {
       conModulos += rowCount;
     }
     console.log(`✔ Módulos y guía cargados en ${conModulos} curso(s)`);
+
+    // Cada módulo dura 2 semanas: un curso de 8 módulos no puede durar 4 semanas
+    let corregidos = 0;
+    for (const c of cursos) {
+      const { rowCount } = await db.query("UPDATE cursos SET duracion_semanas = $1 WHERE id = $2 AND titulo = $3 AND duracion_semanas < jsonb_array_length(modulos) * 2",
+        [Number(c.duracion), c.id, c.titulo]);
+      corregidos += rowCount;
+    }
+    console.log(`✔ Duración corregida en ${corregidos} curso(s)`);
 
     let nuevas = 0;
     for (const f of fichas) {
@@ -79,6 +111,18 @@ async function main() {
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);
     console.log(`✔ ${ubicadas} inscripción(es) ubicada(s) en la primera ficha de su curso`);
+
+    // Respuestas de ejemplo de los estudiantes de prueba, solo si todavía no hay ninguna respuesta
+    let ejemplos = 0;
+    if (!(await db.query("SELECT 1 FROM respuestas_encuesta LIMIT 1")).rowCount) {
+      for (const [i, r] of respuestasEjemplo.entries()) {
+        const { rowCount } = await db.query(`INSERT INTO respuestas_encuesta (encuesta, estudiante_id, respuestas, creado_en)
+          SELECT $1, id, $2, now() - make_interval(days => $3) FROM usuarios WHERE correo = $4 ON CONFLICT DO NOTHING`,
+          [r.encuesta, JSON.stringify(r.respuestas), i % 9, r.correo]);
+        ejemplos += rowCount;
+      }
+    }
+    console.log(`✔ ${ejemplos} respuesta(s) de encuesta de ejemplo`);
 
     await db.query("COMMIT");
     const { rows } = await db.query("SELECT (SELECT count(*)::int FROM usuarios) AS usuarios, (SELECT count(*)::int FROM actividades) AS actividades, (SELECT count(*)::int FROM fichas) AS fichas");

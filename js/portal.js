@@ -1,7 +1,7 @@
 /* ==========================================================
    portal.js - Espacio de estudiantes y docentes
    Estudiante: inicio didáctico, mis cursos, actividades (entregar),
-               logros y tutor IA.
+               logros, encuestas y tutor IA.
    Docente:    inicio, mis cursos, actividades (crear/editar),
                entregas (calificar), estudiantes y copiloto IA.
    Los datos vienen de TCDatos (datos.js).
@@ -78,7 +78,7 @@
 
   /* ---------- Navegación por secciones ---------- */
   const SECCIONES = rol === "estudiante"
-    ? [["inicio", "casa", "Inicio"], ["cursos", "libro", "Mis cursos"], ["actividades", "portapapeles", "Actividades"], ["logros", "trofeo", "Logros"], ["asistente", "chat", "Tutor IA"]]
+    ? [["inicio", "casa", "Inicio"], ["cursos", "libro", "Mis cursos"], ["actividades", "portapapeles", "Actividades"], ["logros", "trofeo", "Logros"], ["encuestas", "megafono", "Encuestas"], ["asistente", "chat", "Tutor IA"]]
     : [["inicio", "casa", "Inicio"], ["cursos", "libro", "Mis cursos"], ["actividades", "lapiz", "Actividades"], ["entregas", "check", "Entregas"], ["estudiantes", "usuarios", "Seguimiento"], ["asistente", "chat", "Copiloto IA"]];
   const RENDER = {};
   let actual = "inicio", filtroCurso = "", filtroFicha = "";
@@ -86,6 +86,7 @@
   function pintarNav() {
     const badge = (id) => {
       if (rol === "estudiante" && id === "actividades") return pendientesEstudiante().length;
+      if (rol === "estudiante" && id === "encuestas") return encuestasPendientes().length;
       if (rol === "docente" && id === "entregas") return porRevisar().length;
       return 0;
     };
@@ -323,6 +324,62 @@
     el.innerHTML = encabezado("Celebra tu avance", "Logros", "Cada logro es una muestra de constancia. ¡Colecciónalos todos!") +
       `<article class="tarjeta logros-resumen"><div><strong>${ganados}</strong> de ${LOGROS.length} logros</div>${barra(Math.round((ganados / LOGROS.length) * 100), "Logros obtenidos")}</article>
       <div class="grid-logros">${LOGROS.map(([icono, t, d, ok]) => `<article class="logro ${ok ? "is-ganado" : ""}"><span class="logro-icono">${ico(icono, 26)}</span><h3>${t}</h3><p>${d}</p><span class="pill ${ok ? "pill-ok" : ""}">${ok ? "¡Obtenido!" : "Por lograr"}</span></article>`).join("")}</div>`;
+  };
+
+  /* ---------- Encuestas (estudiante): una respuesta por encuesta. El equipo ve resultados sin nombres. ---------- */
+  const encuestasPendientes = () => D.encuestas().filter((e) => !D.encuestaRespondida(e.id, s.correo));
+  function formularioEncuesta(e) {
+    const campo = (p, i) => {
+      // El número va aparte para que el traductor (i18n.js) reconozca la pregunta completa
+      const nombre = `p-${esc(p.id)}`, titulo = `<span class="pregunta-num">${i + 1}.</span> ${esc(p.texto)}`;
+      if (p.tipo === "escala") return `<fieldset class="pregunta"><legend>${titulo}</legend><div class="escala">${[1, 2, 3, 4, 5].map((n) => `<label><input type="radio" name="${nombre}" value="${n}"><span>${n}</span></label>`).join("")}</div><div class="escala-extremos"><small>Muy poco</small><small>Excelente</small></div></fieldset>`;
+      if (p.tipo === "opciones") return `<fieldset class="pregunta"><legend>${titulo}</legend><div class="opciones">${p.opciones.map((o) => `<label><input type="radio" name="${nombre}" value="${esc(o)}"><span>${esc(o)}</span></label>`).join("")}</div></fieldset>`;
+      return `<div class="campo pregunta"><label for="${nombre}">${titulo} <small>(opcional)</small></label><textarea id="${nombre}" name="${nombre}" rows="2" maxlength="500"></textarea></div>`;
+    };
+    return `<form class="encuesta-form" data-encuesta="${esc(e.id)}" novalidate>${e.preguntas.map(campo).join("")}
+      <p class="form-estado estado-error" role="alert" hidden></p>
+      <div class="fila-botones"><button type="submit" class="btn btn-primary btn-sm">Enviar respuestas</button><button type="button" class="btn btn-outline btn-sm" data-cancelar-encuesta>Cancelar</button></div></form>`;
+  }
+  if (rol === "estudiante") RENDER.encuestas = (el) => {
+    const pintar = (abierta = "") => {
+      el.innerHTML = encabezado("Tu opinión cuenta", "Encuestas", "Responder toma un minuto. El equipo ve los resultados agrupados, sin tu nombre.") +
+        `<div class="grid-tarjetas encuestas-lista">${D.encuestas().map((e) => {
+          const hecha = D.encuestaRespondida(e.id, s.correo), abiertaAqui = !hecha && abierta === e.id;
+          return `<article class="tarjeta encuesta ${hecha ? "is-hecha" : ""} ${abiertaAqui ? "is-abierta" : ""}">
+            <div class="encuesta-cabecera"><span class="tag">${esc(e.dept)}</span>${hecha ? `<span class="pill pill-ok">Respondida</span>` : `<span class="pill pill-pendiente">Pendiente</span>`}</div>
+            <h3>${esc(e.titulo)}</h3><p class="form-ayuda">${e.preguntas.length} preguntas · 1 minuto</p>
+            ${hecha ? `<p class="encuesta-gracias">${ico("check", 16)} ¡Gracias por responder!</p>` : abiertaAqui ? formularioEncuesta(e) : `<button type="button" class="btn btn-primary btn-sm" data-abrir-encuesta="${esc(e.id)}">Responder</button>`}
+          </article>`;
+        }).join("")}</div>`;
+      el.querySelector(".encuesta-form input, .encuesta-form textarea")?.focus({ preventScroll: true });
+    };
+    el.addEventListener("click", (ev) => {
+      const abrir = ev.target.closest("[data-abrir-encuesta]");
+      // Al cambiar de encuesta no se repite la entrada en cascada de la sección
+      if (abrir) { el.classList.remove("cambia"); pintar(abrir.dataset.abrirEncuesta); el.querySelector(".is-abierta")?.scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+      else if (ev.target.closest("[data-cancelar-encuesta]")) { el.classList.remove("cambia"); pintar(); }
+    });
+    el.addEventListener("submit", async (ev) => {
+      const form = ev.target.closest(".encuesta-form"); if (!form) return;
+      ev.preventDefault();
+      const e = D.encuestas().find((x) => x.id === form.dataset.encuesta), datos = new FormData(form), aviso = form.querySelector(".form-estado");
+      const falta = e.preguntas.find((p) => p.tipo !== "texto" && !datos.get(`p-${p.id}`));
+      if (falta) {
+        aviso.textContent = "Responde las preguntas que no son opcionales para enviar."; aviso.hidden = false;
+        form.querySelector(`[name="p-${falta.id}"]`)?.focus();
+        return;
+      }
+      const respuestas = Object.fromEntries(e.preguntas.map((p) => [p.id, p.tipo === "escala" ? Number(datos.get(`p-${p.id}`)) : String(datos.get(`p-${p.id}`) || "").trim()]));
+      const boton = form.querySelector("[type=submit]"); boton.disabled = true;
+      try {
+        await D.responderEncuesta(e.id, respuestas, s);
+        toast("¡Gracias! Tu respuesta quedó guardada.");
+        el.classList.remove("cambia"); pintarNav(); pintar();
+      } catch (error) {
+        aviso.textContent = error.message || "No se pudo enviar. Inténtalo de nuevo."; aviso.hidden = false; boton.disabled = false;
+      }
+    });
+    pintar();
   };
 
   /* ---------- Asistente a pantalla completa ---------- */

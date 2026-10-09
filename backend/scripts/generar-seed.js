@@ -13,8 +13,10 @@ const RAIZ = path.join(__dirname, "..", "..");
 const contexto = { window: {}, localStorage: { getItem: () => null } };
 vm.createContext(contexto);
 vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "cursos-data.js"), "utf8"), contexto);
+vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "encuestas-data.js"), "utf8"), contexto);
 const cursos = contexto.window.TALENTO_CARIBE_CURSOS;
 const fichas = contexto.window.TALENTO_CARIBE_FICHAS;
+const respuestasEjemplo = contexto.window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO;
 
 const q = (v) => (v === null || v === undefined ? "NULL" : "'" + String(v).replace(/'/g, "''") + "'");
 const arr = (lista) => "ARRAY[" + lista.map(q).join(", ") + "]::text[]";
@@ -96,6 +98,10 @@ sql.push(`INSERT INTO entregas (actividad_id, estudiante_id, respuesta, enlace, 
   (${actId("Algoritmos en la tienda del barrio")}, ${est("andrea.castro@correo.com")}, ${q("El tendero escucha, busca, suma y cobra. Si no hay cambio, pide sencillo.")}, NULL, 'revisada', 3.6, ${q("Bien la decisión del cambio. Falta la repetición.")}, now() - interval '4 days', now() - interval '2 days'),
   (${actId("El algoritmo de tu mañana")}, ${est("andrea.castro@correo.com")}, ${q("1. Me levanto\n2. SI hace calor ENTONCES me baño con agua fría\n3. MIENTRAS desayuno escucho música.")}, NULL, 'entregada', NULL, NULL, now() - interval '1 day', NULL),
   (${actId("¿Cómo funciona la web?")}, ${est("kevin.ariza@correo.com")}, ${q("El navegador es el programa que pide la página al servidor y la dibuja en pantalla.")}, NULL, 'revisada', 4.0, ${q("Clara tu explicación. Agrega qué papel cumple el DNS.")}, now() - interval '1 day', now());`);
+
+sql.push("\n-- Respuestas de encuestas de ejemplo (js/encuestas-data.js)");
+sql.push("INSERT INTO respuestas_encuesta (encuesta, estudiante_id, respuestas, creado_en) VALUES\n" +
+  respuestasEjemplo.map((r, i) => `  (${q(r.encuesta)}, ${est(r.correo)}, ${q(JSON.stringify(r.respuestas))}::jsonb, now() - interval '${i % 9} days')`).join(",\n") + ";");
 
 sql.push(`\n-- Configuración del asistente
 INSERT INTO config_ia (id, tono, contexto) VALUES (1,

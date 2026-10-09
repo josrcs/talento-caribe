@@ -153,7 +153,30 @@ CREATE TABLE config_ia (
   actualizado_en  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ---------- Respuestas de las encuestas (js/encuestas-data.js): una por estudiante y encuesta ----------
+-- El panel muestra los resultados agrupados y sin nombres; estudiante_id solo evita respuestas repetidas.
+CREATE TABLE respuestas_encuesta (
+  id             SERIAL PRIMARY KEY,
+  encuesta       VARCHAR(40) NOT NULL,            -- id de la encuesta, por ejemplo "experiencia-curso"
+  estudiante_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  respuestas     JSONB       NOT NULL,            -- { "claridad": 4, "proyecto": "En parte", "tema": "..." }
+  creado_en      TIMESTAMPTZ NOT NULL DEFAULT now(),
+  UNIQUE (encuesta, estudiante_id)
+);
+
+-- ---------- Recuperación de contraseña: enlaces de un solo uso que vencen en 1 hora ----------
+-- Se guarda el SHA-256 del enlace, nunca el enlace: si alguien lee la tabla no puede usarlo.
+CREATE TABLE recuperaciones_clave (
+  id          SERIAL PRIMARY KEY,
+  usuario_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  token_hash  CHAR(64)    NOT NULL UNIQUE,
+  expira_en   TIMESTAMPTZ NOT NULL,
+  usado_en    TIMESTAMPTZ,
+  creado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- ---------- Índices para las consultas más frecuentes ----------
+CREATE INDEX idx_recuperaciones_usuario  ON recuperaciones_clave (usuario_id);
 CREATE INDEX idx_cursos_filtros          ON cursos (area, nivel, modalidad);
 CREATE INDEX idx_cursos_docente          ON cursos (docente_id);
 CREATE INDEX idx_fichas_curso            ON fichas (curso_id);

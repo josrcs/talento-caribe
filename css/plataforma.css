@@ -459,6 +459,40 @@ dialog.modal { margin: auto; }
 .acceso-beneficios li:nth-child(3) { animation-delay: .16s; }
 .acceso-beneficios li:nth-child(4) { animation-delay: .24s; }
 @keyframes tarjeta-entra { from { opacity: 0; translate: 0 28px; scale: .97; } }
+
+/* ---------- 12. Encuestas ----------
+   Portal: cada encuesta es una tarjeta; al responder se abre a todo el ancho.
+   Las opciones son radios de verdad (accesibles con teclado) con apariencia de botón.
+   Panel: resultados con promedio, barras por opción y comentarios sin nombre. */
+.encuesta { display: flex; flex-direction: column; gap: .55rem; }
+.encuesta h3 { margin: 0; font-size: 1.05rem; }
+.encuesta > .form-ayuda { margin: 0; }
+.encuesta > .btn { align-self: flex-start; margin-top: auto; }
+.encuesta.is-abierta { grid-column: 1 / -1; }
+.encuesta-cabecera { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .5rem; }
+.encuesta-gracias { display: flex; align-items: center; gap: .4rem; margin: auto 0 0; color: var(--verde-texto); font-size: .9rem; font-weight: 700; }
+.encuesta-form { display: grid; gap: 1.2rem; margin-top: .5rem; }
+.pregunta { min-width: 0; margin: 0; padding: 0; border: 0; }
+.pregunta legend, .pregunta > label { margin-bottom: .6rem; color: var(--texto-fuerte); font-size: .92rem; font-weight: 600; }
+.pregunta-num { color: var(--celeste); }
+.escala, .opciones { display: flex; flex-wrap: wrap; gap: .45rem; }
+.escala label, .opciones label { position: relative; cursor: pointer; }
+.escala input, .opciones input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.escala span, .opciones span { display: grid; place-items: center; min-width: 2.75rem; height: 2.75rem; padding: 0 .9rem; border-radius: 12px; border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--tinte), .04); color: var(--color-slate-300); font-size: .88rem; font-weight: 700; transition: background .2s, border-color .2s, color .2s, scale .25s var(--curva); }
+.opciones span { border-radius: 999px; }
+.escala label:hover span, .opciones label:hover span { border-color: rgba(125, 211, 252, .5); color: var(--texto-fuerte); }
+.escala input:checked + span, .opciones input:checked + span { border-color: transparent; background: linear-gradient(135deg, var(--caribe-oceano), #0a809f); color: #fff; scale: 1.05; box-shadow: 0 6px 16px rgba(18, 104, 200, .35); }
+.escala input:focus-visible + span, .opciones input:focus-visible + span { outline: 2px solid var(--color-primary-400); outline-offset: 2px; }
+.escala-extremos { display: flex; justify-content: space-between; max-width: 15.6rem; margin-top: .35rem; color: var(--color-slate-500); }
+.encuesta-resultados { display: flex; flex-direction: column; gap: .3rem; }
+.encuesta-resultados h3 { margin: .35rem 0 .2rem; }
+.resultado { padding-top: .8rem; border-top: 1px solid rgba(var(--tinte), .07); }
+.resultado-pregunta { margin: 0 0 .5rem; color: var(--color-slate-200); font-size: .86rem; font-weight: 600; }
+.resultado-promedio { margin: 0 0 .5rem; color: var(--color-slate-400); font-size: .82rem; }
+.resultado-promedio strong { color: var(--texto-fuerte); font-size: 1.5rem; }
+.resultado .barra-fila { grid-template-columns: minmax(0, 8.5rem) 1fr 1.6rem; }
+.resultado-textos { display: grid; gap: .4rem; margin: 0; padding: 0; list-style: none; }
+.resultado-textos li { padding: .5rem .7rem; border-radius: 10px; background: rgba(var(--tinte), .05); color: var(--color-slate-300); font-size: .84rem; font-style: italic; }
 .cargo-grid, .docente-chips { grid-template-columns: repeat(auto-fill, minmax(min(100%, 11.5rem), 1fr)); }
 .app-link { justify-content: flex-start; }
 .app-link > [data-icono] { flex: 0 0 auto; }

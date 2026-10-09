@@ -8,6 +8,7 @@
      PUT  /api/actividades/:id/entrega    -> entregar()
      PATCH /api/entregas/:id              -> calificar()
      POST /api/inscripciones              -> inscribir() ... (ver backend/README.md)
+     POST /api/encuestas/:id/respuestas   -> responderEncuesta()
    Las funciones de lectura son iguales en ambos modos; las de escritura
    devuelven una promesa en modo API (se usan con await).
    window.TCListo es una promesa que se cumple cuando los datos están listos.
@@ -16,7 +17,7 @@
 (() => {
   const API = window.TC?.MODO_DEMO === false;
   /* En modo API los datos viven en memoria (copia de lo que devolvió el servidor) */
-  const memoria = { tc_inscripciones: [], tc_actividades: [], tc_entregas: [], tc_mensajes: [], tc_gastos_demo: [], tc_ia: null };
+  const memoria = { tc_inscripciones: [], tc_actividades: [], tc_entregas: [], tc_mensajes: [], tc_gastos_demo: [], tc_ia: null, tc_respuestas_encuestas: [] };
   window.TALENTO_CARIBE_FICHAS = window.TALENTO_CARIBE_FICHAS || [];
   const leerLocal = (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d; } catch { return d; } };
   const guardarLocal = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch { /* almacenamiento no disponible */ } };
@@ -126,6 +127,14 @@
     guardar("tc_entregas", ent);
     guardar("tc_semilla_v4", true);
   }
+  /* Respuestas de encuestas de ejemplo (js/encuestas-data.js) para que el panel tenga resultados */
+  function sembrarEncuestas() {
+    // Solo en las páginas que cargan js/encuestas-data.js (portal y panel)
+    if (API || !window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO || leer("tc_semilla_encuestas", false)) return;
+    const ejemplo = window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO.map((r, i) => ({ ...r, creado: haceDias(i % 9) }));
+    guardar("tc_respuestas_encuestas", [...leer("tc_respuestas_encuestas", []), ...ejemplo]);
+    guardar("tc_semilla_encuestas", true);
+  }
 
   /* ---------- Consultas ---------- */
   const inscripciones = () => leer("tc_inscripciones", []);
@@ -207,6 +216,29 @@
     });
   }
 
+  /* ---------- Encuestas ----------
+     Modo API: el estudiante recibe solo cuáles respondió; el equipo administrativo, las respuestas sin nombres.
+     Modo demostración: todas las respuestas viven en este navegador. */
+  const encuestas = () => window.TALENTO_CARIBE_ENCUESTAS || [];
+  const respuestasEncuestas = () => leer("tc_respuestas_encuestas", []);
+  const encuestaRespondida = (id, correo) => respuestasEncuestas().some((r) => r.encuesta === id && (API || norm(r.correo) === norm(correo)));
+  /* Resultados agrupados de una encuesta: promedio y conteo (escala), conteo por opción y comentarios */
+  function resultadosEncuesta(encuesta) {
+    const lista = respuestasEncuestas().filter((r) => r.encuesta === encuesta.id);
+    return {
+      total: lista.length,
+      preguntas: encuesta.preguntas.map((p) => {
+        const valores = lista.map((r) => r.respuestas?.[p.id]).filter((v) => v !== undefined && v !== null && v !== "");
+        if (p.tipo === "escala") {
+          const numeros = valores.map(Number);
+          return { ...p, total: numeros.length, promedio: numeros.length ? numeros.reduce((a, b) => a + b, 0) / numeros.length : null, conteo: [1, 2, 3, 4, 5].map((n) => numeros.filter((v) => v === n).length) };
+        }
+        if (p.tipo === "opciones") return { ...p, total: valores.length, conteo: p.opciones.map((o) => valores.filter((v) => v === o).length) };
+        return { ...p, total: valores.length, textos: valores.map(String) };
+      }),
+    };
+  }
+
   /* ---------- Escrituras ---------- */
   /* En modo API: se envía al servidor y luego se recargan los datos */
   const yRecargar = async (promesa) => { const r = await promesa; await cargar(); return r; };
@@ -262,6 +294,11 @@
     if (API) return yRecargar(pedir("POST", "/gastos", gasto));
     guardar("tc_gastos_demo", [...leer("tc_gastos_demo", []), { ...gasto, creado: new Date().toISOString() }]);
   }
+  function responderEncuesta(id, respuestas, sesion) {
+    if (API) return yRecargar(pedir("POST", `/encuestas/${encodeURIComponent(id)}/respuestas`, { respuestas }));
+    if (encuestaRespondida(id, sesion.correo)) throw new Error("Ya respondiste esta encuesta. ¡Gracias!");
+    guardar("tc_respuestas_encuestas", [...respuestasEncuestas(), { encuesta: id, correo: norm(sesion.correo), respuestas, creado: new Date().toISOString() }]);
+  }
   function guardarIA(config) {
     if (API) return yRecargar(pedir("PUT", "/config-ia", config));
     guardar("tc_ia", config);
@@ -302,6 +339,7 @@
     memoria.tc_mensajes = d.mensajes;
     memoria.tc_gastos_demo = d.gastos;
     memoria.tc_ia = d.ia;
+    memoria.tc_respuestas_encuestas = d.encuestas || [];
     return d;
   }
   if (API && window.TCUtil) {
@@ -317,6 +355,7 @@
     : Promise.resolve();
 
   sembrar();
+  sembrarEncuestas();
   window.TCDatos = {
     DOCENTES, TIPOS, curso, cursos, inscripciones, actividades, entregas,
     fichas, ficha, fichasDeCurso, fichaAbierta, fichasDeDocente, fichaDe, fichaDeInscripcion, estudiantesDeFicha, destinatarios, llegaA, modulos, progresoModulos, guardarFicha, siguienteFicha,
@@ -325,6 +364,7 @@
     estadoPara, diasRestantes, textoVence, progreso,
     crearActividad, actualizarActividad, eliminarActividad, entregar, calificar,
     inscribir, cambiarEstadoInscripcion, marcarLeido, registrarGasto, guardarIA, guardarCurso, fichaEstudiante,
+    encuestas, encuestaRespondida, resultadosEncuesta, responderEncuesta,
     cargar, api: API,
   };
 })();
