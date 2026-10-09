@@ -79,7 +79,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Control de versiones con Git
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
 - [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con SMTP en `backend/.env`)
-- [x] Vista previa con imagen al compartir el enlace (cambiar `TU-USUARIO` en `index.html` y `cursos.html` al publicar)
+- [x] Vista previa con imagen al compartir el enlace (cambiar `josrcs` en `index.html` y `cursos.html` al publicar)
 - [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
 - [ ] Subir el repositorio a GitHub
@@ -163,17 +163,17 @@ La política CSP también va como etiqueta `<meta>` en cada página (GitHub Page
 **1. Subir a GitHub.** Crea un repositorio vacío llamado `talento-caribe` en GitHub (sin README ni .gitignore) y, en la carpeta del proyecto:
 
 ```
-git remote add origin https://github.com/TU-USUARIO/talento-caribe.git
+git remote add origin https://github.com/josrcs/talento-caribe.git
 git push -u origin main
 ```
 
 Después, por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env` no se sube (está en `.gitignore`).
 
-**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://TU-USUARIO.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `TU-USUARIO` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp.
+**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp.
 
 **3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
 - `ANTHROPIC_API_KEY`: la clave del asistente.
-- `CORS_ORIGENES`: `https://TU-USUARIO.github.io`
+- `CORS_ORIGENES`: `https://josrcs.github.io`
 
 Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
