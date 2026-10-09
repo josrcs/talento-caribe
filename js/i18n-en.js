@@ -1195,7 +1195,22 @@ window.TC_EN = {
   "Este curso aún no tiene fichas.": "This course has no groups yet.",
   "Pronto abriremos la primera ficha de este curso.": "We'll open this course's first group soon.",
   "El contenido de este curso se publicará pronto.": "This course's content will be published soon.",
-  "Este perfil de demostración no tiene datos registrados.": "This demo profile has no registered details."
+  "Este perfil de demostración no tiene datos registrados.": "This demo profile has no registered details.",
+  "Talento Caribe en cifras": "Talento Caribe in numbers",
+  "cursos gratuitos": "free courses",
+  "módulos prácticos": "hands-on modules",
+  "mentores que te acompañan": "mentors by your side",
+  "gratis, de principio a fin": "free, from start to finish",
+  "Temas de los cursos": "Course topics",
+  "HTML y CSS": "HTML & CSS",
+  "Bases de datos": "Databases",
+  "Inteligencia artificial": "Artificial intelligence",
+  "Electrónica": "Electronics",
+  "Computadores": "Computers",
+  "Robótica": "Robotics",
+  "Internet de las Cosas": "Internet of Things",
+  "El proceso": "The process",
+  "Bajar a la siguiente sección": "Scroll to the next section"
 };
 
 /* Frases con datos variables (nombres, especialidades). El segundo elemento puede ser una función. */

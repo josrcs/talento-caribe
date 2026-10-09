@@ -10,8 +10,6 @@
   <title>Talento Caribe | Tu talento no tiene fronteras</title>
   <meta name="description" content="Plataforma educativa gratuita e híbrida de software y hardware para jóvenes del Caribe y Latinoamérica.">
   <link rel="icon" href="assets/img/favicon.png">
-  <!-- AOS: librería de animaciones al hacer scroll (permitida por las reglas del proyecto) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
   <link rel="stylesheet" href="css/tema.css">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="css/efectos.css">
@@ -42,13 +40,13 @@
   </header>
 
   <main id="contenido">
-    <!-- Hero -->
+    <!-- Hero: entra en cascada (css/efectos.css). El logo es el destino del emblema que vuela en la intro (js/intro.js). -->
     <section class="hero" aria-labelledby="hero-titulo">
       <div class="hero-burbujas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="container hero-grid">
         <div class="hero-texto">
           <p class="hero-chip"><img src="assets/img/logo-emblema.png" alt="" width="32" height="24"> Educación tecnológica gratuita · Hecha en Barranquilla</p>
-          <h1 id="hero-titulo">Tu talento <span class="texto-caribe">no tiene fronteras</span></h1>
+          <h1 id="hero-titulo"><span class="linea"><span>Tu talento</span></span> <span class="linea"><span><span class="texto-caribe">no tiene fronteras</span></span></span></h1>
           <p>Cursos gratuitos de software y hardware para jóvenes de Barranquilla, el Caribe y Latinoamérica. Aprendes haciendo, con mentores y sin experiencia previa.</p>
           <div class="hero-acciones">
             <a href="cursos.html" class="btn btn-primary">Ver cursos</a>
@@ -62,10 +60,12 @@
             <span class="hero-orbita" aria-hidden="true"></span>
             <span class="hero-orbita hero-orbita-2" aria-hidden="true"></span>
             <span class="hero-disco" aria-hidden="true"></span>
-            <img class="hero-logo-img" src="assets/img/logo-talento-caribe-claro.png" alt="Logo de Talento Caribe: las letras TC con un sol sobre el mar y una palmera" width="900" height="767">
+            <!-- data-intro-region: parte del logo que ocupa el emblema (x, y y ancho en fracciones) -->
+            <img class="hero-logo-img" src="assets/img/logo-talento-caribe-claro.png" alt="Logo de Talento Caribe: las letras TC con un sol sobre el mar y una palmera" width="900" height="765" data-intro-destino data-intro-region="0.1378 -0.0118 0.7467">
           </div>
         </figure>
       </div>
+      <a class="hero-scroll" href="#nosotros" aria-label="Bajar a la siguiente sección"><span></span></a>
       <svg class="hero-olas" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
         <path class="ola-1" fill="rgba(18, 104, 200, .16)" d="M0 70 Q180 30 360 70 T720 70 T1080 70 T1440 70 T1800 70 T2160 70 T2520 70 T2880 70 V120 H0 Z"/>
         <path class="ola-2" fill="rgba(26, 176, 214, .14)" d="M0 82 Q240 50 480 82 T960 82 T1440 82 T1920 82 T2400 82 T2880 82 V120 H0 Z"/>
@@ -73,28 +73,41 @@
       </svg>
     </section>
 
+    <!-- Cifras: js/main.js toma los números del catálogo y cuentan al aparecer (data-contar) -->
+    <section class="cifras" aria-label="Talento Caribe en cifras">
+      <div class="container">
+        <div class="cifras-grid" data-revelar="escala">
+          <div class="cifra"><strong data-contar data-cifra="cursos">12</strong><span>cursos gratuitos</span></div>
+          <div class="cifra"><strong data-contar data-cifra="modulos">96</strong><span>módulos prácticos</span></div>
+          <div class="cifra"><strong data-contar data-cifra="mentores">5</strong><span>mentores que te acompañan</span></div>
+          <div class="cifra"><strong data-contar>100%</strong><span>gratis, de principio a fin</span></div>
+        </div>
+      </div>
+    </section>
+
     <!-- Nosotros -->
     <section id="nosotros" class="section" aria-labelledby="nosotros-titulo">
       <div class="container">
-        <h2 id="nosotros-titulo">Una plataforma joven con una idea clara</h2>
+        <span class="eyebrow" data-revelar>Nosotros</span>
+        <h2 id="nosotros-titulo" data-revelar="titulo">Una plataforma joven con una idea clara</h2>
         <div class="nosotros-grid">
-          <div class="nosotros-texto" data-aos="fade-up">
+          <div class="nosotros-texto" data-escalonar>
             <h3>Nuestra historia</h3>
             <p>Talento Caribe nació en 2026 en Barranquilla, de la mano de José Rodríguez, estudiante de Análisis y Desarrollo de Software. Mientras avanzaba en su formación, José notó algo que se repetía a su alrededor: en la región sobran talento y curiosidad por la tecnología, pero muchos jóvenes no encuentran un lugar donde aprender gratis, en español y con ejemplos cercanos a su realidad. Los cursos suelen costar dinero, estar en otro idioma o quedar lejos de casa.</p>
             <p>Con esa observación como punto de partida, José se propuso crear ese lugar. Diseñó desde cero una ruta de cursos de software y hardware pensada para principiantes, construyó la plataforma web que la sostiene y conformó un pequeño equipo de mentores dispuestos a acompañar a los estudiantes.</p>
             <p>Hoy Talento Caribe es una iniciativa joven, en etapa de lanzamiento, y no pretende ser grande de entrada. Su plan es empezar con grupos reducidos en Barranquilla, aprender de la primera cohorte piloto, ajustar los cursos con lo que esa experiencia enseñe y crecer paso a paso hacia otras ciudades del Caribe y de Latinoamérica gracias al formato virtual. De ahí su lema: porque el talento no tiene fronteras, la oportunidad de desarrollarlo tampoco debería tenerlas.</p>
           </div>
-          <div class="pilares">
-            <article class="pilar pilar-mision" data-aos="fade-up">
+          <div class="pilares" data-escalonar="escala">
+            <article class="pilar pilar-mision">
               <h3>Misión</h3>
               <p>Formar a jóvenes del Caribe y de Latinoamérica en habilidades de software y hardware mediante cursos gratuitos, prácticos y acompañados por mentores, para que puedan estudiar, emprender o conseguir empleo en tecnología.</p>
               <p>Creemos que la tecnología se aprende haciendo, por eso cada curso termina en un proyecto real. Aprendemos desde nuestra identidad caribeña, cerramos la brecha de acceso con un modelo híbrido que combina lo presencial y lo virtual, y acompañamos a cada estudiante con mentores y una comunidad que lo impulsa, porque nadie crece solo.</p>
             </article>
-            <article class="pilar" data-aos="fade-up" data-aos-delay="100">
+            <article class="pilar">
               <h3>Visión</h3>
               <p>Ser, en 2030, la comunidad de referencia en formación tecnológica juvenil del Caribe y de Latinoamérica: un lugar donde los jóvenes descubran su vocación, desarrollen sus habilidades y encuentren oportunidades reales sin tener que irse de su tierra ni pagar por aprender.</p>
             </article>
-            <article class="pilar" data-aos="fade-up" data-aos-delay="200">
+            <article class="pilar">
               <h3>Valores</h3>
               <p>Acceso para todos, aprender haciendo, comunidad e identidad caribeña.</p>
             </article>
@@ -103,32 +116,55 @@
       </div>
     </section>
 
-    <!-- Cursos destacados: js/main.js los carga desde el catálogo local del frontend. -->
+    <!-- Cursos destacados: js/main.js los carga desde el catálogo; mientras tanto se ven tarjetas esqueleto. -->
     <section id="cursos" class="section section-alt" aria-labelledby="cursos-titulo">
       <div class="container">
-        <h2 id="cursos-titulo">Empieza por uno de estos cursos</h2>
-        <p class="section-intro">Cada curso termina con un proyecto que tú construyes.</p>
-        <div id="destacados-cargando" class="estado" role="status" hidden>
-          <span class="spinner" aria-hidden="true"></span> Cargando cursos...
-        </div>
+        <span class="eyebrow" data-revelar>Cursos</span>
+        <h2 id="cursos-titulo" data-revelar="titulo">Empieza por uno de estos cursos</h2>
+        <p class="section-intro" data-revelar>Cada curso termina con un proyecto que tú construyes.</p>
         <div id="destacados-error" class="estado estado-error" role="alert" hidden>
           <p>No pudimos cargar los cursos. Revisa tu conexión e inténtalo de nuevo.</p>
           <button type="button" class="btn btn-outline" id="destacados-reintentar">Reintentar</button>
         </div>
-        <div id="cursos-destacados" class="grid-cursos"></div>
-        <p class="section-cta"><a href="cursos.html" class="btn btn-primary">Ver todo el catálogo</a></p>
+        <div id="cursos-destacados" class="grid-cursos" aria-busy="true">
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+        </div>
+        <p class="section-cta" data-revelar><a href="cursos.html" class="btn btn-primary">Ver todo el catálogo</a></p>
+      </div>
+    </section>
+
+    <!-- Cinta de temas: js/main.js duplica la lista para que se mueva sin cortes -->
+    <section class="cinta" aria-label="Temas de los cursos">
+      <div class="cinta-pista">
+        <ul class="cinta-lista">
+          <li>Lógica de programación</li>
+          <li>Python</li>
+          <li>HTML y CSS</li>
+          <li>JavaScript</li>
+          <li>Git y GitHub</li>
+          <li>Bases de datos</li>
+          <li>Inteligencia artificial</li>
+          <li>Electrónica</li>
+          <li>Arduino</li>
+          <li>Computadores</li>
+          <li>Robótica</li>
+          <li>Internet de las Cosas</li>
+        </ul>
       </div>
     </section>
 
     <!-- Cómo funciona (es una secuencia, por eso es una lista ordenada) -->
     <section id="como-funciona" class="section" aria-labelledby="pasos-titulo">
       <div class="container">
-        <h2 id="pasos-titulo">Cómo funciona</h2>
-        <ol class="pasos">
-          <li data-aos="fade-up"><h3>Inscríbete gratis</h3><p>Elige el curso que te interesa y déjanos tus datos.</p></li>
-          <li data-aos="fade-up" data-aos-delay="100"><h3>Aprende con práctica</h3><p>Sesiones guiadas, presenciales o virtuales, con ejercicios en cada clase.</p></li>
-          <li data-aos="fade-up" data-aos-delay="200"><h3>Construye un proyecto</h3><p>Una página web, un circuito o un robot que puedes mostrar.</p></li>
-          <li data-aos="fade-up" data-aos-delay="300"><h3>Recibe tu certificado</h3><p>Y una recomendación del siguiente curso para seguir avanzando.</p></li>
+        <span class="eyebrow" data-revelar>El proceso</span>
+        <h2 id="pasos-titulo" data-revelar="titulo">Cómo funciona</h2>
+        <ol class="pasos" data-escalonar>
+          <li><h3>Inscríbete gratis</h3><p>Elige el curso que te interesa y déjanos tus datos.</p></li>
+          <li><h3>Aprende con práctica</h3><p>Sesiones guiadas, presenciales o virtuales, con ejercicios en cada clase.</p></li>
+          <li><h3>Construye un proyecto</h3><p>Una página web, un circuito o un robot que puedes mostrar.</p></li>
+          <li><h3>Recibe tu certificado</h3><p>Y una recomendación del siguiente curso para seguir avanzando.</p></li>
         </ol>
       </div>
     </section>
@@ -136,8 +172,9 @@
     <!-- Mentores (perfiles ficticios del proyecto académico) -->
     <section id="mentores" class="section section-alt" aria-labelledby="mentores-titulo">
       <div class="container">
-        <h2 id="mentores-titulo">Quiénes te acompañan</h2>
-        <ul class="mentores">
+        <span class="eyebrow" data-revelar>Mentores</span>
+        <h2 id="mentores-titulo" data-revelar="titulo">Quiénes te acompañan</h2>
+        <ul class="mentores" data-escalonar="escala">
           <li class="mentor"><span class="avatar" aria-hidden="true">CO</span><h3>Camila Ospino</h3><p>Ingeniera de software. Desarrollo web.</p></li>
           <li class="mentor"><span class="avatar" aria-hidden="true">DB</span><h3>Daniel Barrios</h3><p>Ingeniero de sistemas. Programación y datos.</p></li>
           <li class="mentor"><span class="avatar" aria-hidden="true">VH</span><h3>Valeria De la Hoz</h3><p>Especialista en IA aplicada a negocios.</p></li>
@@ -150,19 +187,21 @@
     <!-- Asistente IA: js/chat.js envía el mensaje a POST /api/chat (el backend añade el contexto de la marca) -->
     <section id="asistente" class="section" aria-labelledby="asistente-titulo">
       <div class="container asistente-grid">
-        <div>
+        <div data-revelar="izquierda">
+          <span class="eyebrow">Asistente IA</span>
           <h2 id="asistente-titulo">Pregúntale al asistente de Talento Caribe</h2>
           <p>Conoce todos los cursos y te ayuda a elegir por dónde empezar. Cuéntale qué te gusta y qué sabes hacer.</p>
           <ul class="lista-check"><li>Te recomienda una ruta según tus intereses.</li><li>Te explica conceptos con ejemplos del Caribe.</li><li>Te pone retos rápidos para practicar.</li></ul>
         </div>
-        <div class="chat-completo chat-inicio" id="chat-inicio"></div>
+        <div class="chat-completo chat-inicio" id="chat-inicio" data-revelar="derecha"></div>
       </div>
     </section>
 
     <!-- Contacto: js/contacto.js valida y envía a POST /api/contacto -->
     <section id="contacto" class="section section-alt" aria-labelledby="contacto-titulo">
       <div class="container contacto-grid">
-        <div class="contacto-info">
+        <div class="contacto-info" data-revelar="izquierda">
+          <span class="eyebrow">Contacto</span>
           <h2 id="contacto-titulo">Escríbenos</h2>
           <p>¿Dudas sobre un curso, quieres ser mentor o tienes una alianza en mente? Respondemos en un máximo de 3 días hábiles.</p>
           <address>
@@ -170,7 +209,7 @@
             <a href="mailto:contacto@talentocaribe.co">contacto@talentocaribe.co</a>
           </address>
         </div>
-        <form id="form-contacto" class="form" novalidate>
+        <form id="form-contacto" class="form" novalidate data-revelar="derecha">
           <div class="campo">
             <label for="c-nombre">Nombre completo</label>
             <input id="c-nombre" name="nombre" type="text" autocomplete="name" required minlength="3" maxlength="80">
@@ -227,7 +266,7 @@
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-grid">
+    <div class="container footer-grid" data-escalonar>
       <div>
         <a href="index.html" class="footer-logo"><img src="assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe" width="152" height="130" loading="lazy"></a>
         <p>Tu talento no tiene fronteras.</p>
@@ -246,7 +285,6 @@
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
   <script src="js/config.js"></script>
   <script src="js/cursos-data.js"></script>
   <script src="js/utils.js"></script>

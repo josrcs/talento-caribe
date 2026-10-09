@@ -1,6 +1,7 @@
+/* main.js - Página de inicio y catálogo: menú, cursos destacados, cifras, cinta de temas
+   y menú que marca la sección que se está viendo. */
 (() => {
   const cursos = window.TALENTO_CARIBE_CURSOS || [];
-  if (window.AOS && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) AOS.init({duration:650, once:true, offset:70});
   const menu = document.querySelector('.nav-toggle');
   menu?.addEventListener('click', () => {
     const open = menu.getAttribute('aria-expanded') !== 'true';
@@ -8,24 +9,45 @@
     menu.setAttribute('aria-label', open ? 'Cerrar menú' : 'Abrir menú');
   });
 
+  // Cursos destacados: mientras llegan los datos se ven las tarjetas esqueleto del HTML
   const destacados = document.querySelector('#cursos-destacados');
   if (destacados) (window.TCListo || Promise.resolve()).then(() => {
     destacados.innerHTML = cursos.filter(c => c.fase === 'Lanzamiento').slice(0, 3).map(c => `
-      <article class="curso-card" data-tilt>
+      <article class="curso-card" data-tilt data-revelar="escala">
         <div class="curso-etiquetas"><span class="tag">${c.area}</span><span class="tag tag-lanzamiento">Inscripciones abiertas</span></div>
         <h3>${c.titulo}</h3><p>${c.descripcion}</p>
         <div class="curso-card-pie"><span class="curso-duracion">${c.duracion} semanas · ${c.modalidad}</span><a class="btn-texto-plano" href="cursos.html">Ver detalles →</a></div>
       </article>`).join('');
-    destacados.querySelectorAll('.curso-card').forEach(el => window.TCObservar?.(el));
+    destacados.removeAttribute('aria-busy');
+    window.TCRevelar?.(destacados);
   });
 
-  if ('IntersectionObserver' in window && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    const observer = new IntersectionObserver(entries => entries.forEach(entry => {
-      if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); }
-    }), { threshold: .12 });
-    document.querySelectorAll('.section, .curso-card, .pilar, .pasos li, .mentor').forEach(el => observer.observe(el));
-    window.TCObservar = el => observer.observe(el); // para tarjetas que llegan después desde la base de datos
+  // Cifras del inicio: salen del catálogo y de los mentores de la página (si cambian, se actualizan solas)
+  const cifra = (nombre, valor) => { const el = document.querySelector(`[data-cifra="${nombre}"]`); if (el && valor) el.textContent = valor; };
+  cifra('cursos', cursos.length);
+  cifra('modulos', cursos.reduce((total, c) => total + (c.modulos || []).length, 0));
+  cifra('mentores', document.querySelectorAll('.mentor').length);
+
+  // Cinta de temas: se duplica la lista para que el movimiento no tenga cortes (la copia no la leen los lectores de pantalla)
+  const cinta = document.querySelector('.cinta-lista');
+  if (cinta) {
+    const copia = cinta.cloneNode(true);
+    copia.setAttribute('aria-hidden', 'true');
+    cinta.after(copia);
   }
 
-  // El efecto que sigue el cursor ahora vive en js/efectos.js (se carga en todas las páginas).
+  if (!('IntersectionObserver' in window)) return;
+
+  // Menú del inicio: subraya el enlace de la sección que está en el centro de la pantalla
+  const enlaces = [...document.querySelectorAll('.nav-links a[href^="#"]')];
+  if (enlaces.length) {
+    const espia = new IntersectionObserver(entradas => entradas.forEach(e => {
+      if (e.isIntersecting) enlaces.forEach(a => a.classList.toggle('en-vista', a.getAttribute('href') === `#${e.target.id}`));
+    }), { rootMargin: '-45% 0px -50% 0px' });
+    document.querySelectorAll('main > section').forEach(s => espia.observe(s));
+  }
+
+  // El hero detiene sus animaciones cuando sale de la pantalla (ahorra batería)
+  const hero = document.querySelector('.hero');
+  if (hero) new IntersectionObserver(([e]) => hero.classList.toggle('hero-fuera', !e.isIntersecting)).observe(hero);
 })();
