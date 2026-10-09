@@ -72,6 +72,10 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 Al encender verás `Asistente IA: ✅ conectado a Claude`. Sin la clave el chat responde con reglas locales. Opcional: `IA_MODELO=` para usar otro modelo (por defecto `claude-opus-5-5`).
 
+## Correos (opcional)
+
+Para que lleguen los correos de bienvenida, recuperar contraseña y avisos de inscripción, agrega en `.env` los datos de un servidor SMTP (ver `.env.ejemplo`). Con Gmail: activa la verificación en 2 pasos, crea una *contraseña de aplicación* en https://myaccount.google.com/apppasswords y úsala en `SMTP_CLAVE`. Al encender verás `Correo: ✅ SMTP configurado`. Sin esos datos, cada correo aparece en esta terminal (sirve para probar).
+
 ## ¿Ya tenías la base creada de antes?
 
 Si el portal muestra errores y la terminal dice `no existe la columna «modulos»`, tu base es de una versión anterior. Ponla al día **sin perder datos**:
@@ -103,6 +107,9 @@ Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `n
 | GET | `/api/cursos` · `/api/cursos/:id` | todos | Catálogo |
 | POST | `/api/contacto` | todos | Mensaje del formulario de contacto |
 | POST | `/api/chat` | todos (máx. 20 mensajes / 10 min) | Asistente con IA: conoce la marca, el catálogo y las fichas; usa el tono de `config_ia` |
+| POST | `/api/auth/recuperar` | todos (máx. 5 / 15 min) | Envía al correo un enlace para crear una contraseña nueva (misma respuesta exista o no la cuenta) |
+| POST | `/api/auth/restablecer` | todos | Cambia la contraseña con el enlace (un solo uso, vence en 1 hora) |
+| POST | `/api/encuestas/:id/respuestas` | 🔒 estudiante | Guarda las respuestas de una encuesta (una vez por encuesta) |
 | POST | `/api/auth/registro` | todos | Crea cuenta de estudiante (clave cifrada con bcrypt) y devuelve el token |
 | POST | `/api/auth/login` | todos | Inicio de sesión de estudiantes, docentes y administrativos |
 | GET · PUT | `/api/auth/yo` · `/api/auth/perfil` | 🔒 | Ver / completar el perfil |

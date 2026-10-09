@@ -77,6 +77,9 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Animación de entrada nueva, hero interactivo, revelado al hacer scroll, cifras animadas y transiciones en toda la plataforma
 - [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
 - [x] Control de versiones con Git
+- [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
+- [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con SMTP en `backend/.env`)
+- [x] Vista previa con imagen al compartir el enlace (cambiar `TU-USUARIO` en `index.html` y `cursos.html` al publicar)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
 - [ ] Subir el repositorio a GitHub
 - [ ] Publicar: frontend en GitHub Pages y backend en Render (pasos en «Publicar el proyecto»)
@@ -113,6 +116,18 @@ ANTHROPIC_API_KEY=sk-ant-...
 
 La clave se crea en https://platform.claude.com → API Keys. Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la IA todavía no está configurada». `GET /api/salud` indica si el asistente está conectado.
 
+## Encuestas, correos y recuperar contraseña
+
+| Qué | Cómo funciona |
+|---|---|
+| Encuestas (`js/encuestas-data.js`) | 5 encuestas por departamento. El estudiante las responde una vez en *Mi espacio → Encuestas* (el menú muestra cuántas le faltan). El panel muestra promedios, barras por opción y comentarios, sin nombres. El servidor valida cada respuesta con el mismo archivo. |
+| Recuperar contraseña (`recuperar.html`) | Desde «¿Olvidaste tu contraseña?» en el ingreso. Llega un enlace al correo que sirve una sola vez y vence en 1 hora; en la base solo se guarda su huella (SHA-256). |
+| Correos (`backend/src/correo.js`) | Bienvenida al crear la cuenta, recuperar contraseña, contraseña cambiada, confirmación del formulario de contacto (y copia al equipo con `CORREO_EQUIPO`), solicitud de inscripción recibida y aprobada o no aprobada. |
+
+Para enviar correos de verdad, configura SMTP en `backend/.env` (ver `backend/.env.ejemplo`; con Gmail se usa una «contraseña de aplicación»). Sin esa configuración los correos no se envían: aparecen en la terminal del servidor, así se puede probar todo en el computador.
+
+> **Si ya tenías la base creada**, ejecuta `npm run db:actualizar` en `backend/`: crea las tablas nuevas, corrige la duración de los cursos y carga respuestas de ejemplo, sin borrar nada.
+
 ## Animaciones e interacción
 
 Todas las animaciones están hechas con CSS y JavaScript propios (sin librerías externas) y usan solo `transform` y `opacity`, que el navegador anima sin trabarse. Con «reducir movimiento» activado en el sistema no se muestra ninguna.
@@ -138,13 +153,13 @@ git push -u origin main
 
 Después, por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env` no se sube (está en `.gitignore`).
 
-**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://TU-USUARIO.github.io/talento-caribe/`. Sin backend funciona en modo demostración.
+**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://TU-USUARIO.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `TU-USUARIO` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp.
 
 **3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
 - `ANTHROPIC_API_KEY`: la clave del asistente.
 - `CORS_ORIGENES`: `https://TU-USUARIO.github.io`
 
-Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
+Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
 ## Plataforma: roles, actividades y asistente IA (modo demostración)
 
