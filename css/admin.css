@@ -64,7 +64,6 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .login-card { width: min(100%, 31rem); padding: clamp(1.35rem, 4vw, 2.25rem); border-color: rgba(125, 211, 252, .2); background: linear-gradient(145deg, rgba(var(--o-17-24-39), .97), rgba(var(--o-13-19-37), .98)); backdrop-filter: blur(18px); }
 .login-card-heading h2 { margin: .55rem 0 .35rem; font-size: 2rem; letter-spacing: -.05em; }
 .login-card-heading p { margin: 0 0 1.4rem; color: var(--color-slate-400); }
-.eyebrow { display: inline-block; color: var(--color-primary-400); font-size: .72rem; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; }
 .role-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1.35rem; }
 .role-option { display: grid; justify-items: center; gap: .45rem; padding: .75rem .3rem; border: 1px solid var(--borde); border-radius: 14px; background: rgba(var(--o-2-6-23), .35); color: var(--color-slate-400); font-size: .82rem; font-weight: 700; transition: transform var(--transition), border-color var(--transition), background var(--transition), color var(--transition); }
 .role-option:hover { transform: translateY(-2px); border-color: rgba(125, 211, 252, .4); color: var(--texto-fuerte); }
@@ -174,8 +173,6 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 
 /* Superficies de vidrio: dejan ver el fondo sin perder contraste. */
 .login-card { background: linear-gradient(145deg, rgba(var(--o-17-24-39), .78), rgba(var(--o-13-19-37), .74)); -webkit-backdrop-filter: blur(24px) saturate(125%); backdrop-filter: blur(24px) saturate(125%); }
-.page-login { background-image: radial-gradient(560px ellipse at var(--pointer-x, -500px) var(--pointer-y, -500px), rgba(125, 211, 252, .09), rgba(96, 165, 250, .035) 40%, transparent 72%), radial-gradient(ellipse at 14% 18%, rgba(18, 104, 200, .19), transparent 37%), radial-gradient(ellipse at 88% 86%, rgba(26, 176, 214, .16), transparent 38%); }
-.page-portal { background-image: radial-gradient(560px ellipse at var(--pointer-x, -500px) var(--pointer-y, -500px), rgba(125, 211, 252, .09), rgba(96, 165, 250, .035) 40%, transparent 72%), radial-gradient(ellipse at 85% 4%, rgba(18, 104, 200, .15), transparent 32%); }
 .panel-header { background: rgba(var(--o-17-24-39), .68); -webkit-backdrop-filter: blur(18px) saturate(130%); backdrop-filter: blur(18px) saturate(130%); }
 .tarjeta-dato, .department-card, .finance-panel, .portal-welcome, .portal-card, .activity-card, .my-course { -webkit-backdrop-filter: blur(18px) saturate(125%); backdrop-filter: blur(18px) saturate(125%); }
 .tarjeta-dato { background: linear-gradient(180deg, rgba(var(--o-17-24-39), .76), rgba(var(--o-15-23-42), .72)); }
