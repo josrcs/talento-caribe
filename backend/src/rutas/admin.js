@@ -2,20 +2,20 @@
 const router = require("express").Router();
 const pool = require("../db");
 const { requiereSesion, requierePermiso, AREA_CARGO } = require("../seguridad");
-const { texto, opcional, limpio, entero, rechazar } = require("../validar");
+const { texto, linea, opcional, limpio, entero, rechazar } = require("../validar");
 
 function validarCurso(b) {
   return {
-    titulo: texto(b.titulo, 3, 100), area: ["Software", "Hardware"].includes(b.area), nivel: ["Básico", "Intermedio"].includes(b.nivel),
+    titulo: linea(b.titulo, 3, 100), area: ["Software", "Hardware"].includes(b.area), nivel: ["Básico", "Intermedio"].includes(b.nivel),
     duracion: Number.isInteger(Number(b.duracion)) && b.duracion >= 1 && b.duracion <= 52,
     modalidad: ["Virtual", "Presencial", "Híbrido"].includes(b.modalidad), fase: ["Lanzamiento", "Próximamente"].includes(b.fase),
-    instructor: texto(b.instructor, 3, 100), edadMinima: Number.isInteger(Number(b.edadMinima)) && b.edadMinima >= 0 && b.edadMinima <= 100,
-    descripcion: texto(b.descripcion, 10, 3000), objetivo: opcional(b.objetivo, 1000), proyecto: opcional(b.proyecto, 200),
-    temario: b.temario === undefined || (Array.isArray(b.temario) && b.temario.every((t) => texto(t, 1, 200))),
+    instructor: linea(b.instructor, 3, 100), edadMinima: Number.isInteger(Number(b.edadMinima)) && b.edadMinima >= 0 && b.edadMinima <= 100,
+    descripcion: texto(b.descripcion, 10, 3000), objetivo: opcional(b.objetivo, 1000, true), proyecto: opcional(b.proyecto, 200, true),
+    temario: b.temario === undefined || (Array.isArray(b.temario) && b.temario.length <= 30 && b.temario.every((t) => texto(t, 1, 200))),
     modulos: b.modulos === undefined || (Array.isArray(b.modulos) && b.modulos.length <= 30 && b.modulos.every((m) =>
-      m && texto(m.titulo, 1, 120) && Array.isArray(m.temas || []) && (m.temas || []).every((t) => texto(t, 1, 160)) &&
-      Array.isArray(m.actividades || []) && (m.actividades || []).every((t) => texto(t, 1, 300)) &&
-      opcional(m.temasTexto, 300) && opcional(m.evidencia, 300))),
+      m && linea(m.titulo, 1, 120) && Array.isArray(m.temas || []) && (m.temas || []).length <= 40 && (m.temas || []).every((t) => texto(t, 1, 160)) &&
+      Array.isArray(m.actividades || []) && (m.actividades || []).length <= 40 && (m.actividades || []).every((t) => texto(t, 1, 300)) &&
+      opcional(m.temasTexto, 300, true) && opcional(m.evidencia, 300, true))),
   };
 }
 /* Solo se guardan los campos conocidos de cada módulo */
@@ -61,6 +61,10 @@ async function guardarFicha(req, res, next, numeroExistente) {
   try {
     const area = AREA_CARGO[req.usuario.puesto];
     if (area && !(await pool.query("SELECT 1 FROM cursos WHERE id = $1 AND area = $2", [b.curso_id, area])).rowCount) return res.status(403).json({ error: `Tu cargo solo administra fichas de cursos de ${area}.` });
+    // Al editar, la ficha que ya existe también debe ser de su área (si no, podría "traerse" una ficha de otra área)
+    if (area && numeroExistente && (await pool.query("SELECT 1 FROM fichas f JOIN cursos c ON c.id = f.curso_id WHERE f.numero = $1 AND c.area <> $2", [numero, area])).rowCount) {
+      return res.status(403).json({ error: `Tu cargo solo administra fichas de cursos de ${area}.` });
+    }
     const valores = [b.curso_id, b.jornada, b.inicio || null, Number(b.cupos), b.estado, numero];
     if (numeroExistente) {
       const { rowCount } = await pool.query("UPDATE fichas SET curso_id = $1, jornada = $2, fecha_inicio = $3, cupos = $4, estado = $5 WHERE numero = $6", valores);
@@ -85,7 +89,7 @@ router.patch("/mensajes/:id/leido", requiereSesion, requierePermiso("mensajes"),
 
 router.post("/gastos", requiereSesion, requierePermiso("finanzas"), async (req, res, next) => {
   const b = req.body || {};
-  if (rechazar(res, { concepto: texto(b.concepto, 2, 100), categoria: ["Materiales", "Conectividad", "Transporte", "Servicios", "Otro"].includes(b.categoria), valor: Number.isInteger(Number(b.valor)) && Number(b.valor) > 0 })) return;
+  if (rechazar(res, { concepto: linea(b.concepto, 2, 100), categoria: ["Materiales", "Conectividad", "Transporte", "Servicios", "Otro"].includes(b.categoria), valor: Number.isInteger(Number(b.valor)) && Number(b.valor) > 0 && Number(b.valor) <= 1000000000 })) return;
   try {
     const { rows } = await pool.query("INSERT INTO gastos (concepto, categoria, valor, usuario_id) VALUES ($1, $2, $3, $4) RETURNING id", [b.concepto.trim(), b.categoria, Number(b.valor), req.usuario.id]);
     res.status(201).json({ ok: true, id: rows[0].id });
@@ -94,12 +98,36 @@ router.post("/gastos", requiereSesion, requierePermiso("finanzas"), async (req, 
 
 router.put("/config-ia", requiereSesion, requierePermiso("configurarIA"), async (req, res, next) => {
   const b = req.body || {};
-  if (rechazar(res, { tono: opcional(b.tono, 500), contexto: opcional(b.contexto, 2000) })) return;
+  if (rechazar(res, { tono: opcional(b.tono, 500, true), contexto: opcional(b.contexto, 2000, true) })) return;
   try {
     await pool.query(`INSERT INTO config_ia (id, tono, contexto) VALUES (1, $1, $2)
       ON CONFLICT (id) DO UPDATE SET tono = EXCLUDED.tono, contexto = EXCLUDED.contexto, actualizado_en = now()`, [b.tono || "", b.contexto || ""]);
     res.json({ ok: true });
   } catch (e) { next(e); }
+});
+
+/* ---------- Registro de seguridad (gerencia, dirección general y tecnología) ----------
+   Últimos eventos y un resumen de 24 horas: ingresos, fallos, bloqueos y cambios de contraseña.
+   Sirve para notar ataques (muchos fallos desde una IP o contra una cuenta). */
+router.get("/seguridad/eventos", requiereSesion, requierePermiso("seguridad"), async (req, res, next) => {
+  const tipo = String(req.query.tipo || "");
+  try {
+    const { rows: eventos } = await pool.query(
+      `SELECT e.id, e.tipo, e.correo, e.ip, e.agente, e.detalle, e.creado_en AS creado, u.nombre
+       FROM eventos_seguridad e LEFT JOIN usuarios u ON u.id = e.usuario_id
+       WHERE ($1 = '' OR e.tipo = $1) ORDER BY e.creado_en DESC LIMIT 200`, [tipo]);
+    const { rows: resumen } = await pool.query(
+      "SELECT tipo, count(*)::int AS n FROM eventos_seguridad WHERE creado_en > now() - interval '24 hours' GROUP BY tipo");
+    // IPs con más fallos en las últimas 24 horas (posibles ataques de fuerza bruta)
+    const { rows: sospechosas } = await pool.query(
+      `SELECT ip, count(*)::int AS fallos, count(DISTINCT correo)::int AS cuentas, max(creado_en) AS ultimo
+       FROM eventos_seguridad WHERE tipo IN ('ingreso_fallido', 'bloqueo') AND creado_en > now() - interval '24 hours'
+       GROUP BY ip HAVING count(*) >= 5 ORDER BY fallos DESC LIMIT 10`);
+    res.json({ eventos, resumen: Object.fromEntries(resumen.map((r) => [r.tipo, r.n])), sospechosas });
+  } catch (e) {
+    if (e.code === "42P01") return res.status(503).json({ error: "Falta la tabla del registro de seguridad: ejecuta npm run db:actualizar." });
+    next(e);
+  }
 });
 
 module.exports = router;

@@ -14,6 +14,9 @@ if (!process.env.DATABASE_URL) {
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined,
+  // Ninguna consulta puede tardar más de 15 s: una consulta trabada no deja al servidor sin conexiones
+  statement_timeout: 15000,
+  connectionTimeoutMillis: 10000,
 });
 
 // Si la base se cae con el servidor encendido, lo mostramos en vez de cerrar todo.

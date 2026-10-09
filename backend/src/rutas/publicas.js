@@ -2,16 +2,19 @@
 const router = require("express").Router();
 const pool = require("../db");
 const { SQL_CURSOS } = require("../consultas");
-const { EMAIL, texto, opcional, limpio, entero, rechazar } = require("../validar");
+const { EMAIL, texto, linea, opcional, limpio, entero, rechazar } = require("../validar");
+const { limitePorIP, PRODUCCION } = require("../seguridad");
 const { iaConfigurada } = require("./chat");
 const correos = require("../correo");
 
 router.get("/salud", async (req, res) => {
   try {
-    const { rows } = await pool.query("SELECT now() AS hora, (SELECT count(*)::int FROM cursos) AS cursos, (SELECT count(*)::int FROM usuarios) AS usuarios");
+    const { rows } = await pool.query("SELECT now() AS hora, (SELECT count(*)::int FROM cursos) AS cursos");
     res.json({ servidor: "ok", baseDeDatos: "conectada", asistenteIA: iaConfigurada() ? "conectado" : "sin clave", ...rows[0] });
   } catch (error) {
-    res.status(503).json({ servidor: "ok", baseDeDatos: "sin conexión", asistenteIA: iaConfigurada() ? "conectado" : "sin clave", detalle: error.code === "42P01" ? "Faltan tablas: ejecuta npm run db:reiniciar" : error.message });
+    // En producción no se muestran detalles internos del error (nombres de servidores, usuarios de la base...)
+    res.status(503).json({ servidor: "ok", baseDeDatos: "sin conexión", asistenteIA: iaConfigurada() ? "conectado" : "sin clave",
+      detalle: error.code === "42P01" ? "Faltan tablas: ejecuta npm run db:init" : PRODUCCION ? undefined : error.message });
   }
 });
 
@@ -28,11 +31,14 @@ router.get("/cursos/:id", async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
-router.post("/contacto", async (req, res, next) => {
+// Límite por IP: cada mensaje envía un correo de confirmación a la dirección escrita, y no queremos
+// que el formulario sirva para llenar de correos el buzón de otra persona.
+const limitarContacto = limitePorIP(5, 15, "Enviaste varios mensajes seguidos. Espera unos minutos y vuelve a intentarlo.");
+router.post("/contacto", limitarContacto, async (req, res, next) => {
   const b = req.body || {};
   if (rechazar(res, {
-    nombre: texto(b.nombre, 3, 80), correo: typeof b.correo === "string" && EMAIL.test(b.correo) && b.correo.length <= 120,
-    interes: ["curso", "mentor", "alianza", "otro"].includes(b.interes), asunto: texto(b.asunto, 1, 100),
+    nombre: linea(b.nombre, 3, 80), correo: EMAIL.test(b.correo),
+    interes: ["curso", "mentor", "alianza", "otro"].includes(b.interes), asunto: linea(b.asunto, 1, 100),
     mensaje: texto(b.mensaje, 10, 1000), telefono: opcional(b.telefono, 20),
   })) return;
   try {

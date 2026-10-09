@@ -6,7 +6,9 @@ const router = require("express").Router();
 const pool = require("../db");
 const correos = require("../correo");
 const { requiereSesion, requiereRol, requierePermiso } = require("../seguridad");
-const { texto, opcional, limpio, entero, fecha, URL_OK, rechazar } = require("../validar");
+const { texto, linea, opcional, limpio, entero, fecha, URL_OK, rechazar } = require("../validar");
+// Enlace http(s) de máximo 300 caracteres (nunca javascript: ni data:, que ejecutarían código al abrirlos)
+const enlaceOk = (v) => !v || (typeof v === "string" && v.length <= 300 && URL_OK.test(v));
 
 const TIPOS = ["Tarea", "Práctica", "Quiz", "Lectura", "Proyecto"];
 const edadDesde = (nacimiento) => {
@@ -79,8 +81,8 @@ router.get("/estudiantes/:correo", requiereSesion, requierePermiso("inscripcione
 function validarActividad(b) {
   return {
     curso_id: !!entero(b.curso_id), tipo: TIPOS.includes(b.tipo), modulo: !!entero(b.modulo) && Number(b.modulo) <= 30,
-    ficha: !b.ficha || /^[0-9]{4,6}$/.test(String(b.ficha)), titulo: texto(b.titulo, 4, 90), objetivo: opcional(b.objetivo, 160),
-    descripcion: texto(b.descripcion, 15, 2000), fecha_limite: fecha(b.fecha_limite), recurso: !b.recurso || (URL_OK.test(b.recurso) && b.recurso.length <= 300),
+    ficha: !b.ficha || /^[0-9]{4,6}$/.test(String(b.ficha)), titulo: linea(b.titulo, 4, 90), objetivo: opcional(b.objetivo, 160),
+    descripcion: texto(b.descripcion, 15, 2000), fecha_limite: fecha(b.fecha_limite), recurso: enlaceOk(b.recurso),
   };
 }
 const esMiCurso = async (cursoId, docenteId) => (await pool.query("SELECT 1 FROM cursos WHERE id = $1 AND docente_id = $2", [cursoId, docenteId])).rowCount > 0;
@@ -137,7 +139,7 @@ router.delete("/actividades/:id", requiereSesion, requiereRol("docente"), async 
 router.put("/actividades/:id/entrega", requiereSesion, requiereRol("estudiante"), async (req, res, next) => {
   const id = entero(req.params.id), b = req.body || {};
   if (!id) return res.status(400).json({ error: "Actividad no válida." });
-  if (rechazar(res, { respuesta: texto(b.respuesta, 10, 3000), enlace: !b.enlace || (URL_OK.test(b.enlace) && b.enlace.length <= 300) })) return;
+  if (rechazar(res, { respuesta: texto(b.respuesta, 10, 3000), enlace: enlaceOk(b.enlace) })) return;
   try {
     const permitido = await pool.query(
       `SELECT 1 FROM actividades a JOIN inscripciones i ON i.curso_id = a.curso_id

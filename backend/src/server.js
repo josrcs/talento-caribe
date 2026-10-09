@@ -20,6 +20,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
+const { cabecerasSeguras, limitePorIP } = require("./seguridad");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -28,13 +29,17 @@ const RAIZ = path.join(__dirname, "..", ".."); // carpeta talento-caribe (el fro
 app.disable("x-powered-by");
 // En Render (u otro hosting con proxy) la IP real del visitante llega en X-Forwarded-For
 if (process.env.RENDER || process.env.TRUST_PROXY) app.set("trust proxy", 1);
+app.use(cabecerasSeguras);
 app.use(express.json({ limit: "100kb" }));
 // Permite llamar a la API desde Live Server (puerto 5500) y desde los dominios de CORS_ORIGENES
 // (por ejemplo la página publicada en GitHub Pages: https://tu-usuario.github.io)
 const ORIGENES_EXTRA = (process.env.CORS_ORIGENES || "").split(",").map((o) => o.trim().replace(/\/$/, "")).filter(Boolean);
-app.use(cors({ origin: ["http://127.0.0.1:5500", "http://localhost:5500", `http://localhost:${PORT}`, ...ORIGENES_EXTRA] }));
+app.use(cors({ origin: ["http://127.0.0.1:5500", "http://localhost:5500", `http://localhost:${PORT}`, ...ORIGENES_EXTRA], maxAge: 600 }));
 
 /* ---------- API ---------- */
+// Límite general: 300 peticiones por minuto por IP (la página normal usa muy pocas). Frena a quien
+// intente descargar todo o saturar el servidor; las rutas sensibles tienen límites propios más bajos.
+app.use("/api", limitePorIP(300, 1, "Demasiadas peticiones seguidas. Espera un minuto."));
 app.use("/api", require("./rutas/publicas"));
 app.use("/api", require("./rutas/chat"));
 app.use("/api/auth", require("./rutas/auth"));
@@ -44,15 +49,24 @@ app.use("/api", require("./rutas/encuestas"));
 app.use("/api", require("./rutas/admin"));
 app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta ${req.method} ${req.originalUrl}` }));
 
-/* ---------- Página web ---------- */
-// Nunca se publican la carpeta del servidor (tiene el .env) ni los scripts SQL
-app.use(["/backend", "/database"], (req, res) => res.status(404).send("No encontrado"));
-app.use(express.static(RAIZ, { dotfiles: "deny", extensions: ["html"] }));
+/* ---------- Página web ----------
+   Lista blanca: solo se publican las páginas y las carpetas del frontend. Nunca la carpeta del
+   servidor (código y .env), los scripts SQL, el README ni la configuración. (Bloquear solo
+   "/backend" no basta: "/%62ackend" es la misma ruta escrita de otra forma.) */
+const estaticos = { dotfiles: "deny", index: false, extensions: ["html"], maxAge: "1h" };
+for (const carpeta of ["css", "js", "assets", "admin"]) app.use(`/${carpeta}`, express.static(path.join(RAIZ, carpeta), estaticos));
+const PAGINAS = ["index", "cursos", "portal", "registro", "recuperar"];
+app.get(/^\/(?:([a-z]+)(?:\.html)?)?$/, (req, res, next) => {
+  const pagina = req.params[0] || "index";
+  PAGINAS.includes(pagina) ? res.sendFile(path.join(RAIZ, `${pagina}.html`)) : next();
+});
+app.use((req, res) => res.status(404).type("text/plain").send("No encontrado"));
 
 /* ---------- Errores ---------- */
 app.use((error, req, res, next) => {
   if (error.type === "entity.parse.failed") return res.status(400).json({ error: "El cuerpo de la petición no es JSON válido." });
-  console.error(`✖ ${req.method} ${req.originalUrl}:`, error.message);
+  if (error.type === "entity.too.large") return res.status(413).json({ error: "Los datos enviados son demasiado grandes." });
+  console.error(`✖ ${req.method} ${req.path}:`, error.message); // req.path: sin la parte ?..., que podría llevar un token
   const sinBase = ["ECONNREFUSED", "28P01", "3D000", "42P01"].includes(error.code);
   if (error.code === "23514" || error.code === "22P02") return res.status(400).json({ error: "Algún dato no cumple las reglas de la base de datos." });
   res.status(sinBase ? 503 : 500).json({ error: sinBase ? "La base de datos no está disponible. Revisa que PostgreSQL esté encendido y ejecuta npm run db:init." : "Error interno del servidor." });

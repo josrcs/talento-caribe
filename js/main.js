@@ -2,6 +2,7 @@
    y menú que marca la sección que se está viendo. */
 (() => {
   const cursos = window.TALENTO_CARIBE_CURSOS || [];
+  const esc = window.TCUtil.esc; // los cursos los edita el equipo: se escapan para que ningún título pueda inyectar HTML
   const menu = document.querySelector('.nav-toggle');
   menu?.addEventListener('click', () => {
     const open = menu.getAttribute('aria-expanded') !== 'true';
@@ -14,9 +15,9 @@
   if (destacados) (window.TCListo || Promise.resolve()).then(() => {
     destacados.innerHTML = cursos.filter(c => c.fase === 'Lanzamiento').slice(0, 3).map(c => `
       <article class="curso-card" data-tilt data-revelar="escala">
-        <div class="curso-etiquetas"><span class="tag">${c.area}</span><span class="tag tag-lanzamiento">Inscripciones abiertas</span></div>
-        <h3>${c.titulo}</h3><p>${c.descripcion}</p>
-        <div class="curso-card-pie"><span class="curso-duracion">${c.duracion} semanas · ${c.modalidad}</span><a class="btn-texto-plano" href="cursos.html">Ver detalles →</a></div>
+        <div class="curso-etiquetas"><span class="tag">${esc(c.area)}</span><span class="tag tag-lanzamiento">Inscripciones abiertas</span></div>
+        <h3>${esc(c.titulo)}</h3><p>${esc(c.descripcion)}</p>
+        <div class="curso-card-pie"><span class="curso-duracion">${Number(c.duracion) || ""} semanas · ${esc(c.modalidad)}</span><a class="btn-texto-plano" href="cursos.html">Ver detalles →</a></div>
       </article>`).join('');
     destacados.removeAttribute('aria-busy');
     window.TCRevelar?.(destacados);

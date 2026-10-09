@@ -11,6 +11,8 @@
      módulos (cada módulo dura 2 semanas): toma la duración del catálogo.
    - Crea las tablas de respuestas de encuestas y de recuperación de contraseña, y carga
      respuestas de ejemplo de los estudiantes de prueba si la tabla está vacía.
+   - Seguridad: agrega usuarios.sesiones_desde (cambiar la contraseña cierra las demás
+     sesiones) y crea la tabla eventos_seguridad (ingresos, fallos y bloqueos).
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -67,7 +69,20 @@ const ESTRUCTURA = `
     usado_en    TIMESTAMPTZ,
     creado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
   );
-  CREATE INDEX IF NOT EXISTS idx_recuperaciones_usuario ON recuperaciones_clave (usuario_id);`;
+  CREATE INDEX IF NOT EXISTS idx_recuperaciones_usuario ON recuperaciones_clave (usuario_id);
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS sesiones_desde TIMESTAMPTZ NOT NULL DEFAULT now();
+  CREATE TABLE IF NOT EXISTS eventos_seguridad (
+    id          BIGSERIAL PRIMARY KEY,
+    tipo        VARCHAR(25)  NOT NULL CHECK (tipo IN ('ingreso', 'ingreso_fallido', 'bloqueo', 'clave_cambiada', 'recuperacion_pedida',
+                                                       'clave_restablecida', 'sesiones_cerradas', 'registro')),
+    usuario_id  INTEGER      REFERENCES usuarios(id) ON DELETE SET NULL,
+    correo      VARCHAR(120),
+    ip          VARCHAR(60),
+    agente      VARCHAR(200),
+    detalle     VARCHAR(200),
+    creado_en   TIMESTAMPTZ  NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS idx_eventos_seguridad_fecha ON eventos_seguridad (creado_en DESC);`;
 
 async function main() {
   const db = new Client({ connectionString: process.env.DATABASE_URL, ssl });
@@ -79,7 +94,7 @@ async function main() {
   try {
     await db.query("BEGIN");
     await db.query(ESTRUCTURA);
-    console.log("✔ Columnas y tablas al día (fichas, encuestas y recuperación de contraseña)");
+    console.log("✔ Columnas y tablas al día (fichas, encuestas, recuperación de contraseña y registro de seguridad)");
 
     let conModulos = 0;
     for (const c of cursos) {

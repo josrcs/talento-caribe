@@ -37,6 +37,7 @@ CREATE TABLE usuarios (
   acudiente_telefono     VARCHAR(30),
   acudiente_correo       VARCHAR(120),
   activo                 BOOLEAN      NOT NULL DEFAULT true,
+  sesiones_desde         TIMESTAMPTZ  NOT NULL DEFAULT now(), -- los tokens emitidos antes de esta hora ya no sirven (cambio de clave)
   creado_en              TIMESTAMPTZ  NOT NULL DEFAULT now(),
   CHECK (correo = lower(correo)),
   CHECK (rol <> 'administrativo' OR especialidad IS NULL)
@@ -175,8 +176,23 @@ CREATE TABLE recuperaciones_clave (
   creado_en   TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
+-- ---------- Registro de seguridad: ingresos, fallos, bloqueos y cambios de contraseña ----------
+-- Lo revisa el equipo en el panel (sección Seguridad). Nunca guarda contraseñas. Se conserva 90 días.
+CREATE TABLE eventos_seguridad (
+  id          BIGSERIAL PRIMARY KEY,
+  tipo        VARCHAR(25)  NOT NULL CHECK (tipo IN ('ingreso', 'ingreso_fallido', 'bloqueo', 'clave_cambiada', 'recuperacion_pedida',
+                                                     'clave_restablecida', 'sesiones_cerradas', 'registro')),
+  usuario_id  INTEGER      REFERENCES usuarios(id) ON DELETE SET NULL,
+  correo      VARCHAR(120),             -- el correo escrito (puede no existir: intentos con cuentas inventadas)
+  ip          VARCHAR(60),
+  agente      VARCHAR(200),             -- navegador que hizo la petición
+  detalle     VARCHAR(200),
+  creado_en   TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
 -- ---------- Índices para las consultas más frecuentes ----------
 CREATE INDEX idx_recuperaciones_usuario  ON recuperaciones_clave (usuario_id);
+CREATE INDEX idx_eventos_seguridad_fecha ON eventos_seguridad (creado_en DESC);
 CREATE INDEX idx_cursos_filtros          ON cursos (area, nivel, modalidad);
 CREATE INDEX idx_cursos_docente          ON cursos (docente_id);
 CREATE INDEX idx_fichas_curso            ON fichas (curso_id);

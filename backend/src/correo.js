@@ -42,8 +42,12 @@ ${boton ? `<p style="margin:24px 0 6px"><a href="${esc(boton.url)}" style="displ
 </table></td></tr></table></body></html>`;
 }
 
+// Una sola línea y sin caracteres de control: un salto de línea en el asunto podría colar cabeceras nuevas
+const unaLinea = (t) => String(t ?? "").replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, 150);
+
 async function enviar({ para, asunto, titulo, parrafos, boton, responderA }) {
   parrafos = parrafos.filter(Boolean);
+  asunto = unaLinea(asunto);
   const texto = [titulo, ...parrafos, boton ? `${boton.texto}: ${boton.url}` : "", "Talento Caribe · Barranquilla, Colombia"].filter(Boolean).join("\n\n");
   if (!transporte) {
     console.log(`\n✉  Correo de prueba (falta configurar SMTP en .env, no se envió)\n   Para: ${para}\n   Asunto: ${asunto}\n   ${texto.replace(/\n/g, "\n   ")}\n`);
@@ -91,7 +95,8 @@ module.exports = {
   }),
 
   contactoRecibido: (m) => enviar({
-    para: m.correo, asunto: `Recibimos tu mensaje: ${m.asunto}`, titulo: `¡Gracias por escribirnos, ${primerNombre(m.nombre)}!`,
+    // Asunto fijo: el texto que escribe el visitante no va en el asunto (así el formulario no sirve para mandar spam a nombre nuestro)
+    para: m.correo, asunto: "Recibimos tu mensaje en Talento Caribe", titulo: `¡Gracias por escribirnos, ${primerNombre(m.nombre)}!`,
     parrafos: ["Recibimos tu mensaje y te responderemos en un máximo de 3 días hábiles.", `Asunto: ${m.asunto}`,
       "Mientras tanto, puedes conocer los cursos o preguntarle al asistente de la página."],
     boton: { texto: "Ver los cursos", url: enlaces.cursos },
