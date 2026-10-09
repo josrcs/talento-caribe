@@ -80,6 +80,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
 - [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con SMTP en `backend/.env`)
 - [x] Vista previa con imagen al compartir el enlace (cambiar `TU-USUARIO` en `index.html` y `cursos.html` al publicar)
+- [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
 - [ ] Subir el repositorio a GitHub
 - [ ] Publicar: frontend en GitHub Pages y backend en Render (pasos en «Publicar el proyecto»)
@@ -142,6 +143,21 @@ Todas las animaciones están hechas con CSS y JavaScript propios (sin librerías
 
 El **efecto que sigue el cursor** (aura y estela de luces), el reflejo y giro de las tarjetas y el **destello al hacer clic o tocar la pantalla** solo se activan en la página de inicio (`<body class="page-home">`); en catálogo, registro, login, portal y panel la interfaz queda limpia para trabajar.
 
+## Seguridad
+
+Con el servidor, la plataforma se protege así (detalle en [backend/README.md](backend/README.md#seguridad)):
+
+- **Contraseñas** cifradas con bcrypt, de 8 caracteres o más con letras y números y fuera de las más comunes. Cada persona puede cambiarla desde **Mi cuenta** (portal y panel) escribiendo la actual, y cerrar su sesión en todos los equipos.
+- **Sesiones revocables**: cambiar o recuperar la contraseña anula al instante las sesiones abiertas en otros equipos.
+- **Contra la fuerza bruta**: tras varios intentos fallidos se bloquean por 15 minutos la conexión y la cuenta atacada; registro, contacto, recuperación y asistente IA tienen límites de uso.
+- **Registro de seguridad** en el panel (sección **Seguridad**, para gerencia, dirección general y tecnología): ingresos, fallos, bloqueos y conexiones sospechosas.
+- **Navegador blindado**: una política CSP solo deja ejecutar los scripts del propio sitio, la página no se puede meter en iframes y todo texto de la base se escapa antes de mostrarse.
+- **Archivos privados**: el servidor solo publica las páginas y las carpetas del frontend; el código del servidor y los scripts SQL no se pueden descargar.
+
+La política CSP también va como etiqueta `<meta>` en cada página (GitHub Pages no permite cabeceras propias). Dos efectos a tener en cuenta:
+- Con **Live Server** la recarga automática deja de funcionar (Live Server inserta un script en la página y la CSP lo bloquea): recarga con F5 después de guardar.
+- Si publicas la API en un dominio que no termine en `onrender.com`, agrégalo a `connect-src` en esa etiqueta de cada página.
+
 ## Publicar el proyecto
 
 **1. Subir a GitHub.** Crea un repositorio vacío llamado `talento-caribe` en GitHub (sin README ni .gitignore) y, en la carpeta del proyecto:
@@ -160,6 +176,8 @@ Después, por cada cambio con sentido (un arreglo, una sección, una función): 
 - `CORS_ORIGENES`: `https://TU-USUARIO.github.io`
 
 Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
+
+**4. Después de la presentación.** Las contraseñas de las cuentas de prueba están en este README, así que cualquiera podría entrar al panel publicado. En Render → el servicio → *Shell*, cámbialas o desactívalas: `npm run cuenta -- clave admin@talentocaribe.co` (genera una segura y la muestra una vez) o `npm run cuenta -- desactivar estudiante@talentocaribe.co`. `npm run cuenta -- lista` muestra todas las cuentas.
 
 ## Plataforma: roles, actividades y asistente IA (modo demostración)
 

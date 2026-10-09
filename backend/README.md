@@ -61,6 +61,9 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 | `npm run db:init` | Crea la base, las tablas y los datos iniciales (si ya existen, no toca nada) |
 | `npm run db:actualizar` | Agrega lo que falte de versiones nuevas (módulos, guía, fichas) **sin borrar** cuentas, actividades ni entregas |
 | `npm run db:reiniciar` | **Borra** todas las tablas y las crea de nuevo (pierdes los datos guardados) |
+| `npm run cuenta -- lista` | Muestra las cuentas con su rol y si están activas |
+| `npm run cuenta -- clave <correo>` | Pone una contraseña nueva y segura a esa cuenta (la muestra una sola vez) y cierra sus sesiones. Con `clave <correo> "MiClave2026"` usa la que escribas |
+| `npm run cuenta -- desactivar <correo>` | La cuenta ya no puede ingresar (`activar` la habilita de nuevo) |
 
 ## Asistente con IA (Claude)
 
@@ -105,13 +108,15 @@ Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `n
 |---|---|---|---|
 | GET | `/api/salud` | todos | Estado del servidor y de la base de datos |
 | GET | `/api/cursos` · `/api/cursos/:id` | todos | Catálogo |
-| POST | `/api/contacto` | todos | Mensaje del formulario de contacto |
-| POST | `/api/chat` | todos (máx. 20 mensajes / 10 min) | Asistente con IA: conoce la marca, el catálogo y las fichas; usa el tono de `config_ia` |
+| POST | `/api/contacto` | todos (máx. 5 / 15 min) | Mensaje del formulario de contacto |
+| POST | `/api/chat` | todos (máx. 20 mensajes / 10 min por conexión y `IA_LIMITE_DIARIO` al día en total) | Asistente con IA: conoce la marca, el catálogo y las fichas; usa el tono de `config_ia` |
 | POST | `/api/auth/recuperar` | todos (máx. 5 / 15 min) | Envía al correo un enlace para crear una contraseña nueva (misma respuesta exista o no la cuenta) |
-| POST | `/api/auth/restablecer` | todos | Cambia la contraseña con el enlace (un solo uso, vence en 1 hora) |
+| POST | `/api/auth/restablecer` | todos (máx. 10 / 15 min) | Cambia la contraseña con el enlace (un solo uso, vence en 1 hora) y cierra las sesiones abiertas |
 | POST | `/api/encuestas/:id/respuestas` | 🔒 estudiante | Guarda las respuestas de una encuesta (una vez por encuesta) |
-| POST | `/api/auth/registro` | todos | Crea cuenta de estudiante (clave cifrada con bcrypt) y devuelve el token |
-| POST | `/api/auth/login` | todos | Inicio de sesión de estudiantes, docentes y administrativos |
+| POST | `/api/auth/registro` | todos (máx. 5 / hora) | Crea cuenta de estudiante (clave cifrada con bcrypt) y devuelve el token |
+| POST | `/api/auth/login` | todos (ver «Seguridad») | Inicio de sesión de estudiantes, docentes y administrativos |
+| PUT | `/api/auth/clave` | 🔒 | Cambiar la contraseña con la actual; cierra las sesiones de los demás equipos y devuelve un token nuevo |
+| POST | `/api/auth/cerrar-sesiones` | 🔒 | Cierra la sesión en todos los equipos |
 | GET · PUT | `/api/auth/yo` · `/api/auth/perfil` | 🔒 | Ver / completar el perfil |
 | GET | `/api/datos` | todos | Lo que el usuario puede ver según su rol y cargo |
 | POST | `/api/inscripciones` | 🔒 estudiante | Solicitar cupo en un curso |
@@ -124,6 +129,7 @@ Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `n
 | PATCH | `/api/mensajes/:id/leido` | 🔒 admisiones / comunicaciones | Marcar mensaje como leído |
 | POST | `/api/gastos` | 🔒 finanzas | Registrar un gasto |
 | PUT | `/api/config-ia` | 🔒 gerente | Tono y contexto del asistente |
+| GET | `/api/seguridad/eventos?tipo=` | 🔒 gerencia, dirección general y tecnología | Registro de seguridad: últimos 200 eventos, resumen de 24 horas y conexiones con muchos fallos |
 
 Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejemplo
 `SELECT nombre, correo, rol FROM usuarios;` o `SELECT * FROM vista_resumen_cursos;`.
@@ -137,7 +143,10 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 | `faltan las tablas` | Ejecuta `npm run db:init`. |
 | `la base es de una versión anterior` | Sigue la sección «¿Ya tenías la base creada de antes?». |
 | `Cannot find module 'bcryptjs'` | Ejecuta `npm install` dentro de `backend`. |
-| Al entrar te devuelve al login | La sesión dura 8 horas; vuelve a iniciar sesión. Si pasa cada vez que reinicias el servidor, falta `JWT_SECRETO` en `.env`. |
+| Al entrar te devuelve al login | La sesión dura 8 horas; vuelve a iniciar sesión. También pasa si la contraseña cambió o se cerraron las sesiones desde otro equipo. Si pasa cada vez que reinicias el servidor, falta `JWT_SECRETO` en `.env`. |
+| `Demasiados intentos fallidos` | Es el bloqueo contra ataques: espera 15 minutos o recupera la contraseña. Mientras pruebas en tu computador también se quita al reiniciar el servidor. |
+| `JWT_SECRETO falta o es débil` (el servidor no arranca) | En producción se exige un secreto de 32 caracteres o más que no sea el del ejemplo. Genera uno con el comando que muestra el mensaje. |
+| `no existe la columna «sesiones_desde»` | Ejecuta `npm run db:actualizar` (no borra datos). |
 | `no existe la columna «modulos»` | Ejecuta `npm run db:actualizar` (no borra datos). |
 | El chat dice «la IA todavía no está configurada» | Falta `ANTHROPIC_API_KEY` en `.env`, o reinicia el servidor después de agregarla. |
 | `EADDRINUSE :::3000` | Ya hay un servidor encendido en otra terminal. Ciérralo o cambia `PORT` en `.env`. |
@@ -146,8 +155,29 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 
 ## Seguridad
 
-- `backend/.env` tiene tu contraseña: **nunca** lo subas a GitHub (ya está en `.gitignore`).
-- El servidor no publica las carpetas `backend/` ni `database/`.
-- Las consultas usan parámetros (`$1, $2…`), lo que evita la inyección SQL.
-- Las contraseñas se guardan cifradas con bcrypt: ni tú puedes leerlas en pgAdmin.
-- Los permisos (quién ve y cambia qué) se revisan en el servidor en cada petición.
+**Datos y secretos**
+- `backend/.env` tiene tus claves: **nunca** lo subas a GitHub (ya está en `.gitignore`). En producción el servidor no arranca si `JWT_SECRETO` falta, es corto o es el del ejemplo: con un secreto conocido cualquiera podría fabricar una sesión de administrador.
+- El servidor publica **solo** lo que está en una lista blanca: las páginas (`index`, `cursos`, `portal`, `registro`, `recuperar`) y las carpetas `css`, `js`, `assets` y `admin`. El código del servidor, `database/`, el README y los archivos de configuración no se pueden descargar, ni siquiera escribiendo la ruta de otra forma (`/%62ackend/...`).
+- Las consultas usan parámetros (`$1, $2…`), lo que evita la inyección SQL. Ninguna consulta puede tardar más de 15 segundos.
+- Los permisos (quién ve y cambia qué) se revisan en el servidor en cada petición. Un cargo de un área no puede tocar cursos ni fichas de otra.
+
+**Contraseñas y sesiones**
+- Se guardan cifradas con bcrypt: ni tú puedes leerlas en pgAdmin.
+- Deben tener 8 a 72 caracteres, letras y números, y no pueden ser de las más comunes ni contener el correo.
+- La sesión es un token JWT firmado (solo HS256) que dura 8 horas. Cada petición revisa en la base que la cuenta siga activa y que el token tenga la **versión de sesión** vigente: cambiar o recuperar la contraseña, o usar «Cerrar sesión en todos los equipos» (botón **Mi cuenta**), anula al instante los tokens de los demás equipos.
+- Los enlaces para recuperar la contraseña sirven una vez, vencen en 1 hora y en la base solo se guarda su huella SHA-256.
+
+**Contra ataques automáticos**
+- Inicio de sesión: una conexión con 10 intentos fallidos en 15 minutos queda bloqueada 15 minutos; una cuenta con 8 fallos también (venga de donde venga el ataque); y nadie puede hacer más de 30 intentos cada 15 minutos. La respuesta es la misma, y tarda lo mismo, exista o no el correo.
+- Límites por conexión en registro (5 por hora), contacto (5 cada 15 min), recuperar contraseña y asistente IA, más un límite general de 300 peticiones por minuto a la API. El asistente además tiene un tope diario (`IA_LIMITE_DIARIO`) para que la factura de la IA no se dispare.
+- Los nombres, asuntos y títulos no aceptan saltos de línea ni caracteres de control (evita inyectar cabeceras en los correos). El correo de confirmación del contacto tiene un asunto fijo.
+
+**En el navegador**
+- Cabeceras HTTP: `Content-Security-Policy` (solo se ejecutan scripts del propio sitio, así un texto malicioso guardado en la base no puede robar sesiones), `X-Frame-Options: DENY` (nadie puede meter la página en un iframe), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y, en producción, HSTS. Las respuestas de la API no se guardan en caché.
+- Todo el texto que viene de la base se escapa antes de mostrarse.
+
+**Registro de seguridad.** Ingresos, intentos fallidos, bloqueos, cuentas nuevas y cambios de contraseña quedan en la tabla `eventos_seguridad` (90 días, sin contraseñas). Gerencia, dirección general y dirección de tecnología los ven en el panel, sección **Seguridad**, con las conexiones sospechosas destacadas.
+
+**Antes de publicar**
+- Las cuentas de prueba tienen contraseñas públicas (están en el README). Después de la presentación, cámbialas o desactívalas con `npm run cuenta`; la cuenta `admin@` puede elegir cualquier cargo, incluido Gerente.
+- Los límites se cuentan en la memoria del servidor: se reinician si el servidor se reinicia (suficiente para un solo servidor como el de Render).

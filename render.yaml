@@ -14,18 +14,25 @@ services:
     plan: free
     rootDir: backend
     buildCommand: npm install
-    # db:init crea las tablas y los datos de prueba la primera vez; si ya existen no toca nada
-    startCommand: npm run db:init && npm start
+    # db:init crea las tablas y los datos de prueba la primera vez; db:actualizar aplica los cambios de
+    # versiones nuevas (columnas y tablas) sin borrar nada. Así cada despliegue deja la base al día.
+    startCommand: npm run db:init && npm run db:actualizar && npm start
     healthCheckPath: /api/salud
     envVars:
       - key: DATABASE_URL
         fromDatabase:
           name: talento-caribe-db
           property: connectionString
+      # Producción: el servidor exige un JWT_SECRETO fuerte y activa HTTPS estricto (HSTS)
+      - key: NODE_ENV
+        value: production
       - key: JWT_SECRETO
         generateValue: true
       - key: ANTHROPIC_API_KEY
         sync: false
+      # Máximo de mensajes al asistente IA por día en toda la plataforma (controla el gasto)
+      - key: IA_LIMITE_DIARIO
+        value: "500"
       - key: CORS_ORIGENES
         sync: false
       # Correos (ver backend/.env.ejemplo). SITIO_URL es la dirección de la página en GitHub Pages.
