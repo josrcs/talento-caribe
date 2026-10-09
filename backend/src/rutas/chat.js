@@ -115,6 +115,8 @@ router.post("/chat", limitar, sesionOpcional, async (req, res, next) => {
 
   // Conversación: últimos mensajes en orden; debe empezar con el usuario y terminar con la pregunta actual
   const mensajes = historial.slice(-10).map((h) => ({ role: h.rol, content: h.texto.trim() }));
+  // Máximo unos 12.000 caracteres de historial (se quitan los más viejos): cada carácter enviado a la IA cuesta
+  while (mensajes.length > 1 && mensajes.reduce((total, m) => total + m.content.length, 0) > 12000) mensajes.shift();
   while (mensajes.length && mensajes[0].role !== "user") mensajes.shift();
   const ultimo = mensajes[mensajes.length - 1];
   if (!ultimo || ultimo.role !== "user" || ultimo.content !== b.mensaje.trim()) mensajes.push({ role: "user", content: b.mensaje.trim() });

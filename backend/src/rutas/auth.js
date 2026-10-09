@@ -164,18 +164,18 @@ const limitarCambios = limitePorIP(10, 15, "Hiciste muchos intentos seguidos. Es
 router.post("/recuperar", limitarPedidos, async (req, res, next) => {
   const correo = normalizar(req.body?.correo);
   if (rechazar(res, { correo: EMAIL.test(correo) })) return;
+  // La misma respuesta, y en el mismo tiempo, exista o no la cuenta: se responde ANTES de buscarla y
+  // el enlace se prepara después. Así nadie puede averiguar qué correos están registrados.
+  res.json({ ok: true });
   try {
     const u = (await pool.query("SELECT id, nombre, correo FROM usuarios WHERE correo = $1 AND activo", [correo])).rows[0];
-    if (u) {
-      const token = crypto.randomBytes(32).toString("hex");
-      await pool.query("UPDATE recuperaciones_clave SET usado_en = now() WHERE usuario_id = $1 AND usado_en IS NULL", [u.id]); // solo vale el último enlace
-      await pool.query("INSERT INTO recuperaciones_clave (usuario_id, token_hash, expira_en) VALUES ($1, $2, now() + interval '1 hour')", [u.id, huella(token)]);
-      correos.recuperar(u, `${correos.SITIO}/recuperar.html?token=${token}`);
-      registrarEvento(req, "recuperacion_pedida", { usuarioId: u.id, correo });
-    }
-    // La misma respuesta exista o no la cuenta: así nadie puede averiguar qué correos están registrados
-    res.json({ ok: true });
-  } catch (e) { next(e); }
+    if (!u) return;
+    const token = crypto.randomBytes(32).toString("hex");
+    await pool.query("UPDATE recuperaciones_clave SET usado_en = now() WHERE usuario_id = $1 AND usado_en IS NULL", [u.id]); // solo vale el último enlace
+    await pool.query("INSERT INTO recuperaciones_clave (usuario_id, token_hash, expira_en) VALUES ($1, $2, now() + interval '1 hour')", [u.id, huella(token)]);
+    correos.recuperar(u, `${correos.SITIO}/recuperar.html?token=${token}`);
+    registrarEvento(req, "recuperacion_pedida", { usuarioId: u.id, correo });
+  } catch (error) { console.error("✖ Recuperar contraseña:", error.message); }
 });
 
 router.post("/restablecer", limitarCambios, async (req, res, next) => {

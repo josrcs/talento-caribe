@@ -20,7 +20,7 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
-const { cabecerasSeguras, limitePorIP } = require("./seguridad");
+const { cabecerasSeguras, limitePorIP, PRODUCCION } = require("./seguridad");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
@@ -34,7 +34,9 @@ app.use(express.json({ limit: "100kb" }));
 // Permite llamar a la API desde Live Server (puerto 5500) y desde los dominios de CORS_ORIGENES
 // (por ejemplo la página publicada en GitHub Pages: https://tu-usuario.github.io)
 const ORIGENES_EXTRA = (process.env.CORS_ORIGENES || "").split(",").map((o) => o.trim().replace(/\/$/, "")).filter(Boolean);
-app.use(cors({ origin: ["http://127.0.0.1:5500", "http://localhost:5500", `http://localhost:${PORT}`, ...ORIGENES_EXTRA], maxAge: 600 }));
+// En producción solo se aceptan los dominios de CORS_ORIGENES (los de Live Server son para trabajar en el computador)
+const ORIGENES_LOCALES = PRODUCCION ? [] : ["http://127.0.0.1:5500", "http://localhost:5500", `http://localhost:${PORT}`];
+app.use(cors({ origin: [...ORIGENES_LOCALES, ...ORIGENES_EXTRA], maxAge: 600 }));
 
 /* ---------- API ---------- */
 // Límite general: 300 peticiones por minuto por IP (la página normal usa muy pocas). Frena a quien
@@ -74,7 +76,7 @@ app.use((error, req, res, next) => {
   res.status(sinBase ? 503 : 500).json({ error: sinBase ? "La base de datos no está disponible. Revisa que PostgreSQL esté encendido y ejecuta npm run db:init." : "Error interno del servidor." });
 });
 
-app.listen(PORT, async () => {
+const servidor = app.listen(PORT, async () => {
   console.log(`\n🌴 Talento Caribe en http://localhost:${PORT}`);
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
   console.log(`   Asistente IA: ${require("./rutas/chat").iaConfigurada() ? "✅ conectado a Claude" : "⚠️  sin ANTHROPIC_API_KEY (responde con reglas locales)"}`);
@@ -88,3 +90,6 @@ app.listen(PORT, async () => {
     console.log("   (La página funciona igual en modo demostración.)\n");
   }
 });
+// Una conexión que envía su petición muy despacio (ataque "slowloris") se corta a los 30 s
+servidor.headersTimeout = 20000;
+servidor.requestTimeout = 30000;
