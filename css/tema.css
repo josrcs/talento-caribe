@@ -65,9 +65,9 @@
   --vidrio-luz: radial-gradient(380px circle at var(--mx, 50%) var(--my, -60%), rgba(26, 176, 214, .14), transparent 45%);
   --vidrio-filo: linear-gradient(140deg, rgba(255, 255, 255, 1), rgba(10, 45, 94, .1) 40%, rgba(10, 45, 94, .06) 62%, rgba(26, 176, 214, .4));
 
-  /* Animación de entrada */
-  --intro-fondo: #f4f8fb; --intro-cielo: #d6effa; --intro-texto: #0a2d5e; --intro-acento: #0e8fb3; --intro-linea: rgba(18, 104, 200, .45);
-  --intro-sol: rgba(248, 172, 36, .45); --intro-ola-1: #0e8fb3; --intro-ola-2: rgba(26, 176, 214, .35); --intro-ola-3: rgba(18, 104, 200, .2);
+  /* Animación de entrada: amanecer claro (cielo arena que se calienta en el horizonte) */
+  --intro-fondo: #f4f8fb; --intro-cielo-alto: #f4f8fb; --intro-cielo-bajo: #fde6bd; --intro-mar-alto: #cbe8f5; --intro-mar-bajo: #eef7fb;
+  --intro-texto: #0a2d5e; --intro-acento: #0e8fb3; --intro-linea: 18, 104, 200; --intro-sol: 248, 172, 36; --intro-grano: .05;
 }
 
 /* ---------- Ajustes puntuales del modo claro ---------- */
@@ -139,6 +139,9 @@
 [data-tema="claro"] .pill-pendiente { background: rgba(245, 158, 11, .16); }
 [data-tema="claro"] .intro-saltar { border-color: rgba(10, 45, 94, .15); }
 [data-tema="claro"] .intro-saltar kbd { background: rgba(10, 45, 94, .07); }
+[data-tema="claro"] .intro-estrellas { display: none; }
+[data-tema="claro"] .intro-horizonte { background: linear-gradient(90deg, transparent 4%, rgba(18, 104, 200, .45) 30%, rgba(248, 172, 36, .9) 50%, rgba(18, 104, 200, .45) 70%, transparent 96%); box-shadow: 0 0 18px 1px rgba(248, 172, 36, .35); }
+[data-tema="claro"] .cifra strong { background-image: linear-gradient(135deg, #0a2d5e 35%, #1268c8); }
 
 /* ---------- Controles de tema e idioma (en todas las páginas) ---------- */
 .prefs { display: inline-flex; align-items: center; gap: .3rem; padding: .2rem; border-radius: 999px; background: rgba(var(--tinte), .06); border: 1px solid rgba(var(--tinte), .12); }
@@ -153,7 +156,8 @@
 .pref-idioma:hover .pref-idioma-otro { color: var(--celeste); }
 .prefs-li { display: flex; align-items: center; }
 .prefs-flotante { position: fixed; top: .9rem; right: .9rem; z-index: 60; -webkit-backdrop-filter: blur(12px); backdrop-filter: blur(12px); background: rgba(var(--o-15-23-42), .6); }
-/* Transición circular al cambiar de tema (View Transitions API) */
-::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
-::view-transition-new(root) { z-index: 1; }
+/* Transición circular al cambiar de tema (View Transitions API). La clase .vt-tema la pone
+   i18n.js solo mientras dura el cambio, para no pisar la transición entre páginas (efectos.css). */
+.vt-tema::view-transition-old(root), .vt-tema::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+.vt-tema::view-transition-new(root) { z-index: 1; }
 @media (max-width: 859px) { [data-tema="claro"] .nav-links { background: rgba(250, 252, 254, .98); box-shadow: 0 18px 40px rgba(10, 45, 94, .12); } }

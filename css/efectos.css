@@ -1,10 +1,11 @@
 /* ==========================================================
    Talento Caribe - Capa de efectos visuales
    Se carga al final (después de style.css y admin.css) en todas las páginas.
-   1. Tokens de vidrio      5. Animación de inicio (hero + intro)
-   2. Fondo ambiental       6. Logo en la plataforma
-   3. Efecto del cursor     7. Asistente flotante con logo
-   4. Superficies de vidrio 8. Movimiento reducido
+   1. Tokens de vidrio        6. Secciones del inicio (cifras, cinta, pasos)
+   2. Fondo ambiental         7. Revelado al hacer scroll
+   3. Efecto del cursor       8. Logo, asistente y transiciones entre páginas
+   4. Superficies de vidrio   9. Movimiento reducido
+   5. Inicio: intro y hero
    ========================================================== */
 
 :root {
@@ -54,9 +55,14 @@ body { background: var(--color-dark-900); }
   background: rgba(var(--o-5-11-22), .42);
   -webkit-backdrop-filter: blur(20px) saturate(180%); backdrop-filter: blur(20px) saturate(180%);
   border-bottom: 1px solid rgba(var(--tinte), .08);
-  transition: background var(--transition), box-shadow var(--transition);
+  transition: background var(--transition), box-shadow var(--transition), transform .5s var(--curva);
 }
 .site-header.con-scroll { background: rgba(var(--o-5-11-22), .66); box-shadow: 0 12px 30px rgba(var(--sombra), .35); }
+/* Al bajar, la barra se esconde para dejar espacio; vuelve al subir o cuando recibe el foco del teclado */
+.site-header.oculta { transform: translateY(-100%); box-shadow: none; }
+.site-header.oculta:focus-within { transform: none; }
+/* Línea de lectura: muestra cuánto se ha recorrido de la página */
+.progreso-lectura { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, var(--caribe-oceano), var(--caribe-mar), var(--caribe-sol)); pointer-events: none; }
 .nav-links { background: rgba(var(--o-8-16-32), .94); }
 @media (min-width: 860px) { .nav-links { background: none; } }
 
@@ -76,11 +82,22 @@ body { background: var(--color-dark-900); }
 
 /* Mentores y pasos ahora son tarjetas de vidrio */
 .mentor { padding: 1.4rem 1.2rem; border-radius: var(--radius-lg); text-align: center; transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); }
-.mentor .avatar { margin-inline: auto; box-shadow: 0 0 0 4px rgba(255, 255, 255, .06), 0 10px 24px rgba(18, 104, 200, .35); }
+.mentor .avatar { position: relative; margin-inline: auto; box-shadow: 0 0 0 4px rgba(255, 255, 255, .06), 0 10px 24px rgba(18, 104, 200, .35); }
 .mentor:hover { transform: translateY(-6px); }
 .mentor:nth-child(even) .avatar { background: linear-gradient(135deg, var(--caribe-palma), #0a6f5d); }
 .mentor p { max-width: none; }
-.pasos li { padding: 1.3rem; border-radius: var(--radius-lg); border-top: 1px solid var(--vidrio-borde); transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); }
+/* Anillo de colores que gira alrededor de la foto al pasar el mouse */
+@property --giro { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.mentor .avatar::after {
+  content: ""; position: absolute; inset: -6px; padding: 2px; border-radius: 50%;
+  background: conic-gradient(from var(--giro), var(--caribe-mar), var(--caribe-sol), var(--caribe-palma), var(--caribe-mar));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0; transition: opacity .4s ease; animation: giro-anillo 3s linear infinite paused;
+}
+.mentor:hover .avatar::after { opacity: 1; animation-play-state: running; }
+@keyframes giro-anillo { to { --giro: 360deg; } }
+.pasos li { position: relative; padding: 1.3rem; border-radius: var(--radius-lg); border-top: 1px solid var(--vidrio-borde); transition: transform var(--transition), border-color var(--transition), box-shadow var(--transition); }
 .pasos li:hover { transform: translateY(-4px); }
 .pasos li::before { background: linear-gradient(135deg, var(--celeste), var(--caribe-sol)); -webkit-background-clip: text; background-clip: text; }
 
@@ -99,78 +116,113 @@ select option { background: #0b1628; }
 .btn-primary::after { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, transparent 30%, rgba(var(--tinte), .28) 50%, transparent 70%); transform: translateX(-120%); transition: transform .7s ease; }
 .btn-primary:hover::after { transform: translateX(120%); }
 
-/* ---------- 5. Animación de la página de inicio ---------- */
+/* ---------- 5. Inicio: animación de entrada y hero ---------- */
 
-/* 5a. Animación de entrada (js/intro.js): una vez por sesión del navegador.
-   Cielo nocturno caribeño, sol que sale, olas, emblema y marca; sale subiendo como una ola. */
+/* 5a. Animación de entrada (js/intro.js): amanecer en el Caribe, una vez por sesión.
+   El telón lleva el cielo, el sol, el mar, el horizonte y los textos, y al salir sube
+   como una ola. El emblema va fuera del telón para poder volar hasta el logo del hero. */
 :root {
-  --intro-fondo: #050b16; --intro-cielo: #0a2347; --intro-texto: #f1f6ff; --intro-acento: #1ab0d6; --intro-linea: rgba(125, 211, 252, .55);
-  --intro-sol: rgba(248, 172, 36, .55); --intro-ola-1: #0a2d5e; --intro-ola-2: rgba(26, 176, 214, .38); --intro-ola-3: rgba(18, 104, 200, .32);
+  --intro-fondo: #03070f; --intro-cielo-alto: #03070f; --intro-cielo-bajo: #0c2d55; --intro-mar-alto: #08203d; --intro-mar-bajo: #02050b;
+  --intro-texto: #f1f6ff; --intro-acento: #2cc3e6; --intro-linea: 125, 211, 252; --intro-sol: 248, 172, 36; --intro-grano: .1;
 }
 html.intro-cubre::after { content: ""; position: fixed; inset: 0; z-index: 10000; background: var(--intro-fondo); }
-.intro { position: fixed; inset: 0; z-index: 10000; cursor: pointer; transition: transform 1.05s cubic-bezier(.76, 0, .2, 1); }
-.intro-escena { position: absolute; inset: 0; overflow: hidden; display: grid; place-items: center; background: var(--intro-fondo); }
-.intro-cielo { position: absolute; inset: 0; background: radial-gradient(120% 70% at 50% 100%, var(--intro-cielo), transparent 70%), radial-gradient(circle, rgba(125, 211, 252, .14) 1px, transparent 1.4px) 0 0 / 30px 30px; -webkit-mask-image: linear-gradient(transparent, #000 25%); mask-image: linear-gradient(transparent, #000 25%); animation: intro-aparece 1.2s ease-out both; }
-.intro-sol { position: absolute; left: 50%; top: 50%; width: 280%; max-width: 90vw; aspect-ratio: 1; border-radius: 50%; background: radial-gradient(circle, var(--intro-sol), rgba(248, 172, 36, .12) 38%, transparent 68%); transform: translate(-50%, -50%); animation: intro-sol 1.6s cubic-bezier(.2, .8, .2, 1) both, intro-latir 3.2s ease-in-out 1.6s infinite; }
-.intro-burbujas i { position: absolute; bottom: -2rem; left: var(--x); width: var(--r); height: var(--r); border-radius: 50%; background: rgba(186, 230, 253, .55); box-shadow: 0 0 10px rgba(125, 211, 252, .6); opacity: 0; animation: intro-burbuja var(--d) ease-in var(--delay) infinite; }
-.intro-mar { position: absolute; left: 0; right: 0; bottom: 0; height: 34vh; }
-.intro-ola { position: absolute; left: 0; bottom: 0; width: 200%; animation: intro-ola-sube 1.4s cubic-bezier(.2, .8, .2, 1) both, intro-ola-mece 9s linear infinite; }
-.intro-ola svg { display: block; width: 100%; height: 100%; }
-.intro-ola-1 { height: 46%; fill: var(--intro-ola-1); animation-delay: .25s, 0s; }
-.intro-ola-2 { height: 66%; fill: var(--intro-ola-2); animation-delay: .15s, 0s; animation-duration: 1.4s, 13s; animation-direction: normal, reverse; }
-.intro-ola-3 { height: 86%; fill: var(--intro-ola-3); animation-delay: .05s, 0s; animation-duration: 1.4s, 17s; }
-.intro-centro { position: relative; z-index: 2; display: grid; justify-items: center; gap: 1.05rem; margin-bottom: 6vh; transition: transform .8s cubic-bezier(.7, 0, .3, 1), opacity .5s; }
-.intro-emblema { position: relative; display: grid; place-items: center; width: clamp(9.5rem, 27vw, 12.5rem); aspect-ratio: 1; }
-.intro-emblema img { position: relative; width: 64%; height: auto; animation: intro-emblema 1.1s cubic-bezier(.2, .9, .3, 1.25) .3s both, intro-flotar 3.4s ease-in-out 1.4s infinite; filter: drop-shadow(0 14px 34px rgba(26, 176, 214, .45)); }
-.intro-anillo { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); }
-.intro-anillo circle { fill: none; stroke: var(--intro-linea); stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 1; animation: intro-dibujar 1.3s cubic-bezier(.65, 0, .35, 1) .2s forwards; }
-.intro-anillo .intro-anillo-2 { stroke: var(--caribe-sol); stroke-width: 2.4; stroke-dasharray: .22 .78; animation: intro-dibujar 1.3s cubic-bezier(.65, 0, .35, 1) .4s forwards, intro-girar 2.6s linear 1.7s infinite; transform-origin: center; }
-.intro-orbita { position: absolute; inset: -6%; border-radius: 50%; animation: intro-girar 4.5s linear infinite, intro-aparece .6s ease-out 1.1s both; }
-.intro-orbita span { position: absolute; top: 0; left: 50%; width: .6rem; height: .6rem; margin-left: -.3rem; border-radius: 50%; background: var(--caribe-sol); box-shadow: 0 0 14px 3px rgba(248, 172, 36, .7); }
-.intro-marca { display: grid; justify-items: center; line-height: 1; font-weight: 900; letter-spacing: .14em; }
-.intro-marca span span { display: inline-block; opacity: 0; transform: translateY(.7em) scale(.9); filter: blur(8px); animation: intro-letra .7s cubic-bezier(.2, .9, .3, 1) both; animation-delay: calc(.9s + var(--i) * .05s); }
-.intro-talento { color: var(--intro-texto); font-size: clamp(1.9rem, 6.5vw, 3.3rem); }
-.intro-caribe { margin-top: .3rem; color: var(--intro-acento); font-size: clamp(1.25rem, 4.4vw, 2.1rem); letter-spacing: .42em; padding-left: .42em; }
-.intro-lema { margin: 0; color: var(--color-slate-400); font-size: .78rem; font-weight: 600; letter-spacing: .32em; text-transform: uppercase; text-align: center; animation: intro-subir .8s cubic-bezier(.2, .8, .2, 1) 1.6s both; max-width: none; }
-.intro-barra { width: min(56vw, 15rem); height: 3px; overflow: hidden; border-radius: 3px; background: rgba(125, 211, 252, .15); animation: intro-aparece .4s ease-out .5s both; }
-.intro-barra span { display: block; height: 100%; width: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--caribe-oceano), var(--intro-acento), var(--caribe-sol)); transform: scaleX(0); transform-origin: left; animation: intro-carga 2.3s cubic-bezier(.4, 0, .2, 1) .55s forwards; }
-.intro-borde { position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: clamp(3rem, 9vh, 6rem); fill: var(--intro-fondo); transform: scaleY(-1); pointer-events: none; }
-.intro-borde svg { display: block; width: 100%; height: 100%; }
-.intro-saltar { position: absolute; right: 1.2rem; bottom: 1.2rem; z-index: 3; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .8rem; border-radius: 999px; border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--o-5-11-22), .4); color: var(--color-slate-400); font-size: .78rem; font-weight: 600; animation: intro-aparece .5s ease-out .6s both; transition: opacity .3s; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
-.intro-saltar:hover { color: var(--intro-texto); border-color: var(--intro-linea); }
-.intro-saltar kbd { padding: .05rem .35rem; border-radius: 5px; background: rgba(var(--tinte), .08); font: inherit; font-size: .7rem; }
-/* Salida: el contenido se aleja y toda la escena sube con borde de ola */
-.intro-sale { pointer-events: none; transform: translateY(calc(-100% - clamp(3rem, 9vh, 6rem))); }
-.intro-sale .intro-centro { transform: translateY(-6vh) scale(.94); opacity: 0; }
-.intro-sale .intro-saltar { opacity: 0; }
-@keyframes intro-aparece { from { opacity: 0; } }
-@keyframes intro-subir { from { opacity: 0; transform: translateY(12px); } }
-@keyframes intro-sol { from { opacity: 0; transform: translate(-50%, -20%) scale(.6); } }
-@keyframes intro-latir { 50% { transform: translate(-50%, -50%) scale(1.07); opacity: .85; } }
-@keyframes intro-burbuja { 0% { opacity: 0; transform: translateY(0) scale(.6); } 15% { opacity: .9; } 100% { opacity: 0; transform: translateY(-70vh) scale(1.1); } }
-@keyframes intro-ola-sube { from { transform: translateY(100%); } }
-@keyframes intro-ola-mece { to { margin-left: -100%; } }
-@keyframes intro-emblema { from { opacity: 0; transform: scale(.55) rotate(-8deg); filter: blur(14px); } }
-@keyframes intro-flotar { 50% { transform: translateY(-6px); } }
-@keyframes intro-dibujar { to { stroke-dashoffset: 0; } }
-@keyframes intro-girar { to { transform: rotate(360deg); } }
-@keyframes intro-letra { 60% { opacity: 1; filter: blur(0); text-shadow: 0 0 18px var(--intro-acento); } to { opacity: 1; transform: none; filter: none; text-shadow: none; } }
-@keyframes intro-carga { to { transform: scaleX(1); } }
-/* Mientras la intro está en pantalla, el hero espera; arranca cuando se abre la cortina */
-.con-intro:not(.intro-hecha) .hero-texto > *, .con-intro:not(.intro-hecha) .hero-escena { animation-play-state: paused; }
+.intro { --horizonte: 61%; position: fixed; inset: 0; z-index: 10000; overflow: hidden; cursor: pointer; }
+@media (orientation: portrait) { .intro { --horizonte: 55%; } } /* en celular el conjunto queda más centrado */
+.intro-telon { position: absolute; inset: 0; background: var(--intro-fondo); transition: transform 1.2s var(--curva-telon) .1s; }
+.intro-cielo { position: absolute; inset: 0 0 calc(100% - var(--horizonte)); overflow: hidden; background: linear-gradient(var(--intro-cielo-alto) 15%, var(--intro-cielo-bajo)); opacity: 0; }
+.intro-cielo::after { content: ""; position: absolute; left: 50%; bottom: 0; width: 130vmin; height: 34vmin; translate: -50% 50%; background: radial-gradient(closest-side, rgba(var(--intro-sol), .42), transparent); opacity: 0; }
+.intro-estrellas i { position: absolute; left: var(--x); top: var(--y); width: var(--t); height: var(--t); border-radius: 50%; background: #fff; opacity: 0; }
+.intro-sol { position: absolute; left: 50%; bottom: 0; width: clamp(15rem, 58vmin, 32rem); aspect-ratio: 1; border-radius: 50%; translate: -50% 100%; background: radial-gradient(circle, rgba(var(--intro-sol), .9) 0 15%, rgba(var(--intro-sol), .45) 24%, rgba(var(--intro-sol), .14) 45%, transparent 68%); }
+.intro-mar { position: absolute; inset: var(--horizonte) 0 0; overflow: hidden; background: linear-gradient(var(--intro-mar-alto), var(--intro-mar-bajo) 75%); opacity: 0; }
+.intro-reflejo { position: absolute; inset: 0; opacity: 0; }
+/* Cada fila es una línea punteada que se desvanece a los lados: parece el brillo del sol sobre las olas */
+.intro-reflejo i { position: absolute; left: 50%; top: calc(2% + var(--i) * 7.4%); width: var(--w); height: max(2px, .28vmin); border-radius: 2px; translate: calc(-50% + var(--x)) 0; background: repeating-linear-gradient(90deg, rgba(var(--intro-sol), calc(.85 - var(--i) * .08)) 0 calc(8px + var(--i) * 1.5px), transparent 0 calc(13px + var(--i) * 2.5px)); -webkit-mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); mask: linear-gradient(90deg, transparent, #000 30%, #000 70%, transparent); }
+.intro-horizonte { position: absolute; left: 0; right: 0; top: var(--horizonte); height: 1px; translate: 0 -50%; background: linear-gradient(90deg, transparent 4%, rgba(var(--intro-linea), .55) 30%, #fff 50%, rgba(var(--intro-linea), .55) 70%, transparent 96%); box-shadow: 0 0 20px 1px rgba(var(--intro-linea), .45); opacity: 0; }
 
-/* 5b. Hero */
-.page-home .hero { min-height: min(92vh, 52rem); display: grid; align-items: center; padding-bottom: clamp(5rem, 10vw, 8rem); isolation: isolate; }
+.intro-emblema { position: absolute; z-index: 1; left: 50%; bottom: calc(100% - var(--horizonte) + 3vh); width: clamp(9rem, 32vmin, 15.5rem); aspect-ratio: 4 / 3; translate: -50% 0; transform-origin: 0 0; filter: drop-shadow(0 16px 36px rgba(var(--intro-sol), .22)); pointer-events: none; }
+.intro-emblema img { display: block; width: 100%; height: 100%; clip-path: circle(0% at 58% 62%); }
+/* Brillo que cruza el emblema: la imagen del logo sirve de máscara, así solo brilla el dibujo */
+.intro-brillo { position: absolute; inset: 0; opacity: 0; background: linear-gradient(105deg, transparent 38%, rgba(255, 255, 255, .75) 50%, transparent 62%) 160% 0 / 260% 100% no-repeat; -webkit-mask: url("../assets/img/logo-emblema-hd.png") center / 100% 100% no-repeat; mask: url("../assets/img/logo-emblema-hd.png") center / 100% 100% no-repeat; }
+
+.intro-textos { position: absolute; left: 0; right: 0; top: calc(var(--horizonte) + 3.4vh); display: grid; justify-items: center; gap: 1rem; padding-inline: 1rem; text-align: center; transition: opacity .35s ease, translate .6s var(--curva); }
+.intro-marca { display: grid; justify-items: center; gap: .35rem; font-weight: 900; line-height: 1; }
+.intro-talento { display: flex; padding-left: .1em; color: var(--intro-texto); font-size: clamp(2.1rem, 7.6vw, 3.7rem); letter-spacing: .1em; }
+.intro-letra { display: inline-block; overflow: hidden; padding-block: .05em .1em; }
+.intro-letra > span { display: inline-block; translate: 0 110%; }
+.intro-caribe { padding-left: 1.2em; color: var(--intro-acento); font-size: clamp(1.1rem, 3.8vw, 1.85rem); letter-spacing: 1.2em; opacity: 0; }
+.intro-lema { max-width: none; margin: .2rem 0 0; color: var(--color-slate-400); font-size: clamp(.64rem, 1.9vw, .78rem); font-weight: 600; letter-spacing: .34em; text-transform: uppercase; opacity: 0; }
+.intro-progreso { width: min(46vw, 13rem); height: 2px; overflow: hidden; border-radius: 2px; background: rgba(var(--intro-linea), .16); opacity: 0; }
+.intro-progreso span { display: block; height: 100%; transform: scaleX(0); transform-origin: left; background: linear-gradient(90deg, var(--caribe-oceano), var(--intro-acento), rgb(var(--intro-sol))); }
+/* Grano fino de película sobre toda la escena */
+.intro-grano { position: absolute; inset: -50%; opacity: var(--intro-grano); mix-blend-mode: overlay; pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E"); animation: intro-grano .8s steps(4) infinite; }
+.intro-borde { position: absolute; left: 0; right: 0; top: calc(100% - 1px); height: clamp(3rem, 9vh, 6rem); fill: var(--intro-mar-bajo); transform: scaleY(-1); pointer-events: none; }
+.intro-borde svg { display: block; width: 100%; height: 100%; }
+.intro-saltar { position: absolute; right: 1.2rem; bottom: 1.2rem; z-index: 2; display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .8rem; border-radius: 999px; border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--o-5-11-22), .4); color: var(--color-slate-400); font-size: .78rem; font-weight: 600; animation: intro-aparece .5s ease-out .6s both; transition: opacity .3s, color .2s, border-color .2s; -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); }
+.intro-saltar:hover { color: var(--intro-texto); border-color: rgba(var(--intro-linea), .55); }
+.intro-saltar kbd { padding: .05rem .35rem; border-radius: 5px; background: rgba(var(--tinte), .08); font: inherit; font-size: .7rem; }
+
+/* Línea de tiempo (empieza cuando el emblema está listo: clase .intro-activa) */
+.intro-activa .intro-cielo { animation: intro-aparece 1s ease-out both; }
+.intro-activa .intro-estrellas i { animation: intro-titila 2.4s ease-in-out var(--d) infinite alternate; }
+.intro-activa .intro-horizonte { animation: intro-horizonte 1.1s var(--curva) .1s both; }
+.intro-activa .intro-sol { animation: intro-sol 1.8s var(--curva) .3s both; }
+.intro-activa .intro-cielo::after { animation: intro-aparece 1.4s ease-out .7s both; }
+.intro-activa .intro-mar { animation: intro-aparece 1s ease-out .4s both; }
+.intro-activa .intro-reflejo { animation: intro-aparece 1.2s ease-out .9s both; }
+.intro-activa .intro-reflejo i { animation: intro-destello 1.7s ease-in-out calc(var(--i) * -.37s) infinite alternate; }
+.intro-activa .intro-emblema img { animation: intro-emblema 1.2s var(--curva) .75s both; }
+.intro-activa .intro-brillo { animation: intro-brillo 1.1s ease-in-out 1.65s both; }
+.intro-activa .intro-letra > span { animation: intro-letra .85s var(--curva) both; animation-delay: calc(1.2s + var(--i) * .045s); }
+.intro-activa .intro-caribe { animation: intro-caribe 1.2s var(--curva) 1.45s both; }
+.intro-activa .intro-lema { animation: intro-subir .8s var(--curva) 1.9s both; }
+.intro-activa .intro-progreso { animation: intro-aparece .5s ease-out .4s both; }
+.intro-activa .intro-progreso span { animation: intro-carga 2.2s cubic-bezier(.3, .1, .2, 1) .4s both; }
+.intro-activa.intro-lista .intro-progreso span { animation: intro-carga-fin .32s ease-out both; }
+/* Salida: los textos se apagan, el telón sube y el emblema vuela (intro.js) */
+.intro-sale { cursor: default; pointer-events: none; }
+.intro-sale .intro-telon { transform: translateY(calc(-100% - clamp(3rem, 9vh, 6rem))); }
+.intro-sale .intro-textos { opacity: 0; translate: 0 -3vh; }
+.intro-sale .intro-saltar { opacity: 0; }
+/* El logo que recibe al emblema se esconde mientras vuela y aparece cuando aterriza */
+.intro-espera { opacity: 0 !important; }
+.intro-llega { animation: intro-aparece .45s ease-out both !important; }
+
+@keyframes intro-aparece { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-titila { from { opacity: .1; } to { opacity: .8; } }
+@keyframes intro-horizonte { from { opacity: 0; scale: 0 1; } to { opacity: 1; scale: 1 1; } }
+@keyframes intro-sol { from { translate: -50% 100%; } to { translate: -50% 30%; } }
+@keyframes intro-destello { from { opacity: .4; scale: .55 1; } to { opacity: 1; scale: 1.12 1; } }
+@keyframes intro-emblema { from { clip-path: circle(0% at 58% 62%); filter: blur(10px); scale: .94; } to { clip-path: circle(100% at 58% 62%); filter: blur(0); scale: 1; } }
+@keyframes intro-brillo { from { opacity: 1; background-position: 160% 0; } to { opacity: 1; background-position: -60% 0; } }
+@keyframes intro-letra { from { translate: 0 110%; } to { translate: 0 0; } }
+@keyframes intro-caribe { from { opacity: 0; letter-spacing: 1.2em; padding-left: 1.2em; } to { opacity: 1; letter-spacing: .44em; padding-left: .44em; } }
+@keyframes intro-subir { from { opacity: 0; translate: 0 10px; } to { opacity: 1; translate: 0 0; } }
+@keyframes intro-carga { from { transform: scaleX(0); } to { transform: scaleX(.86); } }
+@keyframes intro-carga-fin { from { transform: scaleX(.86); } to { transform: scaleX(1); } }
+@keyframes intro-grano { 0%, 100% { transform: none; } 25% { transform: translate(-3%, 2%); } 50% { transform: translate(2%, -3%); } 75% { transform: translate(-1%, 3%); } }
+
+/* 5b. Hero: entra en cascada (si hubo intro, cuando sube el telón) y el logo se
+   inclina siguiendo al puntero (variables --incl-x y --incl-y, js/efectos.js) */
+.page-home .hero { --base-hero: .1s; min-height: min(92vh, 52rem); display: grid; align-items: center; padding-bottom: clamp(5rem, 10vw, 8rem); isolation: isolate; }
+.con-intro .hero { --base-hero: .45s; }
 .hero::before { background: radial-gradient(circle, rgba(26, 176, 214, .28), transparent 65%); animation: respirar 7s ease-in-out infinite; }
 @keyframes respirar { 50% { transform: translateX(-50%) scale(1.15); opacity: .7; } }
 
-.hero-texto { --base: 0s; }
-.con-intro .hero-texto { --base: .25s; }
-.hero-texto > * { animation: subir .8s cubic-bezier(.2, .8, .2, 1) both; animation-delay: calc(var(--base) + var(--i, 0) * .13s); }
-.hero-texto > :nth-child(1) { --i: 0; }
+.hero-texto > * { animation: hero-entra 1s var(--curva) both; animation-delay: calc(var(--base-hero, .1s) + var(--i, 0) * .12s); }
 .hero-texto > :nth-child(2) { --i: 1; }
-.hero-texto > :nth-child(3) { --i: 2; }
-.hero-texto > :nth-child(4) { --i: 3; }
+.hero-texto > :nth-child(3) { --i: 2.6; }
+.hero-texto > :nth-child(4) { --i: 3.4; }
+.hero-texto h1 { animation: none; }
+/* Título: cada parte sube desde detrás de una "ventana" invisible (overflow: hidden) */
+.hero-texto .linea { display: inline-block; overflow: hidden; vertical-align: top; padding: .06em .05em .12em; margin: -.06em -.05em -.12em; }
+.hero-texto .linea > span { display: inline-block; animation: linea-sube 1.15s var(--curva) both; animation-delay: calc(var(--base-hero, .1s) + .12s); }
+.hero-texto .linea + .linea > span { animation-delay: calc(var(--base-hero, .1s) + .24s); }
+@keyframes hero-entra { from { opacity: 0; translate: 0 22px; filter: blur(6px); } }
+@keyframes linea-sube { from { translate: 0 108%; } }
+/* Mientras la intro está en pantalla, el hero espera; arranca cuando se abre el telón */
+.con-intro:not(.intro-hecha) :is(.hero-texto > *, .hero-texto .linea > span, .hero-disco, .hero-orbita, .hero-scroll) { animation-play-state: paused; }
+/* Fuera de pantalla las animaciones del hero se detienen (main.js) */
+.hero-fuera, .hero-fuera * { animation-play-state: paused !important; }
 
 .hero-chip {
   display: inline-flex; align-items: center; gap: .55rem; max-width: none; margin-bottom: 1.3rem; padding: .35rem .9rem .35rem .4rem;
@@ -188,27 +240,33 @@ html.intro-cubre::after { content: ""; position: fixed; inset: 0; z-index: 10000
 }
 @keyframes texto-brillo { to { background-position: 300% 0; } }
 
-/* Escena del logo: disco de vidrio, órbitas que giran y logo flotando */
+/* Escena del logo: disco de vidrio, órbitas que giran y logo flotando. Cada capa se
+   desplaza distinto con el puntero, lo que da sensación de profundidad. */
 .hero-logo { display: grid; place-items: center; padding: 0; }
 .hero-logo::before { display: none; }
-.hero-escena { position: relative; width: min(100%, 27rem); aspect-ratio: 1; display: grid; place-items: center; animation: escena-entrada 1.2s cubic-bezier(.2, .9, .3, 1.15) both; animation-delay: calc(var(--base, 0s) + .25s); }
-.con-intro .hero-escena { --base: .25s; }
-@keyframes escena-entrada { from { opacity: 0; transform: scale(.75) rotate(-8deg); } to { opacity: 1; transform: none; } }
+.hero-escena { --incl-x: 0; --incl-y: 0; position: relative; width: min(100%, 27rem); aspect-ratio: 1; display: grid; place-items: center; transform: perspective(1100px) rotateX(calc(var(--incl-y) * -6deg)) rotateY(calc(var(--incl-x) * 8deg)); }
 .hero-disco {
   position: absolute; inset: 11%; border-radius: 50%;
   background: radial-gradient(circle at 30% 25%, rgba(var(--tinte), .16), rgba(var(--tinte), .03) 55%), rgba(10, 45, 94, .25);
   border: 1px solid rgba(var(--tinte), .16);
   -webkit-backdrop-filter: blur(14px) saturate(160%); backdrop-filter: blur(14px) saturate(160%);
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 30px 80px rgba(var(--sombra), .5), 0 0 90px rgba(26, 176, 214, .2);
+  translate: calc(var(--incl-x) * -8px) calc(var(--incl-y) * -8px);
+  animation: disco-entra 1.3s var(--curva) calc(var(--base-hero, .1s) + .15s) both;
 }
-.hero-orbita { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(125, 211, 252, .25); animation: girar 40s linear infinite; }
+@keyframes disco-entra { from { opacity: 0; scale: .7; } }
+.hero-orbita { position: absolute; inset: 0; border-radius: 50%; border: 1px dashed rgba(125, 211, 252, .25); animation: girar 40s linear infinite, intro-aparece 1.6s ease calc(var(--base-hero, .1s) + .5s) both; }
 .hero-orbita::before { content: ""; position: absolute; top: 50%; left: -7px; width: 14px; height: 14px; margin-top: -7px; border-radius: 50%; background: var(--caribe-sol); box-shadow: 0 0 18px 4px rgba(248, 172, 36, .55); }
-.hero-orbita-2 { inset: 5%; border-style: solid; border-color: transparent; border-top-color: rgba(26, 176, 214, .55); border-right-color: rgba(26, 176, 214, .15); animation-duration: 14s; animation-direction: reverse; }
+.hero-orbita-2 { inset: 5%; border-style: solid; border-color: transparent; border-top-color: rgba(26, 176, 214, .55); border-right-color: rgba(26, 176, 214, .15); animation-duration: 14s, 1.6s; animation-direction: reverse, normal; }
 .hero-orbita-2::before { top: 14.6%; left: 14.6%; width: 10px; height: 10px; margin: -5px; background: var(--celeste); box-shadow: 0 0 14px 3px rgba(125, 211, 252, .6); }
-.hero-orbita-3 { inset: -6%; border: none; animation-duration: 26s; }
+.hero-orbita-3 { inset: -6%; border: none; translate: calc(var(--incl-x) * 16px) calc(var(--incl-y) * 12px); animation-duration: 26s, 1.6s; }
 .hero-orbita-3::before { left: auto; right: 6%; top: 18%; width: 9px; height: 9px; background: var(--caribe-palma); box-shadow: 0 0 14px 3px rgba(15, 154, 128, .6); }
 @keyframes girar { to { transform: rotate(360deg); } }
-.hero-logo-img { position: relative; width: 66%; height: auto; filter: drop-shadow(0 18px 30px rgba(var(--sombra), .55)); animation: flotar-logo 6s ease-in-out infinite; }
+.hero-logo-img { position: relative; width: 66%; height: auto; filter: drop-shadow(0 18px 30px rgba(var(--sombra), .55)); translate: calc(var(--incl-x) * 12px) calc(var(--incl-y) * 9px); animation: logo-entra 1.1s var(--curva) calc(var(--base-hero, .1s) + .3s) both, flotar-logo 6s ease-in-out calc(var(--base-hero, .1s) + 1.4s) infinite; }
+/* Con intro, el logo lo "trae" el emblema que vuela (intro.js) y empieza a flotar al aterrizar */
+.con-intro .hero-logo-img { animation: none; }
+.con-intro.intro-aterrizo .hero-logo-img { animation: flotar-logo 6s ease-in-out infinite; }
+@keyframes logo-entra { from { opacity: 0; scale: .86; } }
 @keyframes flotar-logo { 50% { transform: translateY(-12px) rotate(-1.5deg); } }
 
 /* Burbujas que suben en el hero */
@@ -231,11 +289,87 @@ html.intro-cubre::after { content: ""; position: fixed; inset: 0; z-index: 10000
 .hero-olas .ola-3 { animation-duration: 18s; }
 @keyframes ola { to { transform: translateX(-1440px); } }
 
-/* Revelado al hacer scroll para los encabezados de sección */
-.revelar { opacity: 0; transform: translateY(26px); transition: opacity .8s ease, transform .8s cubic-bezier(.2, .8, .2, 1); }
-.revelar.is-visible { opacity: 1; transform: none; }
+/* Indicador para bajar: un "mouse" con un punto que se desliza. Se apaga al hacer scroll. */
+.hero-scroll { position: absolute; z-index: 1; left: 50%; bottom: clamp(5rem, 9vw, 7.5rem); display: none; width: 1.55rem; height: 2.5rem; margin-left: -.775rem; border: 2px solid rgba(var(--tinte), .35); border-radius: 999px; animation: intro-aparece 1s ease calc(var(--base-hero, .1s) + 1.1s) both; transition: opacity .4s ease, border-color .25s ease; }
+.hero-scroll span { position: absolute; left: 50%; top: .45rem; width: 4px; height: 7px; margin-left: -2px; border-radius: 2px; background: var(--celeste); animation: rueda 1.8s var(--curva) infinite; }
+.hero-scroll:hover { border-color: var(--celeste); }
+.desplazado .hero-scroll { opacity: 0; pointer-events: none; }
+@keyframes rueda { 0% { opacity: 0; translate: 0 0; } 30% { opacity: 1; } 80%, 100% { opacity: 0; translate: 0 .8rem; } }
+@media (min-width: 860px) and (min-height: 640px) { .hero-scroll { display: block; } }
 
-/* ---------- 6. Logo en la plataforma ---------- */
+/* ---------- 6. Secciones del inicio ---------- */
+/* Etiqueta corta sobre cada título, con una línea de sol a mar */
+.page-home .eyebrow { display: inline-flex; align-items: center; gap: .6rem; margin-bottom: .7rem; }
+.page-home .eyebrow::before { content: ""; width: 1.6rem; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--caribe-sol), var(--caribe-mar)); }
+
+/* Cifras: franja de vidrio montada sobre las olas del hero. Los números cuentan al aparecer (data-contar). */
+.cifras { position: relative; z-index: 2; margin-top: calc(clamp(2.5rem, 6vw, 4.5rem) * -1); padding-bottom: clamp(1rem, 3vw, 2rem); }
+.cifras-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .4rem; padding: clamp(1rem, 3vw, 1.6rem); border: 1px solid var(--vidrio-borde); border-radius: var(--radius-xl); background: var(--vidrio-luz), var(--vidrio-fuerte); -webkit-backdrop-filter: var(--vidrio-blur); backdrop-filter: var(--vidrio-blur); box-shadow: var(--vidrio-sombra); }
+.cifra { display: grid; justify-items: center; align-content: start; gap: .35rem; padding: .7rem .5rem; text-align: center; }
+.cifra strong { font-size: clamp(2rem, 5.5vw, 3.1rem); font-weight: 900; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; background: linear-gradient(135deg, var(--texto-fuerte) 35%, var(--celeste)); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cifra span { max-width: 19ch; color: var(--color-slate-400); font-size: .84rem; font-weight: 600; line-height: 1.35; text-wrap: balance; }
+@media (min-width: 760px) {
+  .cifras-grid { grid-template-columns: repeat(4, 1fr); }
+  .cifra + .cifra { border-left: 1px solid rgba(var(--tinte), .1); }
+}
+
+/* Cinta de temas: avanza sola y se detiene al pasar el mouse (main.js duplica la lista para que no tenga cortes) */
+.cinta { overflow: hidden; padding-block: clamp(1.3rem, 3vw, 2rem); border-block: 1px solid rgba(var(--tinte), .07); -webkit-mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); }
+.cinta-pista { display: flex; width: max-content; animation: cinta 48s linear infinite; }
+.cinta:hover .cinta-pista { animation-play-state: paused; }
+.cinta-lista { display: flex; flex-shrink: 0; }
+.cinta-lista li { display: flex; align-items: center; gap: clamp(1.2rem, 3vw, 2.2rem); padding-right: clamp(1.2rem, 3vw, 2.2rem); color: rgba(var(--tinte), .8); font-size: clamp(1.3rem, 3.2vw, 2.1rem); font-weight: 800; letter-spacing: -.03em; white-space: nowrap; }
+.cinta-lista li:nth-child(even) { color: transparent; -webkit-text-stroke: 1px rgba(var(--tinte), .55); }
+.cinta-lista li::after { content: ""; width: .42em; height: .42em; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffd88a, var(--caribe-sol) 60%); box-shadow: 0 0 14px rgba(248, 172, 36, .55); }
+@keyframes cinta { to { transform: translateX(-50%); } }
+
+/* Cómo funciona: una línea de tiempo se dibuja y cada paso se enciende en orden */
+@media (min-width: 860px) {
+  .pasos { position: relative; padding-top: 2.4rem; }
+  .pasos::before { content: ""; position: absolute; top: calc(.9rem - 1px); left: 12.5%; right: 12.5%; height: 2px; border-radius: 2px; background: linear-gradient(90deg, var(--caribe-oceano), var(--caribe-mar), var(--caribe-sol)); transform-origin: left; }
+  .pasos li::after { content: ""; position: absolute; top: -1.95rem; left: 50%; width: .9rem; height: .9rem; margin-left: -.45rem; border-radius: 50%; background: var(--color-dark-900); border: 2px solid var(--caribe-mar); box-shadow: 0 0 0 4px rgba(26, 176, 214, .16); }
+  .js .pasos::before { scale: 0 1; }
+  .js .pasos li::after { scale: 0; }
+  .pasos:has(.revelado)::before { animation: linea-crece 1.4s var(--curva) .1s both; }
+  .pasos li.revelado::after { animation: punto-aparece .5s cubic-bezier(.3, 1.6, .5, 1) calc(var(--retraso, 0s) + .3s) both; }
+}
+@keyframes linea-crece { from { scale: 0 1; } to { scale: 1 1; } }
+@keyframes punto-aparece { from { scale: 0; } to { scale: 1; } }
+
+/* Tarjetas esqueleto mientras llegan los cursos (inicio y catálogo) */
+.esqueleto { min-height: 14rem; pointer-events: none; }
+.esqueleto span { display: block; height: .85rem; border-radius: 6px; background: linear-gradient(90deg, rgba(var(--tinte), .05) 30%, rgba(var(--tinte), .13) 50%, rgba(var(--tinte), .05) 70%) 0 0 / 220% 100%; animation: esqueleto 1.5s ease-in-out infinite; }
+.esqueleto span:nth-child(1) { width: 38%; }
+.esqueleto span:nth-child(2) { width: 78%; height: 1.25rem; margin-top: .4rem; }
+.esqueleto span:nth-child(3) { width: 96%; }
+.esqueleto span:nth-child(4) { width: 64%; }
+.esqueleto span:last-child { width: 45%; height: 2.2rem; margin-top: auto; border-radius: 999px; }
+@keyframes esqueleto { from { background-position: 120% 0; } to { background-position: -120% 0; } }
+
+/* Cursos destacados: las tres tarjetas llenan la fila y giran en 3D con el mouse (js/efectos.js, solo en inicio) */
+#cursos-destacados { grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
+.curso-card.inclinada { transition: transform .12s linear, border-color var(--transition), box-shadow var(--transition); }
+
+/* ---------- 7. Revelado al hacer scroll (js/efectos.js) ----------
+   [data-revelar] = "" (sube), "titulo" (sube desde una ventana), "escala", "izquierda",
+   "derecha" o "rapido" (para listas que se vuelven a pintar, como el catálogo).
+   Solo se oculta si JavaScript está activo (clase .js en <html>, la pone i18n.js):
+   si algo falla, el contenido nunca queda escondido. */
+.js [data-revelar]:not(.revelado) { opacity: 0; }
+.revelado { animation: revelar .9s var(--curva) var(--retraso, 0s) both; }
+.revelado[data-revelar="titulo"] { animation-name: revelar-titulo; animation-duration: 1.1s; }
+.revelado[data-revelar="escala"] { animation-name: revelar-escala; }
+.revelado[data-revelar="izquierda"] { animation-name: revelar-izquierda; }
+.revelado[data-revelar="derecha"] { animation-name: revelar-derecha; }
+.revelado[data-revelar="rapido"] { animation-name: revelar-rapido; animation-duration: .5s; }
+@keyframes revelar { from { opacity: 0; translate: 0 2rem; } }
+@keyframes revelar-titulo { from { opacity: 0; translate: 0 .5em; clip-path: polygon(-5% 100%, 105% 100%, 105% 100%, -5% 100%); } to { clip-path: polygon(-5% -40%, 105% -40%, 105% 140%, -5% 140%); } }
+@keyframes revelar-escala { from { opacity: 0; scale: .94; translate: 0 1rem; } }
+@keyframes revelar-izquierda { from { opacity: 0; translate: -2.5rem 0; } }
+@keyframes revelar-derecha { from { opacity: 0; translate: 2.5rem 0; } }
+@keyframes revelar-rapido { from { opacity: 0; translate: 0 .7rem; } }
+
+/* ---------- 8. Logo en la plataforma, asistente y transiciones entre páginas ---------- */
 .brand img { width: auto; height: 2.3rem; transition: transform .5s cubic-bezier(.2, .9, .3, 1.4); filter: drop-shadow(0 4px 12px rgba(26, 176, 214, .3)); }
 .brand:hover img { transform: rotate(-6deg) scale(1.08); }
 
@@ -265,21 +399,34 @@ html.intro-cubre::after { content: ""; position: fixed; inset: 0; z-index: 10000
 .portal-welcome-art img { width: 11rem; height: auto; filter: drop-shadow(0 20px 40px rgba(26, 176, 214, .4)); }
 .portal-welcome-art { text-shadow: none; }
 
-/* ---------- 7. Asistente flotante con el logo ---------- */
+/* Asistente flotante con el logo */
 .tc-chat-launch { background: linear-gradient(130deg, rgba(18, 104, 200, .75), rgba(10, 128, 159, .7)); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-color: rgba(var(--tinte), .22); }
 .tc-chat-launch-icon, .tc-chat-avatar { font-size: 0; color: transparent; background: url("../assets/img/logo-emblema.png") center / 76% auto no-repeat, rgba(var(--o-5-11-22), .55); }
 .tc-chat-panel { background: linear-gradient(155deg, rgba(var(--o-20-34-60), .66), rgba(var(--o-8-16-32), .7)); }
 .tc-chat-message.user p { background: linear-gradient(135deg, rgba(18, 104, 200, .8), rgba(10, 128, 159, .78)); }
 .tc-chat-form button { background: linear-gradient(135deg, var(--caribe-oceano), #0a809f); }
 
+/* Transición entre páginas (View Transitions entre documentos, en navegadores recientes):
+   la barra superior se queda quieta y el contenido se desvanece y sube un poco.
+   Al cambiar de tema (.vt-tema, i18n.js) se usa la transición circular de tema.css. */
+@view-transition { navigation: auto; }
+.site-header, .app-header { view-transition-name: cabecera; }
+.vt-tema .site-header, .vt-tema .app-header { view-transition-name: none; }
+::view-transition-old(root) { animation: pagina-sale .25s ease-in both; }
+::view-transition-new(root) { animation: pagina-entra .45s var(--curva) .05s both; }
+@keyframes pagina-sale { to { opacity: 0; translate: 0 -12px; } }
+@keyframes pagina-entra { from { opacity: 0; translate: 0 16px; } }
+
 @media (max-width: 640px) {
   .hero-escena { width: min(82%, 19rem); }
   .hero-chip { font-size: .76rem; }
 }
 
-/* ---------- 8. Movimiento reducido: sin animaciones ni efecto de cursor ---------- */
+/* ---------- 9. Movimiento reducido: sin animaciones ni efecto de cursor ---------- */
 @media (prefers-reduced-motion: reduce) {
   .cursor-aura, .cursor-estela, .hero-burbujas, .intro { display: none !important; }
-  .revelar { opacity: 1; transform: none; }
+  .js [data-revelar]:not(.revelado) { opacity: 1; }
+  .js .pasos::before, .js .pasos li::after { scale: none; }
+  @view-transition { navigation: none; }
 }
 @media (pointer: coarse) { .cursor-aura { display: none; } }
