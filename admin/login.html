@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="../js/i18n-en.js"></script>
+  <script src="../js/i18n.js"></script>
+  <title>Ingresar | Talento Caribe</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="icon" href="../assets/img/favicon.png">
+  <link rel="stylesheet" href="../css/tema.css">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="../css/efectos.css">
+  <link rel="stylesheet" href="../css/plataforma.css">
+  <link rel="stylesheet" href="../css/modulos.css">
+</head>
+<body class="page-login">
+  <main class="login login-shell acceso">
+    <!-- Lado izquierdo: cambia según el tipo de cuenta para explicar qué encontrará cada persona -->
+    <section class="login-story" aria-label="Qué encontrarás">
+      <a href="../index.html" class="login-logo"><img src="../assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe — inicio" width="208" height="177"></a>
+      <div class="login-story-copy" id="acceso-historia">
+        <span class="eyebrow" id="historia-eyebrow">Tu talento no tiene fronteras</span>
+        <h1 id="historia-titulo">Aprender tecnología también puede empezar aquí.</h1>
+        <ul class="acceso-beneficios" id="historia-lista"></ul>
+      </div>
+      <p class="acceso-pie">Plataforma educativa gratuita · Barranquilla, Colombia</p>
+    </section>
+
+    <section class="login-card acceso-card" aria-labelledby="login-titulo">
+      <div class="login-card-heading">
+        <img class="login-card-logo" src="../assets/img/logo-emblema.png" alt="" width="64" height="48">
+        <span class="eyebrow">Portal de la comunidad</span>
+        <h2 id="login-titulo">¡Qué bueno verte!</h2>
+        <p id="login-subtitulo">Primero cuéntanos quién eres.</p>
+      </div>
+
+      <!-- Paso 1: tipo de cuenta -->
+      <div class="rol-tabs" role="radiogroup" aria-label="Tipo de cuenta">
+        <button type="button" class="rol-tab" role="radio" aria-checked="true" data-role="estudiante"><span class="rol-tab-icono" data-icono="birrete"></span><strong>Estudiante</strong><small>Aprende y entrega</small></button>
+        <button type="button" class="rol-tab" role="radio" aria-checked="false" data-role="docente"><span class="rol-tab-icono" data-icono="pizarra"></span><strong>Docente</strong><small>Guía tus cursos</small></button>
+        <button type="button" class="rol-tab" role="radio" aria-checked="false" data-role="administrativo"><span class="rol-tab-icono" data-icono="maletin"></span><strong>Administrativo</strong><small>Gestiona el equipo</small></button>
+        <span class="rol-tabs-indicador" aria-hidden="true"></span>
+      </div>
+
+      <form id="form-login" class="form login-form" novalidate>
+        <input type="hidden" id="l-rol" name="rol" value="estudiante">
+        <div class="acceso-dinamico" id="acceso-dinamico">
+
+          <p id="registro-estudiante-link" class="acceso-aviso"><span data-icono="destello"></span><span>¿Eres nuevo? <a id="registro-estudiante-href" href="../registro.html">Crea tu cuenta gratis</a> en menos de 3 minutos.</span></p>
+
+          <!-- Docentes: elegir su nombre llena el correo -->
+          <div class="campo" id="l-docentes-campo" hidden>
+            <span class="campo-titulo">¿Quién eres? <small>Toca tu nombre para llenar tu correo</small></span>
+            <div class="docente-chips" id="l-docentes"></div>
+          </div>
+
+          <!-- Administrativos: selector visual de cargo -->
+          <div class="campo cargo-campo" id="l-puesto-campo" hidden>
+            <div class="pasos-acceso" aria-hidden="true"><span class="paso-acceso is-activo" id="paso-1">1 · Elige tu cargo</span><span class="paso-acceso" id="paso-2">2 · Ingresa</span></div>
+            <input type="hidden" id="l-puesto" name="puesto">
+            <div class="cargo-elegido" id="cargo-elegido" hidden>
+              <span class="cargo-icono" id="cargo-elegido-icono"></span>
+              <span><small>Ingresarás como</small><strong id="cargo-elegido-nombre"></strong></span>
+              <button type="button" class="btn-texto-plano" id="cargo-cambiar">Cambiar</button>
+            </div>
+            <div class="cargo-selector" id="cargo-selector">
+              <label class="cargo-buscar"><span data-icono="buscar"></span><span class="sr-only">Buscar cargo</span><input type="search" id="cargo-buscar" placeholder="Busca tu cargo: director, admisiones, finanzas…"></label>
+              <div class="cargo-grupos" id="cargo-grupos" role="radiogroup" aria-label="Cargo administrativo"></div>
+            </div>
+            <small class="error" data-error-for="puesto" hidden></small>
+          </div>
+
+          <div class="acceso-credenciales" id="acceso-credenciales">
+            <div class="campo"><label for="l-correo">Correo electrónico</label><input id="l-correo" name="correo" type="email" autocomplete="username" placeholder="nombre@correo.com" required><small class="error" data-error-for="correo" hidden></small></div>
+            <div class="campo"><label for="l-clave">Contraseña</label><div class="campo-clave"><input id="l-clave" name="clave" type="password" autocomplete="current-password" placeholder="Ingresa tu contraseña" required minlength="4"><button type="button" id="l-ver" class="btn-texto-plano" aria-pressed="false" aria-controls="l-clave">Mostrar</button></div><small class="error" data-error-for="clave" hidden></small></div>
+          </div>
+        </div>
+        <p id="login-error" class="form-estado estado-error" role="alert" hidden></p>
+        <button type="submit" class="btn btn-primary" id="login-enviar"><span class="btn-texto">Entrar al portal</span><span class="spinner" aria-hidden="true" hidden></span><span aria-hidden="true">→</span></button>
+      </form>
+      <div class="login-demo"><p><span aria-hidden="true">ⓘ</span> <strong>Cuenta de prueba:</strong> <span id="demo-datos"></span></p><button type="button" class="btn btn-outline btn-sm" id="demo-usar">Usar cuenta de prueba</button><p class="nota-requisitos">Demostración: el cargo separa las vistas pero no autentica el puesto. Los permisos reales deben validarse en un servidor.</p></div>
+      <p class="login-volver"><a href="../index.html">← Volver al sitio</a></p>
+    </section>
+  </main>
+  <script src="../js/config.js"></script>
+  <script src="../js/cursos-data.js"></script>
+  <script src="../js/utils.js"></script>
+  <script src="../js/iconos.js"></script>
+  <script src="../js/datos.js"></script>
+  <script src="../js/auth.js"></script>
+  <script src="../js/asistente-ia.js"></script>
+  <script src="../js/login.js" defer></script>
+  <script src="../js/asistente-global.js" defer></script>
+  <script src="../js/efectos.js" defer></script>
+</body>
+</html>
