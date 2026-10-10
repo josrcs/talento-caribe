@@ -120,14 +120,14 @@ Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `n
 | GET · PUT | `/api/auth/yo` · `/api/auth/perfil` | 🔒 | Ver / completar el perfil |
 | GET | `/api/datos` | todos | Lo que el usuario puede ver según su rol y cargo |
 | POST | `/api/inscripciones` | 🔒 estudiante | Solicitar cupo en un curso |
-| PATCH | `/api/inscripciones/:id` | 🔒 admisiones | Aprobar o rechazar |
-| GET | `/api/estudiantes/:correo` | 🔒 admisiones | Ficha completa del estudiante |
-| POST · PUT · DELETE | `/api/actividades/:id?` | 🔒 docente del curso | Crear, editar y borrar actividades |
+| PATCH | `/api/inscripciones/:id` | 🔒 admisiones y gerente | Aprobar o rechazar |
+| GET | `/api/estudiantes/:correo` | 🔒 admisiones y gerente | Ficha completa del estudiante |
+| POST · PUT · DELETE | `/api/actividades/:id?` | 🔒 docente del curso (el gerente puede editar y borrar las de cualquier docente) | Crear, editar y borrar actividades |
 | PUT | `/api/actividades/:id/entrega` | 🔒 estudiante aprobado | Entregar (o corregir antes de la nota) |
-| PATCH | `/api/entregas/:id` | 🔒 docente del curso | Calificar (1.0 a 5.0) con retroalimentación |
+| PATCH | `/api/entregas/:id` | 🔒 docente del curso o gerente | Calificar (1.0 a 5.0) con retroalimentación, o corregir la nota |
 | POST · PUT | `/api/cursos/:id?` | 🔒 cargos académicos | Crear y editar cursos |
-| PATCH | `/api/mensajes/:id/leido` | 🔒 admisiones / comunicaciones | Marcar mensaje como leído |
-| POST | `/api/gastos` | 🔒 finanzas | Registrar un gasto |
+| PATCH | `/api/mensajes/:id/leido` | 🔒 admisiones / comunicaciones / gerente | Marcar mensaje como leído |
+| POST · PUT · DELETE | `/api/gastos/:id?` | 🔒 finanzas y gerente | Registrar, corregir y eliminar gastos (pesos enteros de 1 a 1.000.000.000) |
 | PUT | `/api/config-ia` | 🔒 gerente | Tono y contexto del asistente |
 | GET | `/api/seguridad/eventos?tipo=` | 🔒 gerencia, dirección general y tecnología | Registro de seguridad: últimos 200 eventos, resumen de 24 horas y conexiones con muchos fallos |
 

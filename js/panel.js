@@ -14,7 +14,7 @@
   if (!s || s.rol !== "administrativo") { location.replace("login.html"); return; }
 
   const perfiles = {
-    "Gerente": { area: "Gerencia", start: "resumen", sections: ["resumen", "cursos", "ia", "encuestas"], courseArea: "", title: "Gerencia · visión institucional", intro: "Revisa indicadores globales, oferta formativa y escucha a todos los departamentos. Los datos identificables de estudiantes quedan fuera de esta vista.", tasks: [["Indicadores ejecutivos", "Consulta cifras agregadas de actividad y demanda.", "resumen"], ["Oferta de formación", "Revisa todo el catálogo e impulsa nuevos cursos.", "cursos"], ["Pulso institucional", "Consulta encuestas organizadas por departamento.", "encuestas"], ["Experiencia de la comunidad", "Administra las respuestas del asistente institucional.", "ia"]] },
+    "Gerente": { area: "Gerencia", start: "resumen", sections: ["resumen", "area", "cursos", "inscripciones", "mensajes", "ia", "encuestas"], courseArea: "", title: "Gerencia · todas las áreas", intro: "Supervisas el trabajo de toda la organización y puedes corregirlo cuando haga falta: oferta académica, actividades y notas de los docentes, admisiones, comunicaciones, finanzas y el asistente.", tasks: [["Indicadores ejecutivos", "Consulta cifras de actividad y demanda de todas las áreas.", "resumen"], ["Oferta de formación", "Crea y edita cursos y fichas de cualquier área.", "cursos"], ["Admisiones", "Revisa y cambia el estado de las solicitudes de inscripción.", "inscripciones"], ["Comunicaciones", "Lee y responde los mensajes de contacto.", "mensajes"], ["Finanzas", "Revisa, registra, corrige o elimina los gastos del proyecto.", "area"], ["Pulso institucional", "Consulta encuestas organizadas por departamento.", "encuestas"], ["Experiencia de la comunidad", "Define el tono y la información del asistente.", "ia"]] },
     "Director(a) general": { area: "Dirección general", start: "resumen", sections: ["resumen", "cursos", "encuestas"], courseArea: "", title: "Dirección general · seguimiento", intro: "Supervisa los indicadores generales y la oferta publicada. El acceso a mensajes personales y documentos de inscripción se mantiene en las áreas responsables.", tasks: [["Indicadores", "Revisa actividad general sin acceder a expedientes personales.", "resumen"], ["Catálogo institucional", "Consulta los cursos disponibles en todas las áreas.", "cursos"], ["Encuestas por departamento", "Consulta la retroalimentación de toda la comunidad.", "encuestas"]] },
     "Director(a) académico(a)": { area: "Dirección académica", start: "area", sections: ["area", "cursos", "encuestas"], courseArea: "Software", title: "Dirección académica", intro: "Define la oferta de aprendizaje y mantiene la calidad de los programas de software.", tasks: [["Programas académicos", "Revisa y crea cursos del área de software.", "cursos"], ["Voz de estudiantes", "Consulta encuestas por departamento.", "encuestas"]] },
     "Director(a) de tecnología": { area: "Dirección de tecnología", start: "area", sections: ["area", "cursos", "encuestas"], courseArea: "Hardware", title: "Dirección de tecnología", intro: "Orienta el catálogo de hardware, laboratorios y experiencias prácticas.", tasks: [["Programas de tecnología", "Revisa los cursos del área de hardware.", "cursos"], ["Experiencia de laboratorio", "Consulta encuestas de todos los departamentos.", "encuestas"]] },
@@ -84,24 +84,61 @@
   $("#area-tareas").innerHTML = perfil.tasks.map(tarjetaTarea).join("");
   $("#accesos-rapidos").innerHTML = perfil.tasks.filter((t) => t[2] !== "resumen").map(tarjetaTarea).join("");
   $("#accesos-rapidos").addEventListener("click", (event) => { const button = event.target.closest("[data-open-section]"); if (button && allowed.has(button.dataset.openSection)) abrirSeccion(button.dataset.openSection); });
-  const finanzasActivo = ["Administración y finanzas", "Director(a) administrativo(a)"].includes(s.puesto);
+  const finanzasActivo = ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"].includes(s.puesto); // = PERMISOS.finanzas del servidor
   $("#finanzas-panel").hidden = !finanzasActivo;
+  if (API) $("#finanzas-nota").textContent = "Movimientos guardados en la base de datos. Cada persona de finanzas y la gerencia puede corregirlos.";
   function fecha(item) { return new Date(item.creado_en || item.creado).toLocaleDateString(window.TCIdioma?.locale || "es-CO", { day: "numeric", month: "short" }); }
   function fila(cols, text) { return '<tr><td colspan="' + cols + '">' + text + "</td></tr>"; }
   const formatoPesos = (value) => new Intl.NumberFormat("es-CO", { style: "currency", currency: "COP", maximumFractionDigits: 0 }).format(value);
   function pintarGastos() {
-    const gastos = leer("tc_gastos_demo", []);
+    const gastos = D.gastos();
     $("#finanzas-total").textContent = formatoPesos(gastos.reduce((total, item) => total + Number(item.valor || 0), 0));
     $("#finanzas-cantidad").textContent = gastos.length;
-    $("#tb-gastos").innerHTML = gastos.slice().reverse().map((item) => "<tr><td>" + esc(item.concepto) + "</td><td>" + esc(item.categoria) + "</td><td>" + formatoPesos(item.valor) + "</td><td>" + fecha({ creado: item.creado }) + "</td></tr>").join("") || fila(4, "Aún no hay movimientos registrados.");
+    $("#tb-gastos").innerHTML = gastos.slice().reverse().map((item) => "<tr><td>" + esc(item.concepto) + "</td><td>" + esc(item.categoria) + "</td><td>" + formatoPesos(item.valor) + "</td><td>" + fecha({ creado: item.creado }) + '</td><td><div class="portal-actions"><button type="button" class="btn btn-outline btn-sm" data-editar-gasto="' + esc(item.id) + '">Editar</button><button type="button" class="btn btn-outline btn-sm btn-peligro" data-eliminar-gasto="' + esc(item.id) + '">Eliminar</button></div></td></tr>').join("") || fila(5, "Aún no hay movimientos registrados.");
   }
+  /* Valor en pesos: se aceptan cifras cerradas o exactas, con o sin puntos de miles ("50.000", "1.250.000", "12345").
+     Mientras se escribe se agregan los puntos para leer la cifra fácil. */
+  const pesosDe = (texto) => Number(String(texto).replace(/\D/g, "")) || 0;
+  const conPuntos = (n) => (n ? new Intl.NumberFormat("es-CO", { maximumFractionDigits: 0 }).format(n) : "");
+  const campoValor = $("#gasto-valor");
+  campoValor.addEventListener("input", () => {
+    const digitosAntes = campoValor.value.slice(0, campoValor.selectionStart).replace(/\D/g, "").length;
+    campoValor.value = conPuntos(pesosDe(campoValor.value.slice(0, 17)));
+    let pos = 0, vistos = 0; // deja el cursor después del mismo dígito
+    while (pos < campoValor.value.length && vistos < digitosAntes) { if (/\d/.test(campoValor.value[pos])) vistos++; pos++; }
+    campoValor.setSelectionRange(pos, pos);
+    campoValor.setCustomValidity("");
+  });
+  function editarGasto(gasto) {
+    const form = $("#form-gasto");
+    form.elements.id.value = gasto ? gasto.id : "";
+    form.elements.concepto.value = gasto?.concepto || ""; form.elements.categoria.value = gasto?.categoria || "Materiales";
+    campoValor.value = gasto ? conPuntos(Number(gasto.valor)) : "";
+    $("#gasto-guardar").textContent = gasto ? "Guardar cambios" : "Registrar gasto";
+    $("#gasto-cancelar").hidden = !gasto;
+    if (gasto) form.elements.concepto.focus();
+  }
+  $("#gasto-cancelar").addEventListener("click", () => editarGasto(null));
+  $("#tb-gastos").addEventListener("click", async (event) => {
+    const editar = event.target.closest("[data-editar-gasto]"), borrar = event.target.closest("[data-eliminar-gasto]");
+    if (editar) { editarGasto(D.gastos().find((g) => g.id === editar.dataset.editarGasto)); return; }
+    if (!borrar) return;
+    const gasto = D.gastos().find((g) => g.id === borrar.dataset.eliminarGasto); if (!gasto) return;
+    if (!confirm("¿Eliminar el gasto «" + gasto.concepto + "» por " + formatoPesos(gasto.valor) + "? Esta acción no se puede deshacer.")) return;
+    if (!(await intentar(() => D.eliminarGasto(gasto.id), borrar))) return;
+    if ($("#form-gasto").elements.id.value === gasto.id) editarGasto(null);
+    pintarGastos(); toast("Gasto eliminado");
+  });
   $("#form-gasto").addEventListener("submit", async (event) => {
     event.preventDefault();
-    const form = event.currentTarget;
+    const form = event.currentTarget, valor = pesosDe(campoValor.value);
+    campoValor.setCustomValidity(campoValor.value && !(valor > 0 && valor <= 1000000000) ? "Escribe un valor entre $1 y $1.000.000.000." : "");
     if (!form.reportValidity()) return;
-    const gasto = { concepto: form.elements.concepto.value.trim(), categoria: form.elements.categoria.value, valor: Number(form.elements.valor.value) };
-    if (!(await intentar(() => D.registrarGasto(gasto), form.querySelector("[type=submit]")))) return;
-    form.reset(); pintarGastos(); toast(API ? "Gasto registrado" : "Gasto registrado en esta demostración");
+    const id = form.elements.id.value;
+    const gasto = { concepto: form.elements.concepto.value.trim(), categoria: form.elements.categoria.value, valor };
+    if (!(await intentar(() => (id ? D.actualizarGasto(id, gasto) : D.registrarGasto(gasto)), form.querySelector("[type=submit]")))) return;
+    form.reset(); editarGasto(null); pintarGastos();
+    toast(id ? "Gasto actualizado" : API ? "Gasto registrado" : "Gasto registrado en esta demostración");
   });
   pintarGastos();
   $("#area-tareas").addEventListener("click", (event) => { const button = event.target.closest("[data-open-section]"); if (button && allowed.has(button.dataset.openSection)) abrirSeccion(button.dataset.openSection); });
@@ -312,7 +349,73 @@
     $("#tb-academico").innerHTML = lista.map((x) => { const pct = x.esperadas ? Math.round((x.ents / x.esperadas) * 100) : 0; return "<tr><td>" + esc(x.c.titulo) + "<br><small>" + esc(x.c.area) + " · " + esc(x.c.fase) + "</small></td><td>" + esc(x.c.instructor) + "</td><td>" + x.est + "</td><td>" + x.acts + '</td><td><div class="celda-progreso"><div class="progreso" role="progressbar" aria-valuenow="' + pct + '" aria-valuemin="0" aria-valuemax="100" aria-label="Entregas recibidas"><span style="width:' + pct + '%"></span></div><small>' + x.ents + "/" + x.esperadas + "</small></div></td><td>" + (x.prom == null ? "—" : '<span class="nota-chip ' + (x.prom >= 4 ? "nota-alta" : x.prom >= 3 ? "nota-media" : "nota-baja") + '">' + x.prom.toFixed(1) + "</span>") + "</td></tr>"; }).join("") || fila(6, "No hay cursos para tu área.");
     const recientes = D.actividades().filter((a) => cursosVisibles.some((c) => c.id === Number(a.curso_id))).sort((a, b) => (b.creado || "").localeCompare(a.creado || "")).slice(0, 5);
     $("#academico-recientes").innerHTML = recientes.map((a) => '<article class="tarjeta act-docente"><span class="tipo-icono" style="--tipo:' + (D.TIPOS[a.tipo]?.color || "#1ab0d6") + '">' + TCIcono(D.TIPOS[a.tipo]?.icono || "lapiz", 18) + '</span><div class="act-docente-info"><span class="act-curso">' + esc(cursoTitulo(a.curso_id)) + " · " + esc(a.tipo) + "</span><h3>" + esc(a.titulo) + '</h3><p class="act-vence">' + TCIcono("pizarra", 14) + " " + esc(a.docente) + " · " + esc(D.textoVence(a.fecha_limite)) + "</p></div></article>").join("") || '<p class="seccion-texto">Los docentes aún no han publicado actividades.</p>';
+    if (SUPERVISA) pintarSupervision();
   }
+
+  /* ---------- Supervisión de gerencia ----------
+     El Gerente ve las actividades de todos los docentes y puede editarlas, retirarlas o corregir una nota
+     (el servidor lo permite con PERMISOS.supervisarAcademico). La actividad sigue siendo del docente que la publicó. */
+  const SUPERVISA = s.puesto === "Gerente";
+  $("#supervision-academica").hidden = !SUPERVISA;
+  const fechaCorta = (f) => (f ? new Date(String(f).slice(0, 10) + "T00:00:00").toLocaleDateString(window.TCIdioma?.locale || "es-CO", { day: "numeric", month: "short", year: "numeric" }) : "—");
+  function pintarSupervision() {
+    const elegido = $("#sup-docente").value, q = $("#sup-buscar").value.trim().toLowerCase();
+    const todas = D.actividades();
+    $("#sup-docente").innerHTML = '<option value="">Todos</option>' + [...new Set(todas.map((a) => a.docente).filter(Boolean))].sort().map((d) => '<option' + (d === elegido ? " selected" : "") + ">" + esc(d) + "</option>").join("");
+    const lista = todas.filter((a) => (!elegido || a.docente === elegido) && (!q || (a.titulo + " " + cursoTitulo(a.curso_id)).toLowerCase().includes(q)));
+    $("#tb-supervision").innerHTML = lista.map((a) => {
+      const ents = D.entregasDeActividad(a.id), revisadas = ents.filter((e) => e.estado === "revisada").length;
+      return "<tr><td><strong>" + esc(a.titulo) + "</strong><br><small>" + esc(a.tipo) + (a.modulo ? " · Módulo " + Number(a.modulo) : "") + (a.ficha ? " · Ficha " + esc(a.ficha) : "") + "</small></td><td>" + esc(cursoTitulo(a.curso_id)) + "</td><td>" + esc(a.docente || "—") + "</td><td>" + fechaCorta(a.fecha_limite) + "</td><td>" + ents.length + (ents.length ? "<br><small>" + revisadas + " calificadas</small>" : "") + '</td><td><div class="portal-actions"><button type="button" class="btn btn-outline btn-sm" data-sup-entregas="' + esc(a.id) + '">Entregas</button><button type="button" class="btn btn-outline btn-sm" data-sup-editar="' + esc(a.id) + '">Editar</button><button type="button" class="btn btn-outline btn-sm btn-peligro" data-sup-eliminar="' + esc(a.id) + '">Retirar</button></div></td></tr>';
+    }).join("") || fila(6, todas.length ? "No hay actividades con esos filtros." : "Los docentes aún no han publicado actividades.");
+  }
+  $("#sup-docente").addEventListener("change", pintarSupervision);
+  $("#sup-buscar").addEventListener("input", pintarSupervision);
+  const actividadPorId = (id) => D.actividades().find((a) => String(a.id) === String(id));
+  $("#tb-supervision").addEventListener("click", async (event) => {
+    const editar = event.target.closest("[data-sup-editar]"), borrar = event.target.closest("[data-sup-eliminar]"), ver = event.target.closest("[data-sup-entregas]");
+    if (editar) {
+      const a = actividadPorId(editar.dataset.supEditar); if (!a) return;
+      const form = $("#form-actividad-sup"); form.reset();
+      form.elements.id.value = a.id; form.elements.tipo.value = a.tipo; form.elements.fecha_limite.value = String(a.fecha_limite || "").slice(0, 10);
+      form.elements.titulo.value = a.titulo; form.elements.objetivo.value = a.objetivo || ""; form.elements.descripcion.value = a.descripcion || ""; form.elements.recurso.value = a.recurso || "";
+      $("#mas-origen").textContent = "Publicada por " + (a.docente || "un docente") + " en " + cursoTitulo(a.curso_id) + ". Los estudiantes verán los cambios de inmediato.";
+      $("#modal-actividad-sup").showModal(); return;
+    }
+    if (borrar) {
+      const a = actividadPorId(borrar.dataset.supEliminar); if (!a) return;
+      const n = D.entregasDeActividad(a.id).length;
+      if (!confirm("¿Retirar la actividad «" + a.titulo + "» de " + (a.docente || "este docente") + "?" + (n ? " También se borrarán sus " + n + " entregas." : "") + " Esta acción no se puede deshacer.")) return;
+      if (await intentar(() => D.eliminarActividad(a.id), borrar)) { pintarAcademico(); pintar(); toast("Actividad retirada"); }
+      return;
+    }
+    if (ver) abrirEntregasSup(ver.dataset.supEntregas);
+  });
+  $("#form-actividad-sup").addEventListener("submit", async (event) => {
+    event.preventDefault(); const form = event.currentTarget; if (!form.reportValidity()) return;
+    const a = actividadPorId(form.elements.id.value); if (!a) return;
+    const cambios = { curso_id: Number(a.curso_id), modulo: Number(a.modulo) || 1, ficha: a.ficha || "", tipo: form.elements.tipo.value, titulo: form.elements.titulo.value.trim(), objetivo: form.elements.objetivo.value.trim(), descripcion: form.elements.descripcion.value.trim(), fecha_limite: form.elements.fecha_limite.value, recurso: form.elements.recurso.value.trim() };
+    if (!(await intentar(() => D.actualizarActividad(a.id, cambios), form.querySelector("[type=submit]")))) return;
+    $("#modal-actividad-sup").close(); pintarAcademico(); toast("Actividad actualizada");
+  });
+  function abrirEntregasSup(id) {
+    const a = actividadPorId(id); if (!a) return;
+    const ents = D.entregasDeActividad(a.id);
+    $("#mes-titulo").textContent = a.titulo;
+    $("#mes-sub").textContent = cursoTitulo(a.curso_id) + " · " + (a.docente || "Docente") + " · " + ents.length + (ents.length === 1 ? " entrega" : " entregas");
+    $("#mes-lista").innerHTML = ents.map((e) => '<form class="tarjeta entrega-sup form" data-entrega="' + esc(e.id) + '" novalidate><div class="entrega-sup-cabecera"><strong>' + esc(e.nombre || "Estudiante") + "</strong><small>Entregada el " + fechaCorta(e.creado) + "</small></div>" +
+      (e.respuesta ? '<p class="mensaje-texto" data-no-traducir>' + esc(e.respuesta) + "</p>" : "") + (e.enlace ? '<p><a href="' + esc(e.enlace) + '" target="_blank" rel="noopener noreferrer">Abrir el enlace de la entrega</a></p>' : "") +
+      '<div class="fila-campos"><div class="campo"><label for="nota-' + esc(e.id) + '">Nota (1.0 a 5.0)</label><input id="nota-' + esc(e.id) + '" name="nota" type="number" min="1" max="5" step="0.1" required value="' + (typeof e.nota === "number" ? e.nota.toFixed(1) : "") + '"></div>' +
+      '<div class="campo"><label for="com-' + esc(e.id) + '">Retroalimentación</label><textarea id="com-' + esc(e.id) + '" name="comentario" rows="2" required minlength="5" maxlength="800" data-no-traducir>' + esc(e.comentario || "") + "</textarea></div></div>" +
+      '<button type="submit" class="btn btn-primary btn-sm">' + (e.estado === "revisada" ? "Corregir nota" : "Calificar") + "</button></form>").join("") || '<p class="seccion-texto">Todavía nadie ha entregado esta actividad.</p>';
+    $("#mes-lista").dataset.actividad = a.id;
+    $("#modal-entregas-sup").showModal();
+  }
+  $("#mes-lista").addEventListener("submit", async (event) => {
+    event.preventDefault(); const form = event.target.closest("[data-entrega]"); if (!form || !form.reportValidity()) return;
+    const nota = Math.round(Number(form.elements.nota.value) * 10) / 10;
+    if (!(await intentar(() => D.calificar(form.dataset.entrega, nota, form.elements.comentario.value.trim()), form.querySelector("[type=submit]")))) return;
+    toast("Nota guardada"); pintarAcademico(); abrirEntregasSup($("#mes-lista").dataset.actividad);
+  });
 
   /* ---------- Registro de seguridad ----------
      Lo arma el servidor (tabla eventos_seguridad). Las IP con 5 o más fallos en 24 horas se

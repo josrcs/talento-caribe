@@ -59,11 +59,13 @@ const CARGOS = [
   "Coordinador(a) de admisiones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Administración y finanzas",
   "Comunicaciones y alianzas", "Otro cargo administrativo",
 ];
+// El Gerente está en todos: supervisa y puede corregir el trabajo de cada área
 const PERMISOS = {
-  inscripciones: ["Director(a) de admisiones", "Coordinador(a) de admisiones", "Admisiones y registro"],
-  mensajes: ["Director(a) de admisiones", "Director(a) de comunicaciones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Comunicaciones y alianzas"],
+  inscripciones: ["Gerente", "Director(a) de admisiones", "Coordinador(a) de admisiones", "Admisiones y registro"],
+  mensajes: ["Gerente", "Director(a) de admisiones", "Director(a) de comunicaciones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Comunicaciones y alianzas"],
   editarCursos: ["Gerente", "Director(a) académico(a)", "Director(a) de tecnología"],
-  finanzas: ["Administración y finanzas", "Director(a) administrativo(a)"],
+  finanzas: ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"],
+  supervisarAcademico: ["Gerente"], // editar o borrar actividades de cualquier docente y corregir notas
   configurarIA: ["Gerente"],
   seguridad: ["Gerente", "Director(a) general", "Director(a) de tecnología"],
 };

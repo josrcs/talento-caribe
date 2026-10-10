@@ -85,6 +85,8 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
 - [x] Toda la interfaz en inglés, incluido el plan de los 12 cursos (módulos, temas, actividades, evidencias y guía de clase)
 - [x] Página 404 con la marca y accesos para volver (GitHub Pages y servidor)
+- [x] Gerencia con acceso a todas las áreas: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas de los docentes
+- [x] Finanzas registra, corrige y elimina gastos con cualquier cifra (50000, 50.000 o 12.345)
 - [x] Contacto honesto sin servidor: en GitHub Pages el formulario abre el correo de la persona con el mensaje listo
 - [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)

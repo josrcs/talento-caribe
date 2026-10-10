@@ -5,7 +5,11 @@
 const router = require("express").Router();
 const pool = require("../db");
 const correos = require("../correo");
-const { requiereSesion, requiereRol, requierePermiso } = require("../seguridad");
+const { requiereSesion, requiereRol, requierePermiso, puede } = require("../seguridad");
+// Docente (sobre sus cursos) o cargo que supervisa lo académico (Gerente: sobre cualquier curso)
+const supervisa = (u) => puede(u, "supervisarAcademico");
+const docenteOSupervisor = (req, res, next) =>
+  req.usuario?.rol === "docente" || supervisa(req.usuario) ? next() : res.status(403).json({ error: "Tu cuenta no tiene permiso para esta acción." });
 const { texto, linea, opcional, limpio, entero, fecha, URL_OK, rechazar } = require("../validar");
 // Enlace http(s) de máximo 300 caracteres (nunca javascript: ni data:, que ejecutarían código al abrirlos)
 const enlaceOk = (v) => !v || (typeof v === "string" && v.length <= 300 && URL_OK.test(v));
@@ -110,12 +114,17 @@ router.post("/actividades", requiereSesion, requiereRol("docente"), async (req, 
   } catch (e) { next(e); }
 });
 
-router.put("/actividades/:id", requiereSesion, requiereRol("docente"), async (req, res, next) => {
+router.put("/actividades/:id", requiereSesion, docenteOSupervisor, async (req, res, next) => {
   const id = entero(req.params.id), b = req.body || {};
   if (!id) return res.status(400).json({ error: "Actividad no válida." });
   if (rechazar(res, validarActividad(b))) return;
   try {
-    if (!(await esMiActividad(id, req.usuario.id)) || !(await esMiCurso(b.curso_id, req.usuario.id))) return res.status(403).json({ error: "Solo puedes editar actividades de tus cursos." });
+    if (supervisa(req.usuario)) {
+      // La gerencia corrige la actividad sin cambiarla de curso (sigue siendo del docente que la publicó)
+      const actual = (await pool.query("SELECT curso_id FROM actividades WHERE id = $1", [id])).rows[0];
+      if (!actual) return res.status(404).json({ error: "Esa actividad ya no existe." });
+      if (Number(actual.curso_id) !== Number(b.curso_id)) return res.status(400).json({ error: "La actividad no puede cambiar de curso." });
+    } else if (!(await esMiActividad(id, req.usuario.id)) || !(await esMiCurso(b.curso_id, req.usuario.id))) return res.status(403).json({ error: "Solo puedes editar actividades de tus cursos." });
     const ficha = await fichaDelCurso(b.ficha, b.curso_id);
     if (!ficha) return res.status(400).json({ error: "Esa ficha no pertenece al curso elegido." });
     await pool.query("UPDATE actividades SET curso_id = $1, modulo = $2, ficha_id = $3, tipo = $4, titulo = $5, objetivo = $6, descripcion = $7, fecha_limite = $8, recurso = $9 WHERE id = $10",
@@ -124,11 +133,11 @@ router.put("/actividades/:id", requiereSesion, requiereRol("docente"), async (re
   } catch (e) { next(e); }
 });
 
-router.delete("/actividades/:id", requiereSesion, requiereRol("docente"), async (req, res, next) => {
+router.delete("/actividades/:id", requiereSesion, docenteOSupervisor, async (req, res, next) => {
   const id = entero(req.params.id);
   if (!id) return res.status(400).json({ error: "Actividad no válida." });
   try {
-    if (!(await esMiActividad(id, req.usuario.id))) return res.status(403).json({ error: "Solo puedes eliminar actividades de tus cursos." });
+    if (!supervisa(req.usuario) && !(await esMiActividad(id, req.usuario.id))) return res.status(403).json({ error: "Solo puedes eliminar actividades de tus cursos." });
     await pool.query("DELETE FROM actividades WHERE id = $1", [id]); // sus entregas se borran en cascada
     res.json({ ok: true });
   } catch (e) { next(e); }
@@ -154,8 +163,8 @@ router.put("/actividades/:id/entrega", requiereSesion, requiereRol("estudiante")
   } catch (e) { next(e); }
 });
 
-// El docente califica (1.0 a 5.0) con retroalimentación
-router.patch("/entregas/:id", requiereSesion, requiereRol("docente"), async (req, res, next) => {
+// El docente califica (1.0 a 5.0) con retroalimentación; la gerencia puede corregir cualquier nota
+router.patch("/entregas/:id", requiereSesion, docenteOSupervisor, async (req, res, next) => {
   const id = entero(req.params.id), nota = Math.round(Number(req.body?.nota) * 10) / 10, comentario = req.body?.comentario;
   if (!id) return res.status(400).json({ error: "Entrega no válida." });
   if (rechazar(res, { nota: nota >= 1 && nota <= 5, comentario: texto(comentario, 5, 800) })) return;
@@ -163,7 +172,7 @@ router.patch("/entregas/:id", requiereSesion, requiereRol("docente"), async (req
     const { rowCount } = await pool.query(
       `UPDATE entregas e SET nota = $1, comentario = $2, estado = 'revisada', revisado_en = now()
        FROM actividades a JOIN cursos c ON c.id = a.curso_id
-       WHERE e.id = $3 AND a.id = e.actividad_id AND c.docente_id = $4`, [nota, comentario.trim(), id, req.usuario.id]);
+       WHERE e.id = $3 AND a.id = e.actividad_id AND ($5 OR c.docente_id = $4)`, [nota, comentario.trim(), id, req.usuario.id, supervisa(req.usuario)]);
     rowCount ? res.json({ ok: true }) : res.status(403).json({ error: "Solo puedes calificar entregas de tus cursos." });
   } catch (e) { next(e); }
 });
