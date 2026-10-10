@@ -14,6 +14,8 @@ talento-caribe/
 │   ├── login.html        Acceso unificado: estudiantes, docentes y administrativos
 │   └── panel.html        Panel por cargo, áreas y encuestas departamentales
 ├── portal.html           Espacios de estudiante, docente y administrativo (vista previa)
+├── recuperar.html        Recuperar la contraseña con un enlace por correo
+├── 404.html              Página no encontrada (la usan GitHub Pages y el servidor)
 ├── css/                  style.css (público) y admin.css (panel)
 ├── js/                   Lógica del frontend (incluye asistente global y permisos por cargo de demostración)
 ├── assets/img/           Logo, ilustraciones y favicon
@@ -81,9 +83,12 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con SMTP en `backend/.env`)
 - [x] Vista previa con imagen al compartir el enlace (cambiar `josrcs` en `index.html` y `cursos.html` al publicar)
 - [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
+- [x] Toda la interfaz en inglés, incluido el plan de los 12 cursos (módulos, temas, actividades, evidencias y guía de clase)
+- [x] Página 404 con la marca y accesos para volver (GitHub Pages y servidor)
+- [x] Contacto honesto sin servidor: en GitHub Pages el formulario abre el correo de la persona con el mensaje listo
+- [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
-- [ ] Subir el repositorio a GitHub
-- [ ] Publicar: frontend en GitHub Pages y backend en Render (pasos en «Publicar el proyecto»)
+- [ ] Publicar el backend en Render y llenar `API_PUBLICADA` en `js/config.js` (pasos en «Publicar el proyecto»)
 
 ## Cuentas de prueba
 
@@ -97,7 +102,7 @@ Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`).
 
 **En modo demostración** las cuentas y perfiles de estudiante se guardan localmente en `localStorage`, incluidos los números de documento y datos de contacto; las contraseñas se guardan derivadas mediante PBKDF2. **No ingreses documentos reales en esta demostración:** cualquier persona con acceso al navegador puede inspeccionar esos datos. El correo activo se solicita, pero el envío de confirmaciones todavía requiere un servicio de correo conectado.
 
-En modo demostración los cargos y permisos solo se aplican en la interfaz. **Con el servidor** los valida el backend: cada rol y cargo recibe solo sus datos (por ejemplo, solo admisiones ve documentos y teléfonos de los estudiantes). En modo demostración el asistente contesta con reglas locales; con el servidor usa la IA real de `/api/chat` (ver «Asistente con IA real»). Las encuestas siguen siendo plantillas; todavía no recopilan respuestas.
+En modo demostración los cargos y permisos solo se aplican en la interfaz. **Con el servidor** los valida el backend: cada rol y cargo recibe solo sus datos (por ejemplo, solo admisiones ve documentos y teléfonos de los estudiantes). En modo demostración el asistente contesta con reglas locales; con el servidor usa la IA real de `/api/chat` (ver «Asistente con IA real»). En modo demostración las respuestas de las encuestas se guardan en el navegador; con el servidor, en PostgreSQL. El formulario de contacto, sin servidor, abre la aplicación de correo de la persona con el mensaje listo para la dirección de la sección «Contacto» de `index.html`; con el servidor se guarda en la base y llega a la bandeja del panel.
 
 ## Asistente con IA real
 
@@ -169,7 +174,7 @@ git push -u origin main
 
 Después, por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env` no se sube (está en `.gitignore`).
 
-**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp.
+**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp. Si el repositorio tiene otro nombre, cambia también `<base href="/talento-caribe/">` en `404.html`.
 
 **3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
 - `ANTHROPIC_API_KEY`: la clave del asistente.
@@ -205,9 +210,10 @@ Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, p
 | `css/tema.css` | Paletas: oscuro (original) y claro "arena y mar". Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
 | `js/i18n.js` | Aplica tema e idioma antes de pintar, traduce textos y atributos (también lo que el JS pinta después) y añade los botones ☀/🌙 y ES/EN. Expone `TCIdioma` y `TCi18n.t()`. |
 | `js/i18n-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
+| `js/i18n-en-cursos.js` | Diccionario del plan de cursos (títulos de módulos, temas, actividades, evidencias y guía de clase). No reemplaza frases que ya traduce `i18n-en.js`. |
 
 - Preferencias guardadas en `localStorage`: `tc_tema` (`claro`/`oscuro`; por defecto sigue al sistema) y `tc_idioma` (`es`/`en`; por defecto español).
-- Para traducir un texto nuevo, agrega la línea `"Texto en español": "English text"` en `js/i18n-en.js`.
+- Para traducir un texto nuevo, agrega la línea `"Texto en español": "English text"` en `js/i18n-en.js` (o en `js/i18n-en-cursos.js` si es contenido de un curso).
 - El contenido escrito por personas (respuestas, mensajes del chat) lleva `data-no-traducir` y no se modifica.
 
 ## Módulos y fichas

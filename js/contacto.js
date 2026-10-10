@@ -18,9 +18,19 @@
     cargando(btn, true); out.hidden = true;
     const datos = { nombre: form.elements.nombre.value.trim(), correo: form.elements.correo.value.trim(), telefono: form.elements.telefono.value.trim(), interes: form.elements.interes.value, asunto: form.elements.asunto.value.trim(), mensaje: form.elements.mensaje.value.trim(), leido: false, creado_en: new Date().toISOString() };
     try {
-      if (TC.MODO_DEMO && !TC.API_CONTACTO) { await espera(800); guardar("tc_mensajes", [...leer("tc_mensajes", []), { id: Date.now(), ...datos }]); }
-      else { const r = await fetch(`${TC.API_URL}/contacto`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) }); if (!r.ok) throw new Error(); }
-      form.reset(); out.textContent = "¡Mensaje enviado! Te responderemos en un máximo de 3 días hábiles."; out.className = "form-estado"; toast("Mensaje enviado");
+      if (TC.MODO_DEMO && !TC.API_CONTACTO) {
+        // Sin servidor (GitHub Pages) nadie recibiría el mensaje: se abre el correo de la persona con todo listo
+        // para enviarlo a la dirección publicada en la página. La copia local alimenta la bandeja del panel de demostración.
+        await espera(500);
+        guardar("tc_mensajes", [...leer("tc_mensajes", []), { id: Date.now(), ...datos }]);
+        const destino = ($("#contacto a[href^='mailto:']")?.getAttribute("href") || "mailto:").replace(/^mailto:/, "").split("?")[0];
+        const cuerpo = `${datos.mensaje}\n\n${datos.nombre}\n${datos.correo}${datos.telefono ? "\n" + datos.telefono : ""}\nTema: ${form.elements.interes.selectedOptions[0].text}`;
+        location.href = `mailto:${destino}?subject=${encodeURIComponent(datos.asunto)}&body=${encodeURIComponent(cuerpo)}`;
+        form.reset(); out.textContent = `Abrimos tu aplicación de correo con el mensaje listo: solo falta que lo envíes. Si no se abrió, escríbenos a ${destino}.`; out.className = "form-estado";
+      } else {
+        const r = await fetch(`${TC.API_URL}/contacto`, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(datos) }); if (!r.ok) throw new Error();
+        form.reset(); out.textContent = "¡Mensaje enviado! Te responderemos en un máximo de 3 días hábiles."; out.className = "form-estado"; toast("Mensaje enviado");
+      }
     } catch { out.textContent = "No pudimos enviar tu mensaje. Inténtalo de nuevo en unos minutos."; out.className = "form-estado estado-error"; }
     out.hidden = false; cargando(btn, false);
   });

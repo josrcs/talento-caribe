@@ -10,6 +10,21 @@ window.TC_EN = {
   "Gasto registrado": "Expense recorded",
   "No hay conexión con el servidor. ¿Está encendido (npm start)?": "Cannot reach the server. Is it running (npm start)?",
   "No hay conexión con el servidor. Revisa que esté encendido (npm start).": "Cannot reach the server. Make sure it is running (npm start).",
+  "No hay conexión con el servidor. Puede estar iniciando: inténtalo de nuevo en unos segundos.": "Cannot reach the server. It may be starting up: try again in a few seconds.",
+
+  /* ---------- Página no encontrada (404.html) ---------- */
+  "Página no encontrada | Talento Caribe": "Page not found | Talento Caribe",
+  "La página que buscas no existe o cambió de dirección.": "The page you're looking for doesn't exist or has moved.",
+  "Error 404": "Error 404",
+  "Esta ruta no está en el mapa.": "This route isn't on the map.",
+  "Pero el talento no tiene fronteras: desde aquí puedes volver a cualquier parte de la plataforma.": "But talent has no borders: from here you can get back to any part of the platform.",
+  "Página no encontrada": "Page not found",
+  "No encontramos esta página": "We couldn't find this page",
+  "Puede que el enlace esté incompleto o que la página haya cambiado de dirección.": "The link may be incomplete, or the page may have moved.",
+  "Ir al inicio": "Go to the home page",
+  "Ver los cursos": "See the courses",
+  "Ingresar a mi cuenta": "Log in to my account",
+  "¿Llegaste aquí desde un enlace nuestro? Avísanos": "Did one of our links bring you here? Let us know",
 
   /* ---------- Sitio público: navegación, inicio, nosotros ---------- */
   "Talento Caribe | Tu talento no tiene fronteras": "Talento Caribe | Your talent has no borders",
@@ -1350,7 +1365,7 @@ window.TC_EN = {
   "contraseña incorrecta": "wrong password",
   "contraseña actual incorrecta al cambiarla": "wrong current password when changing it",
   "Todavía no hay eventos de este tipo.": "There are no events of this type yet.",
-  "El registro de seguridad lo guarda el servidor. Abre la página con npm start para verlo.": "The security log is kept by the server. Open the page with npm start to see it.",
+  "El registro de seguridad lo guarda el servidor y esta es la versión de demostración, sin servidor conectado.": "The security log is kept by the server, and this is the demo version with no server connected.",
   "Conexiones con muchos intentos fallidos en las últimas # horas": "Connections with many failed attempts in the last # hours",
   "El servidor ya las frena: tras # fallos una conexión queda bloqueada # minutos, y tras # fallos también la cuenta atacada.": "The server already slows them down: after # failures a connection is blocked for # minutes, and after # failures the targeted account too.",
 };
@@ -1370,7 +1385,7 @@ window.TC_EN_PATRONES = [
   [/^Inicia (.+) · (\d+) cupos$/, "Starts $1 · $2 seats"],
   [/^La verán (\d+) estudiantes? aprobados? de la ficha (\d+)\.$/, "$1 approved student(s) in group $2 will see it."],
   [/^La verán (\d+) estudiantes? aprobados? de todas las fichas de este curso\.$/, "$1 approved student(s) in all groups of this course will see it."],
-  [/^(\d+) semanas · (.+?) · (.+)$/, (m, n, mod, prof) => n + " weeks · " + tr(mod) + " · " + prof],
+  [/^(\d+) semanas · (.+?) · (.+)$/, (m, n, mod, resto) => n + " weeks · " + tr(mod) + " · " + resto.split(" · ").map(tr).join(" · ")],
   [/^(.+) \((todos los docentes usan esta clave|con cualquier cargo)\)$/, (m, c, nota) => c + " " + tr("(" + nota + ")")],
   [/^(.+): (\d+) solicitud(es)?$/, (m, c, n) => tr(c) + ": " + n + (n === "1" ? " request" : " requests")],
   [/^¡Hola, profe (.+)! 👋$/, "Hi, Prof. $1! 👋"],
@@ -1397,4 +1412,6 @@ window.TC_EN_PATRONES = [
   [/^(.+): (\d+) fallos contra (\d+) cuenta\(s\), el último (.+)$/, "$1: $2 failures against $3 account(s), the last one on $4"],
   [/^cargo (.+)$/, (m, c) => "role " + tr(c)],
   [/^tipo de cuenta (.+)$/, "account type $1"],
+  [/^Documento (.+) terminado en (\d+)\. ?(.*)$/, (m, tipo, n, resto) => tr(tipo) + " ending in " + n + "." + (resto ? " " + resto : "")],
+  [/^Abrimos tu aplicación de correo con el mensaje listo: solo falta que lo envíes\. Si no se abrió, escríbenos a (.+)\.$/, "We opened your email app with the message ready: you just need to send it. If it didn't open, write to us at $1."],
 ];

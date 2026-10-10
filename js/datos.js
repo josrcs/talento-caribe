@@ -32,7 +32,7 @@
     try {
       res = await fetch(window.TC.API_URL + ruta, { method: metodo, headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo) });
     } catch {
-      throw new Error("No hay conexión con el servidor. Revisa que esté encendido (npm start).");
+      throw new Error(window.TC.SIN_CONEXION);
     }
     const datos = await res.json().catch(() => ({}));
     if (res.status === 401 && token) {

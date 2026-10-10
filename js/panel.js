@@ -327,7 +327,7 @@
     const tabla = $("#tb-seguridad");
     if (!API) {
       $("#seguridad-kpis").innerHTML = "";
-      tabla.innerHTML = fila(5, "El registro de seguridad lo guarda el servidor. Abre la página con npm start para verlo.");
+      tabla.innerHTML = fila(5, "El registro de seguridad lo guarda el servidor y esta es la versión de demostración, sin servidor conectado.");
       return;
     }
     tabla.innerHTML = fila(5, "Cargando…");
