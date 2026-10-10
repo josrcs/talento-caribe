@@ -158,6 +158,9 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .form-ayuda { color: var(--color-slate-500); font-size: .78rem; }
 .demo-aviso { padding: .8rem .95rem; border: 1px solid rgba(245, 158, 11, .25); border-radius: 12px; background: rgba(245, 158, 11, .05); color: var(--color-slate-300); font-size: .82rem; }
 .demo-aviso p { margin: .25rem 0 0; color: var(--color-slate-400); }
+/* 404.html: accesos para volver a la plataforma */
+.no-encontrada-acciones { display: grid; gap: .7rem; margin-top: 1.4rem; }
+.no-encontrada-acciones .btn { justify-content: center; width: 100%; }
 .department-grid, .survey-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); }
 .department-card { padding: 1.25rem; border: 1px solid var(--borde); border-radius: var(--radius-lg); background: linear-gradient(150deg, rgba(var(--o-17-24-39), .95), rgba(var(--o-11-18-34), .9)); }
 .department-card h2, .department-card h3 { margin: .75rem 0 .45rem; color: var(--texto-fuerte); }

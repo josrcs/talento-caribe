@@ -16,6 +16,7 @@
    Los correos (bienvenida, recuperar contraseña, avisos) salen por SMTP: ver src/correo.js
    ========================================================== */
 require("dotenv").config();
+const fs = require("fs");
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
@@ -64,7 +65,9 @@ app.get(/^\/(?:([a-z]+)(?:\.html)?)?$/, (req, res, next) => {
   const pagina = req.params[0] || "index";
   PAGINAS.includes(pagina) ? res.sendFile(path.join(RAIZ, `${pagina}.html`)) : next();
 });
-app.use((req, res) => res.status(404).type("text/plain").send("No encontrado"));
+// Página 404 con la marca (la misma que usa GitHub Pages; aquí la base de sus enlaces es la raíz del sitio)
+const pagina404 = fs.readFileSync(path.join(RAIZ, "404.html"), "utf8").replace('<base href="/talento-caribe/">', '<base href="/">');
+app.use((req, res) => (req.method === "GET" && req.accepts("html") ? res.status(404).type("html").send(pagina404) : res.status(404).type("text/plain").send("No encontrado")));
 
 /* ---------- Errores ---------- */
 app.use((error, req, res, next) => {

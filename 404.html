@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (en GitHub Pages no hay cabeceras propias; el servidor envía la suya). -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' http://localhost:3000 https://*.onrender.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <!-- GitHub Pages muestra esta página para cualquier dirección que no exista, también dentro de carpetas
+       (/talento-caribe/admin/algo). La base hace que estilos, imágenes y enlaces funcionen desde cualquier nivel.
+       Si el repositorio cambia de nombre, cambia /talento-caribe/ aquí. El servidor de Node la reemplaza por "/". -->
+  <base href="/talento-caribe/">
+  <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
+  <script src="js/i18n-en.js"></script>
+  <script src="js/i18n.js"></script>
+  <title>Página no encontrada | Talento Caribe</title>
+  <meta name="description" content="La página que buscas no existe o cambió de dirección.">
+  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="stylesheet" href="css/tema.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/efectos.css">
+  <link rel="stylesheet" href="css/plataforma.css">
+</head>
+<body class="page-login">
+  <main class="login login-shell">
+    <section class="login-story" aria-label="Talento Caribe">
+      <a href="index.html" class="login-logo"><img src="assets/img/logo-talento-caribe-claro.png" alt="Talento Caribe — inicio" width="208" height="177"></a>
+      <div class="login-story-copy"><span class="eyebrow">Error 404</span><h1>Esta ruta no está en el mapa.</h1><p>Pero el talento no tiene fronteras: desde aquí puedes volver a cualquier parte de la plataforma.</p></div>
+      <p class="acceso-pie">Plataforma educativa gratuita · Barranquilla, Colombia</p>
+    </section>
+
+    <section class="login-card" aria-labelledby="no-encontrada-titulo">
+      <div class="login-card-heading"><img class="login-card-logo" src="assets/img/logo-emblema.png" alt="" width="64" height="48"><span class="eyebrow">Página no encontrada</span><h2 id="no-encontrada-titulo">No encontramos esta página</h2><p>Puede que el enlace esté incompleto o que la página haya cambiado de dirección.</p></div>
+      <div class="no-encontrada-acciones">
+        <a class="btn btn-primary" href="index.html">Ir al inicio</a>
+        <a class="btn btn-outline" href="cursos.html">Ver los cursos</a>
+        <a class="btn btn-outline" href="admin/login.html">Ingresar a mi cuenta</a>
+      </div>
+      <p class="login-volver"><a href="index.html#contacto">¿Llegaste aquí desde un enlace nuestro? Avísanos</a></p>
+    </section>
+  </main>
+  <script src="js/efectos.js" defer></script>
+</body>
+</html>
