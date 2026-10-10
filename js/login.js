@@ -131,7 +131,14 @@
     let session = null;
     if (TCAuth.api) {
       try { session = await TCAuth.autenticar(correo, clave, rol, rol === "administrativo" ? puesto.value : undefined); }
-      catch (problem) { error.textContent = problem.message; error.hidden = false; cargando(btn, false); return; }
+      catch (problem) {
+        // Cuenta con cargo fijo y se eligió otro: se selecciona el suyo y se entra con ese
+        if (rol === "administrativo" && problem.puesto && problem.puesto !== puesto.value) {
+          elegirCargo(problem.puesto);
+          try { session = await TCAuth.autenticar(correo, clave, rol, problem.puesto); } catch (otro) { problem = otro; }
+        }
+        if (!session) { error.textContent = problem.message; error.hidden = false; cargando(btn, false); return; }
+      }
     } else if (rol === "docente") {
       const d = DOCENTES.find((x) => x.correo === correo && x.clave === clave);
       if (d) session = { rol, correo: d.correo, nombre: d.nombre, especialidad: d.especialidad };

@@ -14,7 +14,7 @@
 .login-volver { margin: 1.2rem 0 0; text-align: center; }
 
 /* ---------- Estructura del panel ---------- */
-.panel-header { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: .8rem; padding: .6rem 1.25rem; background: rgba(var(--o-17-24-39), .85); backdrop-filter: blur(14px); border-bottom: 1px solid var(--borde); }
+.panel-header { position: sticky; top: 0; z-index: 30; display: flex; align-items: center; gap: .8rem; padding: .6rem 1.25rem; background: rgba(var(--o-17-24-39), .85); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); border-bottom: 1px solid var(--borde); }
 .panel-usuario { margin-left: auto; display: flex; align-items: center; gap: .8rem; color: var(--color-slate-300); font-size: .9rem; font-weight: 600; }
 .panel-header .btn-outline { padding: .45rem 1rem; font-size: .8rem; }
 .panel-layout { display: grid; min-height: calc(100vh - 3.6rem); }
@@ -61,7 +61,7 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 /* ---------- Acceso unificado y espacios de la comunidad ---------- */
 .login-shell { position: relative; isolation: isolate; display: grid; grid-template-columns: minmax(0, 1fr); gap: 1rem; max-width: 75rem; margin-inline: auto; }
 .login-story { display: none; }
-.login-card { width: min(100%, 31rem); padding: clamp(1.35rem, 4vw, 2.25rem); border-color: rgba(125, 211, 252, .2); background: linear-gradient(145deg, rgba(var(--o-17-24-39), .97), rgba(var(--o-13-19-37), .98)); backdrop-filter: blur(18px); }
+.login-card { width: min(100%, 31rem); padding: clamp(1.35rem, 4vw, 2.25rem); border-color: rgba(125, 211, 252, .2); background: linear-gradient(145deg, rgba(var(--o-17-24-39), .97), rgba(var(--o-13-19-37), .98)); -webkit-backdrop-filter: blur(18px); backdrop-filter: blur(18px); }
 .login-card-heading h2 { margin: .55rem 0 .35rem; font-size: 2rem; letter-spacing: -.05em; }
 .login-card-heading p { margin: 0 0 1.4rem; color: var(--color-slate-400); }
 .role-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1.35rem; }

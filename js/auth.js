@@ -53,7 +53,7 @@
       r = await fetch(TC.API_URL + ruta, { method: metodo, headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: cuerpo ? JSON.stringify(cuerpo) : undefined });
     } catch { throw new Error(TC.SIN_CONEXION); }
     const datos = await r.json().catch(() => ({}));
-    if (!r.ok) { const e = new Error(datos.error || "No pudimos completar la operación."); e.status = r.status; e.campos = datos.campos; throw e; }
+    if (!r.ok) { const e = new Error(datos.error || "No pudimos completar la operación."); e.status = r.status; e.campos = datos.campos; e.puesto = datos.puesto; throw e; }
     return datos;
   }
   const conToken = ({ token, usuario }) => ({ ...usuario, token });

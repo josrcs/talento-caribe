@@ -568,6 +568,12 @@
   for (const k in CURSOS_EN) if (!(k in window.TC_EN)) window.TC_EN[k] = CURSOS_EN[k];
 })();
 
+/* Temas de un módulo: estas palabras tienen otra traducción en el resto de la plataforma
+   («Datos» es "Details" en el menú, «Dirección» es "Address" en un formulario...) */
+window.TC_EN_CONTEXTO = [
+  [".modulo-temas li, .temas-chips li", { "Dirección": "Steering", "Datos": "Data", "Seguridad": "Safety", "Actualizar": "Updating" }],
+];
+
 /* Frases del plan con partes variables. Van al final: solo se usan si ninguna frase fija coincide. */
 window.TC_EN_PATRONES.push(
   // Temario: "Título del módulo: temas del módulo" (solo si las dos partes tienen traducción)
@@ -578,7 +584,7 @@ window.TC_EN_PATRONES.push(
   [/^Muestre la actividad «(.+)» paso a paso: plantee el reto, modele una primera decisión, diga qué espera observar y compruebe el resultado\. Pida al grupo que prediga el paso siguiente y explique una corrección frecuente\.$/s,
     (m, a) => "Demonstrate the activity “" + (window.TC_EN[a] || a) + "” step by step: set up the challenge, model a first decision, say what you expect to see and check the result. Ask the group to predict the next step and explain a common fix."],
   [/^Intercambien productos y comprueben con estas preguntas: (.+)$/s,
-    (m, p) => "Swap work and check it with these questions: " + p.split(/(?<=\?)\s+/).map((x) => window.TC_EN[x] || x).join(" ")],
+    (m, p) => "Swap work and check it with these questions: " + p.replace(/\?\s+/g, "?\u0000").split("\u0000").map((x) => window.TC_EN[x] || x).join(" ")],
   [/^Incorporen una mejora y entreguen: (.+)\.$/s,
     (m, e) => "Add an improvement and submit: " + (window.TC_EN[e + "."] || window.TC_EN[e] || e).replace(/\.$/, "") + "."],
 );

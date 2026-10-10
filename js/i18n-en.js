@@ -117,6 +117,20 @@ window.TC_EN = {
   "Esa cuenta ya está bloqueada.": "That account is already locked.",
   "Esa cuenta ya está activa.": "That account is already active.",
 
+  /* ---------- Confirmaciones (TCUtil.confirmar) ---------- */
+  "¿Confirmas?": "Are you sure?",
+  "Confirmar": "Confirm",
+  "¿Eliminar este gasto?": "Delete this expense?",
+  "Eliminar gasto": "Delete expense",
+  "¿Retirar esta actividad?": "Remove this activity?",
+  "Retirar actividad": "Remove activity",
+  "Eliminar cuenta": "Delete account",
+  "Bloquear cuenta": "Lock account",
+  "¿Bloquear 1 cuenta inactiva?": "Lock 1 inactive account?",
+  "¿Bloquear # cuentas inactivas?": "Lock # inactive accounts?",
+  "No podrá ingresar hasta que la desbloquees. Sus cursos y entregas se conservan y recibirá un correo.": "They won't be able to sign in until you unlock the account. Their courses and submissions are kept and they'll get an email.",
+  "Son las que no ingresan hace # días o más. Cada estudiante recibirá un correo y podrás desbloquearlas cuando quieras.": "These haven't signed in for # days or more. Each student will get an email and you can unlock them whenever you want.",
+
   /* ---------- Página no encontrada (404.html) ---------- */
   "Página no encontrada | Talento Caribe": "Page not found | Talento Caribe",
   "La página que buscas no existe o cambió de dirección.": "The page you're looking for doesn't exist or has moved.",
@@ -1517,6 +1531,11 @@ window.TC_EN_PATRONES = [
   [/^(.+): (\d+) fallos contra (\d+) cuenta\(s\), el último (.+)$/, "$1: $2 failures against $3 account(s), the last one on $4"],
   [/^cargo (.+)$/, (m, c) => "role " + tr(c)],
   [/^tipo de cuenta (.+)$/, "account type $1"],
+  [/^¿Eliminar la cuenta de (.+)\?$/, "Delete $1's account?"],
+  [/^¿Bloquear la cuenta de (.+)\?$/, "Lock $1's account?"],
+  [/^Cargo: (.+)\. Ya no podrá ingresar al panel\. Esta acción no se puede deshacer\.$/, (m, c) => "Role: " + tr(c) + ". They won't be able to sign in to the dashboard. This can't be undone."],
+  [/^«(.+)» por (.+)\. Esta acción no se puede deshacer\.$/, "“$1” for $2. This can't be undone."],
+  [/^«(.+)» de (.+?)\.(?: También se borrarán sus (\d+) entregas\.)? Esta acción no se puede deshacer\.$/, (m, a, d, n) => "“" + a + "” by " + d + "." + (n ? " Its " + n + " submissions will also be deleted." : "") + " This can't be undone."],
   [/^Documento (.+) terminado en (\d+)\. ?(.*)$/, (m, tipo, n, resto) => tr(tipo) + " ending in " + n + "." + (resto ? " " + resto : "")],
   [/^Abrimos tu aplicación de correo con el mensaje listo: solo falta que lo envíes\. Si no se abrió, escríbenos a (.+)\.$/, "We opened your email app with the message ready: you just need to send it. If it didn't open, write to us at $1."],
 ];

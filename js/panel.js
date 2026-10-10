@@ -1,7 +1,7 @@
 /* Panel administrativo de demostración: cada cargo ve su área y sus funciones. */
 /* Con servidor espera a que lleguen los datos de PostgreSQL (window.TCListo) antes de pintar. */
 (window.TCListo || Promise.resolve()).then(() => {
-  const { $, $$, esc, leer, guardar, sesion, toast } = TCUtil;
+  const { $, $$, esc, leer, guardar, sesion, toast, confirmar } = TCUtil;
   const API = Boolean(window.TCApi?.activa);
   /* Ejecuta una escritura (navegador o servidor) y avisa si falla */
   async function intentar(accion, boton) {
@@ -131,7 +131,7 @@
     if (editar) { editarGasto(D.gastos().find((g) => g.id === editar.dataset.editarGasto)); return; }
     if (!borrar) return;
     const gasto = D.gastos().find((g) => g.id === borrar.dataset.eliminarGasto); if (!gasto) return;
-    if (!confirm("¿Eliminar el gasto «" + gasto.concepto + "» por " + formatoPesos(gasto.valor) + "? Esta acción no se puede deshacer.")) return;
+    if (!(await confirmar({ titulo: "¿Eliminar este gasto?", mensaje: "«" + gasto.concepto + "» por " + formatoPesos(gasto.valor) + ". Esta acción no se puede deshacer.", aceptar: "Eliminar gasto", peligro: true }))) return;
     if (!(await intentar(() => D.eliminarGasto(gasto.id), borrar))) return;
     if ($("#form-gasto").elements.id.value === gasto.id) editarGasto(null);
     pintarGastos(); toast("Gasto eliminado");
@@ -391,7 +391,7 @@
     if (borrar) {
       const a = actividadPorId(borrar.dataset.supEliminar); if (!a) return;
       const n = D.entregasDeActividad(a.id).length;
-      if (!confirm("¿Retirar la actividad «" + a.titulo + "» de " + (a.docente || "este docente") + "?" + (n ? " También se borrarán sus " + n + " entregas." : "") + " Esta acción no se puede deshacer.")) return;
+      if (!(await confirmar({ titulo: "¿Retirar esta actividad?", mensaje: "«" + a.titulo + "» de " + (a.docente || "este docente") + "." + (n ? " También se borrarán sus " + n + " entregas." : "") + " Esta acción no se puede deshacer.", aceptar: "Retirar actividad", peligro: true }))) return;
       if (await intentar(() => D.eliminarActividad(a.id), borrar)) { pintarAcademico(); pintar(); toast("Actividad retirada"); }
       return;
     }
@@ -511,7 +511,7 @@
   $("#tb-equipo").addEventListener("click", async (event) => {
     const boton = event.target.closest("[data-eliminar-cuenta]"); if (!boton) return;
     const u = equipo.find((x) => String(x.id) === boton.dataset.eliminarCuenta); if (!u) return;
-    if (!confirm("¿Eliminar la cuenta de " + u.nombre + " (" + (u.puesto || "cuenta de prueba") + ")? Ya no podrá ingresar al panel. Esta acción no se puede deshacer.")) return;
+    if (!(await confirmar({ titulo: "¿Eliminar la cuenta de " + u.nombre + "?", mensaje: "Cargo: " + (u.puesto || "cuenta de prueba") + ". Ya no podrá ingresar al panel. Esta acción no se puede deshacer.", aceptar: "Eliminar cuenta", peligro: true }))) return;
     if (await intentar(() => TCApi.pedir("DELETE", "/cuentas/equipo/" + u.id), boton)) { toast("Cuenta eliminada"); cargarEquipo(); }
   });
 
@@ -551,13 +551,13 @@
     const bloquearBtn = event.target.closest("[data-bloquear]"), desbloquearBtn = event.target.closest("[data-desbloquear]");
     const u = estudiantesCuentas.find((x) => String(x.id) === (bloquearBtn?.dataset.bloquear || desbloquearBtn?.dataset.desbloquear)); if (!u) return;
     if (bloquearBtn) {
-      if (!confirm("¿Bloquear la cuenta de " + u.nombre + "? No podrá ingresar hasta que la desbloquees; sus cursos y entregas se conservan.")) return;
+      if (!(await confirmar({ titulo: "¿Bloquear la cuenta de " + u.nombre + "?", mensaje: "No podrá ingresar hasta que la desbloquees. Sus cursos y entregas se conservan y recibirá un correo.", aceptar: "Bloquear cuenta", peligro: true }))) return;
       if (await intentar(() => TCApi.pedir("POST", "/cuentas/estudiantes/" + u.id + "/bloquear"), bloquearBtn)) { toast("Cuenta bloqueada"); cargarEstudiantesCuentas(); }
     } else if (await intentar(() => TCApi.pedir("POST", "/cuentas/estudiantes/" + u.id + "/desbloquear"), desbloquearBtn)) { toast("Cuenta desbloqueada"); cargarEstudiantesCuentas(); }
   });
   $("#ce-bloquear-todas").addEventListener("click", async (event) => {
     const dias = Number($("#ce-dias").value), n = estudiantesCuentas.filter((u) => u.activo && u.dias_sin_uso >= dias).length;
-    if (!n || !confirm("¿Bloquear " + n + (n === 1 ? " cuenta que no ingresa" : " cuentas que no ingresan") + " hace " + dias + " días o más? Cada estudiante recibirá un correo y podrás desbloquearlas cuando quieras.")) return;
+    if (!n || !(await confirmar({ titulo: n === 1 ? "¿Bloquear 1 cuenta inactiva?" : "¿Bloquear " + n + " cuentas inactivas?", mensaje: "Son las que no ingresan hace " + dias + " días o más. Cada estudiante recibirá un correo y podrás desbloquearlas cuando quieras.", aceptar: "Bloquear", peligro: true }))) return;
     let r = null;
     if (await intentar(async () => { r = await TCApi.pedir("POST", "/cuentas/estudiantes/bloquear-inactivas", { dias }); }, event.currentTarget)) {
       toast(r.bloqueadas === 1 ? "1 cuenta bloqueada" : r.bloqueadas + " cuentas bloqueadas"); cargarEstudiantesCuentas();

@@ -41,9 +41,39 @@
     if (usuario.length >= 4 && clave.toLowerCase().includes(usuario)) return "No uses tu correo dentro de la contraseña.";
     return "";
   }
+  /* Confirmación con el estilo de la plataforma (en vez de la ventana gris de confirm()).
+     const ok = await confirmar({ titulo, mensaje, aceptar: "Eliminar", peligro: true }) -> true / false.
+     En acciones peligrosas el foco empieza en "Cancelar"; Esc o clic fuera también cancelan. */
+  let responderConfirmacion = null; // la respuesta pendiente del diálogo abierto
+  function confirmar({ titulo = "¿Confirmas?", mensaje = "", aceptar = "Confirmar", peligro = false } = {}) {
+    let d = $("#tc-confirmar");
+    if (!d) {
+      d = Object.assign(document.createElement("dialog"), { id: "tc-confirmar", className: "modal modal-confirmar" });
+      d.setAttribute("aria-labelledby", "tc-confirmar-titulo"); d.setAttribute("aria-describedby", "tc-confirmar-texto");
+      d.innerHTML = '<div class="modal-contenido"><h2 id="tc-confirmar-titulo"></h2><p id="tc-confirmar-texto" class="modal-sub"></p>' +
+        '<div class="modal-acciones"><button type="button" class="btn btn-primary" id="tc-confirmar-si"></button><button type="button" class="btn btn-outline" id="tc-confirmar-no">Cancelar</button></div></div>';
+      // Se responde en el mismo clic (no con el evento "close", que el navegador puede retrasar en una pestaña oculta)
+      const terminar = (valor) => { const r = responderConfirmacion; responderConfirmacion = null; if (d.open) d.close(); r?.(valor); };
+      $("#tc-confirmar-si", d).addEventListener("click", () => terminar(true));
+      $("#tc-confirmar-no", d).addEventListener("click", () => terminar(false));
+      d.addEventListener("cancel", (e) => { e.preventDefault(); terminar(false); }); // tecla Esc
+      d.addEventListener("click", (e) => { if (e.target === d) terminar(false); }); // clic en el fondo
+      document.body.append(d);
+    }
+    responderConfirmacion?.(false); // si había otra pregunta abierta, cuenta como cancelada
+    $("#tc-confirmar-titulo", d).textContent = titulo;
+    $("#tc-confirmar-texto", d).textContent = mensaje;
+    const si = $("#tc-confirmar-si", d);
+    si.textContent = aceptar; si.classList.toggle("btn-peligro-solido", peligro);
+    return new Promise((resolver) => {
+      responderConfirmacion = resolver;
+      if (!d.open) d.showModal();
+      (peligro ? $("#tc-confirmar-no", d) : si).focus();
+    });
+  }
   /* Botón con estado de carga (necesita .btn-texto y .spinner dentro) */
   function cargando(btn, on) { btn.disabled = on; $(".btn-texto", btn).hidden = on; $(".spinner", btn).hidden = !on; }
 
   window.CURSOS = window.TALENTO_CARIBE_CURSOS || [];
-  window.TCUtil = { $, $$, esc, EMAIL, espera, leer, guardar, sesion, toast, validar, cargando, problemaClave };
+  window.TCUtil = { $, $$, esc, EMAIL, espera, leer, guardar, sesion, toast, validar, cargando, problemaClave, confirmar };
 })();

@@ -93,7 +93,7 @@ router.post("/login", limitarIngresos, async (req, res, next) => {
       if (u.puesto) cargo = u.puesto;                      // cuenta con cargo fijo
       else if (CARGOS.includes(puesto)) cargo = puesto;    // cuenta de demostración: elige el cargo
       else return res.status(400).json({ error: "Elige el cargo con el que ingresarás." });
-      if (puesto && u.puesto && puesto !== u.puesto) return res.status(403).json({ error: `Tu cuenta está registrada con el cargo «${u.puesto}».` });
+      if (puesto && u.puesto && puesto !== u.puesto) return res.status(403).json({ error: `Tu cuenta está registrada con el cargo «${u.puesto}».`, puesto: u.puesto });
     }
     fallosCuenta.limpiar(cuenta); fallosIP.limpiar(ip);
     // Último ingreso: admisiones lo usa para saber qué cuentas de estudiantes están inactivas

@@ -59,7 +59,8 @@
     if (fuera === undefined && /[.!?:]\s/.test(limpio) && !traducir.dentro) {
       // Respaldo: texto compuesto por varias frases (p. ej. "Completa tus datos. correo@x.co")
       traducir.dentro = true;
-      const partes = limpio.split(/(?<=[.!?:])\s+/);
+      // Corta después de . ! ? : (sin "lookbehind", que Safari anterior a iOS 16.4 no entiende)
+      const partes = limpio.replace(/([.!?:])\s+/g, "$1\u0000").split("\u0000");
       const nuevas = partes.map((p) => traducir(p));
       traducir.dentro = false;
       if (nuevas.some((n, i) => n !== partes[i])) fuera = nuevas.join(" ");
@@ -76,7 +77,7 @@
   }
 
   /* ---------- Logos según el tema (las versiones claras son para fondo oscuro) ---------- */
-  const LOGOS = [["logo-talento-caribe-claro.png", "logo-talento-caribe.png"], ["logo-emblema.png", "logo-emblema-color.png"], ["logo-emblema-hd.png", "logo-emblema-hd-color.png"]];
+  const LOGOS = [["logo-talento-caribe-claro.png", "logo-talento-caribe.png"], ["logo-talento-caribe-claro-sm.png", "logo-talento-caribe-sm.png"], ["logo-emblema.png", "logo-emblema-color.png"], ["logo-emblema-hd.png", "logo-emblema-hd-color.png"]];
   function logo(img) {
     const src = img.getAttribute("src") || "";
     if (img.hasAttribute("data-logo-fijo")) return;
@@ -86,13 +87,21 @@
     }
   }
 
+  /* Palabras que cambian según dónde aparecen: window.TC_EN_CONTEXTO = [[selector, { "Dirección": "Steering" }], ...]
+     (en los temas de un curso «Dirección» es la del robot, no una dirección postal) */
+  function enContexto(el, texto) {
+    const k = norm(texto);
+    for (const [selector, dic] of window.TC_EN_CONTEXTO || []) if (dic[k] !== undefined && el.matches(selector)) return texto.replace(k, dic[k]);
+    return null;
+  }
+
   /* ---------- Recorrido del DOM ---------- */
   const ATRIBUTOS = ["placeholder", "aria-label", "title", "alt"];
   const omitir = (el) => el.closest?.("[data-no-traducir], script, style, textarea, code, pre");
   function procesar(nodo) {
     if (nodo.nodeType === 3) {
       if (idioma === "en" && nodo.parentElement && !omitir(nodo.parentElement)) {
-        const nuevo = traducir(nodo.nodeValue); if (nuevo !== nodo.nodeValue) nodo.nodeValue = nuevo;
+        const nuevo = enContexto(nodo.parentElement, nodo.nodeValue) ?? traducir(nodo.nodeValue); if (nuevo !== nodo.nodeValue) nodo.nodeValue = nuevo;
       }
       return;
     }

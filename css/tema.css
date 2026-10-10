@@ -28,7 +28,7 @@
 :root[data-tema="claro"] {
   color-scheme: light;
   --texto-fuerte: #0a2d5e;             /* azul marino del logo */
-  --celeste: #0b6db7;
+  --celeste: #0a62a6;                  /* tonos de texto con contraste AA (4.5:1) sobre el vidrio claro */
   --celeste-suave: #0a5a96;
   --verde-texto: #0b7a5e;
   --azul-texto: #1268c8;
@@ -39,17 +39,17 @@
   --o-5-11-22: 255, 255, 255; --o-30-41-59: 244, 248, 252; --o-20-34-60: 255, 255, 255; --o-11-18-34: 255, 255, 255;
   --o-24-33-66: 255, 255, 255; --o-13-19-37: 255, 255, 255; --o-14-26-48: 255, 255, 255; --o-12-24-43: 255, 255, 255; --o-10-20-38: 255, 255, 255;
 
-  --color-primary-400: #0b6db7;
+  --color-primary-400: #0a62a6;
   --color-accent-400: #0f8a72;
   --color-dark-900: #f4f8fb;           /* arena clara */
   --color-dark-800: #ffffff;
   --color-slate-200: #1c3a5f;
   --color-slate-300: #2c4a6e;
-  --color-slate-400: #4b6787;
-  --color-slate-500: #647a97;
+  --color-slate-400: #435d7b;
+  --color-slate-500: #4f6680;
   --color-slate-700: #c9d6e6;
   --color-red-400: #b42318;
-  --color-green-400: #067a57;
+  --color-green-400: #056a4c;
   --color-yellow-400: #a15c07;
   --borde: rgba(10, 45, 94, .12);
   --shadow-lg: 0 20px 45px rgba(10, 45, 94, .12);

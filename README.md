@@ -89,6 +89,8 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Cuentas: el Gerente crea y elimina cuentas administrativas; Coordinación de admisiones bloquea estudiantes inactivos (30 días o más sin ingresar) y los desbloquea cuando quiera; todo queda en el registro de seguridad
 - [x] Finanzas registra, corrige y elimina gastos con cualquier cifra (50000, 50.000 o 12.345)
 - [x] Contacto honesto sin servidor: en GitHub Pages el formulario abre el correo de la persona con el mensaje listo
+- [x] Accesibilidad: contraste AA (4.5:1) revisado en tema claro y oscuro, todo se usa con teclado y con foco visible, confirmaciones con diálogos propios (Esc cancela)
+- [x] Compatible con Safari en iPhone (prefijos `-webkit-` y sin expresiones regulares que iOS antiguo no entiende) y logos livianos donde se ven pequeños
 - [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
 - [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
 - [ ] Publicar el backend en Render y llenar `API_PUBLICADA` en `js/config.js` (pasos en «Publicar el proyecto»)
