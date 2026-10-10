@@ -33,7 +33,7 @@ talento-caribe/
 | Live Server (clic derecho en `index.html` → Open with Live Server) | Demostración | El navegador (`localStorage`), sin servidor |
 | GitHub Pages | Demostración, o **Real** si `API_PUBLICADA` en `js/config.js` apunta al backend publicado | Igual que arriba |
 
-`js/config.js` elige el modo solo: si la página la sirve el puerto 3000, usa la API; en GitHub Pages usa `API_PUBLICADA` cuando está llena.
+`js/config.js` elige el modo solo: si la página la sirve el puerto 3000 (o el 3001 de la base de pruebas, `npm run pruebas`), usa la API; en GitHub Pages usa `API_PUBLICADA` cuando está llena.
 
 ## Correr el servidor (página + API + PostgreSQL)
 

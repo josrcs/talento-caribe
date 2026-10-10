@@ -8,7 +8,7 @@
 (() => {
   const API_PUBLICADA = "";
 
-  const conServidor = location.port === "3000";
+  const conServidor = ["3000", "3001"].includes(location.port); // 3001: npm run pruebas (base de pruebas)
   const local = ["localhost", "127.0.0.1", ""].includes(location.hostname);
   const conApiPublicada = !conServidor && !local && Boolean(API_PUBLICADA);
   window.TC = {

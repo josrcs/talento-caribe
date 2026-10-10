@@ -64,6 +64,24 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 | `npm run cuenta -- lista` | Muestra las cuentas con su rol y si están activas |
 | `npm run cuenta -- clave <correo>` | Pone una contraseña nueva y segura a esa cuenta (la muestra una sola vez) y cierra sus sesiones. Con `clave <correo> "MiClave2026"` usa la que escribas |
 | `npm run cuenta -- desactivar <correo>` | La cuenta ya no puede ingresar (`activar` la habilita de nuevo) |
+| `npm run pruebas:crear` | Crea (o vuelve a crear desde cero) una **base de pruebas aparte**, `talento_caribe_pruebas`, con los datos iniciales y cuentas para ensayar bloqueos y cuentas administrativas. La base de siempre no se toca |
+| `npm run pruebas` | Enciende el servidor con la base de pruebas → **http://localhost:3001** (puede estar encendido a la vez que `npm start`) |
+| `npm run pruebas:cuenta -- lista` | `npm run cuenta` sobre la base de pruebas |
+
+### Base de pruebas: cuentas, bloqueos y cuentas administrativas
+
+Para probar sin ensuciar tus datos: `npm run pruebas:crear` y luego `npm run pruebas`. Además de las cuentas del README principal, trae:
+
+| Cuenta | Contraseña | Para probar |
+|---|---|---|
+| gerente.prueba@talentocaribe.co | Admin123 | Cargo fijo Gerente: sección «Cuentas» → crear y eliminar cuentas administrativas |
+| admisiones.prueba@talentocaribe.co | Admin123 | Cargo fijo Coordinador(a) de admisiones: bloquear y desbloquear estudiantes |
+| finanzas.prueba@talentocaribe.co | Admin123 | Cargo fijo sin permiso de cuentas (no ve esa sección) |
+| pedro.inactivo@correo.com · ana.inactiva@correo.com | Estudiante123 | 120 y 35 días sin ingresar: se pueden bloquear |
+| valentina.reciente@correo.com | Estudiante123 | 2 días sin ingresar: el bloqueo se rechaza |
+| carlos.bloqueado@correo.com | Estudiante123 | Ya bloqueado: al ingresar ve el aviso hasta que lo desbloqueen |
+
+Para volver a empezar, `npm run pruebas:crear` borra solo la base de pruebas y la arma de nuevo.
 
 ## Asistente con IA (Claude)
 
