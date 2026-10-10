@@ -290,9 +290,19 @@
     if (API) return yRecargar(pedir("PATCH", `/mensajes/${m.id}/leido`));
     m.leido = true; guardar("tc_mensajes", lista);
   }
+  /* Gastos de Administración y finanzas (también los supervisa el Gerente). Los guardados antes sin id usan su fecha. */
+  const gastos = () => leer("tc_gastos_demo", []).map((g) => ({ ...g, id: String(g.id ?? g.creado) }));
   function registrarGasto(gasto) {
     if (API) return yRecargar(pedir("POST", "/gastos", gasto));
-    guardar("tc_gastos_demo", [...leer("tc_gastos_demo", []), { ...gasto, creado: new Date().toISOString() }]);
+    guardar("tc_gastos_demo", [...leer("tc_gastos_demo", []), { id: uid("gasto"), ...gasto, creado: new Date().toISOString() }]);
+  }
+  function actualizarGasto(id, gasto) {
+    if (API) return yRecargar(pedir("PUT", "/gastos/" + id, gasto));
+    guardar("tc_gastos_demo", gastos().map((g) => (g.id === String(id) ? { ...g, ...gasto } : g)));
+  }
+  function eliminarGasto(id) {
+    if (API) return yRecargar(pedir("DELETE", "/gastos/" + id));
+    guardar("tc_gastos_demo", gastos().filter((g) => g.id !== String(id)));
   }
   function responderEncuesta(id, respuestas, sesion) {
     if (API) return yRecargar(pedir("POST", `/encuestas/${encodeURIComponent(id)}/respuestas`, { respuestas }));
@@ -363,7 +373,7 @@
     actividadesDeCurso, actividadesDeDocente, actividadesDeEstudiante, entregaDe, entregasDeActividad,
     estadoPara, diasRestantes, textoVence, progreso,
     crearActividad, actualizarActividad, eliminarActividad, entregar, calificar,
-    inscribir, cambiarEstadoInscripcion, marcarLeido, registrarGasto, guardarIA, guardarCurso, fichaEstudiante,
+    inscribir, cambiarEstadoInscripcion, marcarLeido, gastos, registrarGasto, actualizarGasto, eliminarGasto, guardarIA, guardarCurso, fichaEstudiante,
     encuestas, encuestaRespondida, resultadosEncuesta, responderEncuesta,
     cargar, api: API,
   };

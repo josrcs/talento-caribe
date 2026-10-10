@@ -94,6 +94,12 @@
         <div class="tabla-wrap"><table class="tabla"><thead><tr><th>Curso</th><th>Docente</th><th>Estudiantes</th><th>Actividades</th><th>Entregas recibidas</th><th>Promedio</th></tr></thead><tbody id="tb-academico"></tbody></table></div>
         <h2 class="subtitulo">Últimas actividades publicadas</h2>
         <div id="academico-recientes" class="lista-actividades"></div>
+        <!-- Solo Gerencia: corregir o retirar actividades de cualquier docente y revisar sus notas -->
+        <div id="supervision-academica" hidden>
+          <div class="seccion-cabecera fichas-cabecera"><div><span class="eyebrow">SUPERVISIÓN DE GERENCIA</span><h2>Actividades de todos los docentes</h2><p class="seccion-texto">Revisa lo que publica cada docente. Si algo necesita corrección, puedes editar la actividad, retirarla o corregir una nota.</p></div></div>
+          <div class="filtros"><div class="campo"><label for="sup-docente">Docente</label><select id="sup-docente"><option value="">Todos</option></select></div><div class="campo"><label for="sup-buscar">Buscar actividad</label><input id="sup-buscar" type="search"></div></div>
+          <div class="tabla-wrap"><table class="tabla"><thead><tr><th scope="col">Actividad</th><th scope="col">Curso</th><th scope="col">Docente</th><th scope="col">Fecha límite</th><th scope="col">Entregas</th><th scope="col">Acciones</th></tr></thead><tbody id="tb-supervision"></tbody></table></div>
+        </div>
       </section>
 
       <!-- Asistente IA de gestión -->
@@ -109,17 +115,18 @@
         <div id="area-tareas" class="department-grid"></div>
         <section id="finanzas-panel" class="finance-panel" hidden>
           <h2>Control de gastos del departamento</h2>
-          <p>Registro interno de demostración. Los datos se quedan en este navegador.</p>
+          <p id="finanzas-nota">Registro interno de demostración. Los datos se quedan en este navegador.</p>
           <dl class="tarjetas-resumen"><div class="tarjeta-dato"><dt>Total registrado</dt><dd id="finanzas-total">$0</dd></div><div class="tarjeta-dato"><dt>Movimientos</dt><dd id="finanzas-cantidad">0</dd></div></dl>
           <form id="form-gasto" class="form finance-form">
+            <input type="hidden" name="id">
             <div class="fila-campos">
               <div class="campo"><label for="gasto-concepto">Concepto</label><input id="gasto-concepto" name="concepto" required maxlength="100"></div>
               <div class="campo"><label for="gasto-categoria">Categoría</label><select id="gasto-categoria" name="categoria" required><option>Materiales</option><option>Conectividad</option><option>Transporte</option><option>Servicios</option><option>Otro</option></select></div>
-              <div class="campo"><label for="gasto-valor">Valor (COP)</label><input id="gasto-valor" name="valor" type="number" min="1" step="100" required></div>
+              <div class="campo"><label for="gasto-valor">Valor (COP)</label><input id="gasto-valor" name="valor" type="text" inputmode="numeric" autocomplete="off" required maxlength="17" placeholder="Ej. 50.000" aria-describedby="gasto-valor-ayuda"><small class="form-ayuda" id="gasto-valor-ayuda">Pesos sin centavos. Puedes escribir 50000 o 50.000.</small></div>
             </div>
-            <button type="submit" class="btn btn-primary">Registrar gasto</button>
+            <div class="portal-actions"><button type="submit" class="btn btn-primary" id="gasto-guardar">Registrar gasto</button><button type="button" class="btn btn-outline" id="gasto-cancelar" hidden>Cancelar edición</button></div>
           </form>
-          <div class="tabla-wrap"><table class="tabla"><thead><tr><th>Concepto</th><th>Categoría</th><th>Valor</th><th>Fecha</th></tr></thead><tbody id="tb-gastos"></tbody></table></div>
+          <div class="tabla-wrap"><table class="tabla"><thead><tr><th>Concepto</th><th>Categoría</th><th>Valor</th><th>Fecha</th><th><span class="sr-only">Acciones</span></th></tr></thead><tbody id="tb-gastos"></tbody></table></div>
         </section>
       </section>
 
@@ -366,6 +373,38 @@
       </div>
       <div class="modal-acciones"><button type="submit" class="btn btn-primary">Guardar ficha</button><button type="button" class="btn btn-outline" data-cerrar>Cancelar</button></div>
     </form>
+  </dialog>
+
+  <!-- Gerencia: editar la actividad de un docente -->
+  <dialog id="modal-actividad-sup" class="modal" aria-labelledby="mas-titulo">
+    <form id="form-actividad-sup" class="modal-contenido form" novalidate>
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <span class="eyebrow">SUPERVISIÓN DE GERENCIA</span>
+      <h2 id="mas-titulo">Editar actividad</h2>
+      <p class="modal-sub" id="mas-origen"></p>
+      <input type="hidden" name="id">
+      <div class="fila-campos">
+        <div class="campo"><label for="mas-tipo">Tipo</label><select id="mas-tipo" name="tipo" required><option>Tarea</option><option>Práctica</option><option>Quiz</option><option>Lectura</option><option>Proyecto</option></select></div>
+        <div class="campo"><label for="mas-fecha">Fecha límite</label><input id="mas-fecha" name="fecha_limite" type="date" required></div>
+      </div>
+      <div class="campo"><label for="mas-nombre">Título</label><input id="mas-nombre" name="titulo" required minlength="4" maxlength="90"></div>
+      <div class="campo"><label for="mas-objetivo">Objetivo (opcional)</label><input id="mas-objetivo" name="objetivo" maxlength="160"></div>
+      <div class="campo"><label for="mas-descripcion">Instrucciones</label><textarea id="mas-descripcion" name="descripcion" rows="6" required minlength="15" maxlength="2000"></textarea></div>
+      <div class="campo"><label for="mas-recurso">Enlace de apoyo (opcional)</label><input id="mas-recurso" name="recurso" type="url" maxlength="300" placeholder="https://"></div>
+      <div class="modal-acciones"><button type="submit" class="btn btn-primary">Guardar cambios</button><button type="button" class="btn btn-outline" data-cerrar>Cancelar</button></div>
+    </form>
+  </dialog>
+
+  <!-- Gerencia: entregas de una actividad y corrección de notas -->
+  <dialog id="modal-entregas-sup" class="modal" aria-labelledby="mes-titulo">
+    <article class="modal-contenido">
+      <button type="button" class="modal-cerrar" data-cerrar aria-label="Cerrar">&times;</button>
+      <span class="eyebrow">SUPERVISIÓN DE GERENCIA</span>
+      <h2 id="mes-titulo">Entregas</h2>
+      <p class="modal-sub" id="mes-sub"></p>
+      <div id="mes-lista" class="lista-entregas-sup"></div>
+      <div class="modal-acciones"><button type="button" class="btn btn-outline" data-cerrar>Cerrar</button></div>
+    </article>
   </dialog>
 
   <!-- Lectura de un mensaje de contacto -->

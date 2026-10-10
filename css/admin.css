@@ -158,6 +158,11 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .form-ayuda { color: var(--color-slate-500); font-size: .78rem; }
 .demo-aviso { padding: .8rem .95rem; border: 1px solid rgba(245, 158, 11, .25); border-radius: 12px; background: rgba(245, 158, 11, .05); color: var(--color-slate-300); font-size: .82rem; }
 .demo-aviso p { margin: .25rem 0 0; color: var(--color-slate-400); }
+/* Supervisión de gerencia: entregas de una actividad con su nota */
+.lista-entregas-sup { display: grid; gap: .8rem; max-height: 60vh; overflow-y: auto; }
+.entrega-sup { display: grid; gap: .6rem; }
+.entrega-sup-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem; }
+.entrega-sup-cabecera small { color: var(--color-slate-400); }
 /* 404.html: accesos para volver a la plataforma */
 .no-encontrada-acciones { display: grid; gap: .7rem; margin-top: 1.4rem; }
 .no-encontrada-acciones .btn { justify-content: center; width: 100%; }

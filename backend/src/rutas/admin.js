@@ -87,12 +87,31 @@ router.patch("/mensajes/:id/leido", requiereSesion, requierePermiso("mensajes"),
   try { await pool.query("UPDATE mensajes_contacto SET leido = true WHERE id = $1", [id]); res.json({ ok: true }); } catch (e) { next(e); }
 });
 
+// Valor en pesos enteros: cualquier cifra de 1 a 1.000.000.000 (cerrada como 50000 o exacta como 12345)
+const validarGasto = (b) => ({ concepto: linea(b.concepto, 2, 100), categoria: ["Materiales", "Conectividad", "Transporte", "Servicios", "Otro"].includes(b.categoria), valor: Number.isInteger(Number(b.valor)) && Number(b.valor) > 0 && Number(b.valor) <= 1000000000 });
 router.post("/gastos", requiereSesion, requierePermiso("finanzas"), async (req, res, next) => {
   const b = req.body || {};
-  if (rechazar(res, { concepto: linea(b.concepto, 2, 100), categoria: ["Materiales", "Conectividad", "Transporte", "Servicios", "Otro"].includes(b.categoria), valor: Number.isInteger(Number(b.valor)) && Number(b.valor) > 0 && Number(b.valor) <= 1000000000 })) return;
+  if (rechazar(res, validarGasto(b))) return;
   try {
     const { rows } = await pool.query("INSERT INTO gastos (concepto, categoria, valor, usuario_id) VALUES ($1, $2, $3, $4) RETURNING id", [b.concepto.trim(), b.categoria, Number(b.valor), req.usuario.id]);
     res.status(201).json({ ok: true, id: rows[0].id });
+  } catch (e) { next(e); }
+});
+router.put("/gastos/:id", requiereSesion, requierePermiso("finanzas"), async (req, res, next) => {
+  const id = entero(req.params.id), b = req.body || {};
+  if (!id) return res.status(400).json({ error: "Gasto no válido." });
+  if (rechazar(res, validarGasto(b))) return;
+  try {
+    const { rowCount } = await pool.query("UPDATE gastos SET concepto = $1, categoria = $2, valor = $3 WHERE id = $4", [b.concepto.trim(), b.categoria, Number(b.valor), id]);
+    rowCount ? res.json({ ok: true }) : res.status(404).json({ error: "Ese gasto ya no existe." });
+  } catch (e) { next(e); }
+});
+router.delete("/gastos/:id", requiereSesion, requierePermiso("finanzas"), async (req, res, next) => {
+  const id = entero(req.params.id);
+  if (!id) return res.status(400).json({ error: "Gasto no válido." });
+  try {
+    const { rowCount } = await pool.query("DELETE FROM gastos WHERE id = $1", [id]);
+    rowCount ? res.json({ ok: true }) : res.status(404).json({ error: "Ese gasto ya no existe." });
   } catch (e) { next(e); }
 });
 
