@@ -479,7 +479,7 @@ window.TCSesiones = (curso, m) => {
   const temas = m.temasTexto || m.temas.join(", ");
   return [
     { nombre: "Primera semana · Sesión 1", pasos: [
-      ["Inicio", 10, m.numero === 1 ? "Inicie con una pregunta breve sobre una situación cotidiana relacionada con el tema; use las respuestas para presentar el vocabulario de la clase." : "Inicie recuperando una idea del módulo anterior y pregunte cómo se aplicaría al nuevo reto."],
+      ["Inicio de la clase", 10, m.numero === 1 ? "Inicie con una pregunta breve sobre una situación cotidiana relacionada con el tema; use las respuestas para presentar el vocabulario de la clase." : "Inicie recuperando una idea del módulo anterior y pregunte cómo se aplicaría al nuevo reto."],
       ["Desarrollo", 25, `Explique ${m.titulo.toLowerCase()} en palabras sencillas. Desarrolle estos conceptos uno por uno: ${temas}. Dibuje o escriba cómo se conectan y use un caso concreto antes de pasar a la práctica.`],
       ["Modelado docente", 20, `Muestre la actividad «${actividad}» paso a paso: plantee el reto, modele una primera decisión, diga qué espera observar y compruebe el resultado. Pida al grupo que prediga el paso siguiente y explique una corrección frecuente.`],
       ["Práctica guiada", 25, "El grupo comienza la misma actividad con apoyo; haga dos pausas de revisión y pida que expliquen qué decisión tomaron."],
