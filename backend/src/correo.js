@@ -87,6 +87,20 @@ module.exports = {
     boton: { texto: "Crear contraseña nueva", url: enlace },
   }),
 
+  cuentaBloqueada: (u) => enviar({
+    para: u.correo, asunto: "Tu cuenta está en pausa", titulo: "Pausamos tu cuenta por inactividad",
+    parrafos: [`Hola, ${primerNombre(u.nombre)}. Tu cuenta de Talento Caribe lleva un tiempo sin uso, así que el equipo de admisiones la bloqueó para proteger tus datos.`,
+      "Tus cursos y entregas siguen guardados. Para volver, escríbenos desde el formulario de contacto y la reactivamos."],
+    boton: { texto: "Escribir a admisiones", url: `${SITIO}/index.html#contacto` },
+  }),
+
+  cuentaReactivada: (u) => enviar({
+    para: u.correo, asunto: "Tu cuenta está activa de nuevo", titulo: "¡Bienvenido de vuelta!",
+    parrafos: [`Hola, ${primerNombre(u.nombre)}. El equipo de admisiones reactivó tu cuenta de Talento Caribe.`,
+      "Ya puedes ingresar con tu correo y tu contraseña de siempre. Si no la recuerdas, usa «¿Olvidaste tu contraseña?»."],
+    boton: { texto: "Ingresar", url: enlaces.ingresar },
+  }),
+
   claveCambiada: (u) => enviar({
     para: u.correo, asunto: "Tu contraseña cambió", titulo: "Tu contraseña se actualizó",
     parrafos: [`Hola, ${primerNombre(u.nombre)}. La contraseña de tu cuenta de Talento Caribe se cambió correctamente.`,

@@ -12,25 +12,15 @@
    Cambiar la clave o desactivar una cuenta cierra todas sus sesiones abiertas.
    ========================================================== */
 require("dotenv").config();
-const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 const { Client } = require("pg");
-const { claveSegura, MENSAJE_CLAVE } = require("../src/validar");
+const { claveSegura, MENSAJE_CLAVE, generarClave } = require("../src/validar");
 
 const [accion, correoArg, claveArg] = process.argv.slice(2);
 const correo = String(correoArg || "").trim().toLowerCase();
 const ayuda = () => { console.log("Uso: npm run cuenta -- clave|desactivar|activar <correo> [contraseña]   ·   npm run cuenta -- lista"); process.exit(1); };
 if (!["clave", "desactivar", "activar", "lista"].includes(accion) || (accion !== "lista" && !correo)) ayuda();
 if (!process.env.DATABASE_URL) { console.error("✖ Falta DATABASE_URL en backend/.env."); process.exit(1); }
-
-/* Contraseña aleatoria fácil de dictar: 4 bloques de letras y números (ej. Kq7m-x2Pa-9rTe-W4nb) */
-function generarClave() {
-  const letras = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0/O ni 1/l/I, que se confunden
-  let clave;
-  do clave = Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => letras[crypto.randomInt(letras.length)]).join("")).join("-");
-  while (!claveSegura(clave));
-  return clave;
-}
 
 async function main() {
   const db = new Client({ connectionString: process.env.DATABASE_URL, ssl: process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined });

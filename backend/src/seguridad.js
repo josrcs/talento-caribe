@@ -66,6 +66,8 @@ const PERMISOS = {
   editarCursos: ["Gerente", "Director(a) académico(a)", "Director(a) de tecnología"],
   finanzas: ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"],
   supervisarAcademico: ["Gerente"], // editar o borrar actividades de cualquier docente y corregir notas
+  cuentasEquipo: ["Gerente"],       // crear y eliminar cuentas administrativas
+  bloquearEstudiantes: ["Gerente", "Coordinador(a) de admisiones"], // bloquear estudiantes inactivos y desbloquearlos
   configurarIA: ["Gerente"],
   seguridad: ["Gerente", "Director(a) general", "Director(a) de tecnología"],
 };
@@ -161,7 +163,8 @@ function contadorFallos(maximo, minutos) {
 /* ---------- Registro de seguridad ----------
    Inicios de sesión, fallos, bloqueos y cambios de contraseña quedan en eventos_seguridad
    para que el equipo pueda revisar actividad sospechosa. Nunca se guardan contraseñas. */
-const TIPOS_EVENTO = ["ingreso", "ingreso_fallido", "bloqueo", "clave_cambiada", "recuperacion_pedida", "clave_restablecida", "sesiones_cerradas", "registro"];
+const TIPOS_EVENTO = ["ingreso", "ingreso_fallido", "bloqueo", "clave_cambiada", "recuperacion_pedida", "clave_restablecida", "sesiones_cerradas", "registro",
+  "cuenta_creada", "cuenta_eliminada", "cuenta_bloqueada", "cuenta_desbloqueada"];
 function registrarEvento(req, tipo, { usuarioId = null, correo = null, detalle = null } = {}) {
   if (!TIPOS_EVENTO.includes(tipo)) return;
   const agente = String(req.headers["user-agent"] || "").slice(0, 200);

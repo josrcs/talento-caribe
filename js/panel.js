@@ -37,12 +37,18 @@
   // Registro de seguridad: los mismos cargos que permite el servidor (PERMISOS.seguridad en backend/src/seguridad.js)
   const SEGURIDAD = ["Gerente", "Director(a) general", "Director(a) de tecnología"];
   if (SEGURIDAD.includes(s.puesto)) { perfil.sections.splice(perfil.sections.length - 1, 0, "seguridad"); perfil.tasks.push(["Seguridad", "Revisa ingresos, intentos fallidos y bloqueos de cuentas.", "seguridad"]); }
+  // Cuentas: los mismos cargos que permite el servidor (PERMISOS.cuentasEquipo y PERMISOS.bloquearEstudiantes)
+  const gestionaEquipo = ["Gerente"].includes(s.puesto), gestionaEstudiantes = ["Gerente", "Coordinador(a) de admisiones"].includes(s.puesto);
+  if (gestionaEquipo || gestionaEstudiantes) {
+    perfil.sections.splice(perfil.sections.length - 1, 0, "cuentas");
+    perfil.tasks.push(["Cuentas", gestionaEquipo ? "Crea o elimina cuentas del equipo y bloquea estudiantes inactivos." : "Bloquea las cuentas de estudiantes inactivos y desbloquéalas cuando lo pidan.", "cuentas"]);
+  }
   perfil.tasks.push(["Asistente de gestión", "Pregúntale por cifras, pendientes y funciones de tu cargo.", "asistente"]);
   perfil.start = "resumen";
   window.TCPanelPerfil = perfil;
   const D = window.TCDatos;
   const iniciales = (n) => String(n || "?").split(" ").map((x) => x[0]).slice(0, 2).join("").toUpperCase();
-  const ICONO_SECCION = { resumen: "casa", area: "maletin", academico: "birrete", cursos: "libro", inscripciones: "portapapeles", mensajes: "sobre", encuestas: "chat", ia: "engranaje", asistente: "destello", seguridad: "escudo" };
+  const ICONO_SECCION = { cuentas: "usuarios", resumen: "casa", area: "maletin", academico: "birrete", cursos: "libro", inscripciones: "portapapeles", mensajes: "sobre", encuestas: "chat", ia: "engranaje", asistente: "destello", seguridad: "escudo" };
   $("#admin-nombre").textContent = s.nombre || "Administrador";
   $("#admin-puesto").textContent = s.puesto || "Administrativo";
   $("#admin-avatar").textContent = iniciales(s.nombre);
@@ -65,6 +71,7 @@
     if (nombre === "asistente" && !$("#chat-panel").classList.contains("ia-chat")) TCChatUI.montar($("#chat-panel"), { modo: "completo" });
     if (nombre === "academico") pintarAcademico();
     if (nombre === "seguridad") pintarSeguridad();
+    if (nombre === "cuentas") pintarCuentas();
     history.replaceState(null, "", "#" + nombre);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -75,7 +82,7 @@
     button.hidden = !allowed.has(button.dataset.seccion);
     button.addEventListener("click", () => abrirSeccion(button.dataset.seccion));
   });
-  const sections = new Set(["resumen", "area", "academico", "cursos", "inscripciones", "mensajes", "ia", "encuestas", "asistente", "seguridad"]);
+  const sections = new Set(["resumen", "area", "academico", "cursos", "inscripciones", "mensajes", "ia", "encuestas", "asistente", "seguridad", "cuentas"]);
   sections.forEach((name) => { const section = $("#sec-" + name); if (section) section.hidden = !allowed.has(name); });
   $("#area-departamento").textContent = perfil.area;
   $("#area-titulo").textContent = perfil.title;
@@ -424,6 +431,7 @@
     ingreso: ["Ingreso", "pill-ok"], ingreso_fallido: ["Intento fallido", "pill-pendiente"], bloqueo: ["Bloqueo", "pill-no"],
     clave_cambiada: ["Contraseña cambiada", ""], recuperacion_pedida: ["Pidió recuperar la contraseña", ""], clave_restablecida: ["Contraseña restablecida", ""],
     sesiones_cerradas: ["Cerró todas sus sesiones", ""], registro: ["Cuenta nueva", "pill-ok"],
+    cuenta_creada: ["Cuenta creada", "pill-ok"], cuenta_eliminada: ["Cuenta eliminada", "pill-no"], cuenta_bloqueada: ["Cuenta bloqueada", "pill-pendiente"], cuenta_desbloqueada: ["Cuenta desbloqueada", "pill-ok"],
   };
   const fechaHora = (iso) => new Date(iso).toLocaleString(window.TCIdioma?.locale || "es-CO", { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" });
   async function pintarSeguridad() {
@@ -456,6 +464,105 @@
   }
   $("#seguridad-tipo").addEventListener("change", pintarSeguridad);
   $("#seguridad-actualizar").addEventListener("click", pintarSeguridad);
+
+  /* ---------- Cuentas ----------
+     Gerente: crea cuentas administrativas (contraseña temporal que se muestra una vez) y las elimina.
+     Gerente y Coordinación de admisiones: bloquean estudiantes inactivos y los desbloquean cuando quieran.
+     Todo lo valida el servidor (backend/src/rutas/cuentas.js). */
+  let equipo = [], estudiantesCuentas = [], diasMinimos = 30;
+  const fechaLarga = (iso) => new Date(iso).toLocaleDateString(window.TCIdioma?.locale || "es-CO", { day: "numeric", month: "short", year: "numeric" });
+  $("#ce-cargo").innerHTML = Object.keys(perfiles).map((cargo) => "<option>" + esc(cargo) + "</option>").join("");
+  async function pintarCuentas() {
+    $("#cuentas-intro").textContent = gestionaEquipo
+      ? "Crea y elimina las cuentas del equipo administrativo, y bloquea o desbloquea las cuentas de estudiantes inactivos."
+      : "Bloquea las cuentas de estudiantes que llevan tiempo sin ingresar y desbloquéalas cuando lo necesiten.";
+    $("#cuentas-demo").hidden = API;
+    $("#cuentas-equipo").hidden = !API || !gestionaEquipo;
+    $("#cuentas-estudiantes").hidden = !API || !gestionaEstudiantes;
+    $("#cuenta-creada").hidden = true; $("#cuenta-creada-clave").textContent = ""; // la contraseña temporal no se vuelve a mostrar
+    if (!API) return;
+    await Promise.all([gestionaEquipo && cargarEquipo(), gestionaEstudiantes && cargarEstudiantesCuentas()]);
+  }
+
+  async function cargarEquipo() {
+    const tabla = $("#tb-equipo"); tabla.innerHTML = fila(5, "Cargando…");
+    try { equipo = await TCApi.pedir("GET", "/cuentas/equipo"); }
+    catch (error) { tabla.innerHTML = fila(5, esc(error.message)); return; }
+    tabla.innerHTML = equipo.map((u) => "<tr><td><strong>" + esc(u.nombre) + "</strong>" + (u.yo ? ' <span class="tag">Tú</span>' : "") + "<br><small>" + esc(u.correo) + "</small></td><td>" +
+      (u.puesto ? esc(u.puesto) : '<span class="form-ayuda">Cuenta de prueba: elige el cargo al ingresar</span>') + "</td><td>" + (u.ultimo_ingreso ? fechaLarga(u.ultimo_ingreso) : "Nunca") + '</td><td><span class="pill ' + (u.activo ? "pill-ok" : "pill-no") + '">' + (u.activo ? "Activa" : "Desactivada") + "</span></td><td>" +
+      (u.yo ? "" : '<button type="button" class="btn btn-outline btn-sm btn-peligro" data-eliminar-cuenta="' + u.id + '">Eliminar</button>') + "</td></tr>").join("") || fila(5, "No hay cuentas administrativas.");
+  }
+  $("#form-cuenta-equipo").addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const form = event.currentTarget; if (!form.reportValidity()) return;
+    const datos = { nombre: form.elements.nombre.value.trim(), correo: form.elements.correo.value.trim().toLowerCase(), puesto: form.elements.puesto.value };
+    let creada = null;
+    if (!(await intentar(async () => { creada = await TCApi.pedir("POST", "/cuentas/equipo", datos); }, form.querySelector("[type=submit]")))) return;
+    form.reset();
+    $("#cuenta-creada-titulo").textContent = "Cuenta creada para " + creada.cuenta.nombre;
+    $("#cuenta-creada-clave").textContent = creada.clave;
+    $("#cuenta-creada-ayuda").textContent = "Para entrar: " + creada.cuenta.correo + ", cuenta «Administrativo» y cargo «" + creada.cuenta.puesto + "». Compártela en privado y pide que la cambie en «Mi cuenta».";
+    $("#cuenta-creada").hidden = false;
+    toast("Cuenta creada"); cargarEquipo();
+  });
+  $("#cuenta-creada-copiar").addEventListener("click", () => {
+    navigator.clipboard?.writeText($("#cuenta-creada-clave").textContent).then(() => toast("Contraseña copiada"), () => toast("No se pudo copiar: selecciónala y cópiala a mano.", "error"));
+  });
+  $("#tb-equipo").addEventListener("click", async (event) => {
+    const boton = event.target.closest("[data-eliminar-cuenta]"); if (!boton) return;
+    const u = equipo.find((x) => String(x.id) === boton.dataset.eliminarCuenta); if (!u) return;
+    if (!confirm("¿Eliminar la cuenta de " + u.nombre + " (" + (u.puesto || "cuenta de prueba") + ")? Ya no podrá ingresar al panel. Esta acción no se puede deshacer.")) return;
+    if (await intentar(() => TCApi.pedir("DELETE", "/cuentas/equipo/" + u.id), boton)) { toast("Cuenta eliminada"); cargarEquipo(); }
+  });
+
+  async function cargarEstudiantesCuentas() {
+    $("#tb-estudiantes-cuentas").innerHTML = fila(5, "Cargando…");
+    try { const r = await TCApi.pedir("GET", "/cuentas/estudiantes"); estudiantesCuentas = r.estudiantes; diasMinimos = r.diasMinimos; }
+    catch (error) { $("#tb-estudiantes-cuentas").innerHTML = fila(5, esc(error.message)); return; }
+    pintarEstudiantesCuentas();
+  }
+  // La inactividad se cuenta desde lo más reciente: el último ingreso, la creación de la cuenta o el último desbloqueo
+  const tiempoSinUso = (u) => {
+    const n = u.dias_sin_uso, cuando = n <= 0 ? "hoy" : "hace " + n + (n === 1 ? " día" : " días");
+    return u.desde === "desbloqueo" ? "Desbloqueada " + cuando : u.desde === "creacion" ? "Creada " + cuando + ", sin ingresar" : n <= 0 ? "Usada hoy" : "Sin uso desde " + cuando;
+  };
+  function pintarEstudiantesCuentas() {
+    const dias = Number($("#ce-dias").value), mostrar = $("#ce-mostrar").value, q = $("#ce-buscar").value.trim().toLowerCase();
+    const inactiva = (u) => u.activo && u.dias_sin_uso >= dias;
+    const inactivas = estudiantesCuentas.filter(inactiva), bloqueadas = estudiantesCuentas.filter((u) => !u.activo);
+    $("#estudiantes-kpis").innerHTML = [["usuarios", "Estudiantes", estudiantesCuentas.length], ["reloj", "Inactivas (" + dias + "+ días)", inactivas.length], ["escudo", "Bloqueadas", bloqueadas.length]]
+      .map(([i, t, v]) => '<div class="kpi"><dt>' + TCIcono(i, 18) + " " + t + "</dt><dd>" + v + "</dd></div>").join("");
+    const todas = $("#ce-bloquear-todas");
+    todas.disabled = !inactivas.length;
+    todas.textContent = inactivas.length ? "Bloquear " + inactivas.length + (inactivas.length === 1 ? " cuenta inactiva" : " cuentas inactivas") : "Sin cuentas inactivas";
+    const lista = estudiantesCuentas.filter((u) => (mostrar === "inactivas" ? inactiva(u) : mostrar === "bloqueadas" ? !u.activo : mostrar === "activas" ? u.activo : true) && (!q || (u.nombre + " " + u.correo).toLowerCase().includes(q)));
+    $("#tb-estudiantes-cuentas").innerHTML = lista.map((u) => {
+      const estado = !u.activo ? '<span class="pill pill-no">Bloqueada</span>' + (u.bloqueado_en ? "<br><small>" + esc(fechaLarga(u.bloqueado_en)) + (u.bloqueado_por ? " · " + esc(u.bloqueado_por) : "") + "</small>" : "")
+        : inactiva(u) ? '<span class="pill pill-pendiente">Inactiva</span>' : '<span class="pill pill-ok">Activa</span>';
+      const accion = !u.activo ? '<button type="button" class="btn btn-primary btn-sm" data-desbloquear="' + u.id + '">Desbloquear</button>'
+        : u.dias_sin_uso >= diasMinimos ? '<button type="button" class="btn btn-outline btn-sm btn-peligro" data-bloquear="' + u.id + '">Bloquear</button>' : "";
+      return "<tr><td><strong>" + esc(u.nombre) + "</strong><br><small>" + esc(u.correo) + "</small></td><td>" + (u.ultimo_ingreso ? fechaLarga(u.ultimo_ingreso) : "Nunca ha ingresado") +
+        "<br><small>" + tiempoSinUso(u) + "</small></td><td>" + u.cursos + "</td><td>" + estado + "</td><td>" + accion + "</td></tr>";
+    }).join("") || fila(5, mostrar === "inactivas" ? "No hay cuentas sin ingresar hace " + dias + " días o más." : mostrar === "bloqueadas" ? "No hay cuentas bloqueadas." : "No hay estudiantes con esos filtros.");
+  }
+  ["#ce-mostrar", "#ce-dias"].forEach((id) => $(id).addEventListener("change", pintarEstudiantesCuentas));
+  $("#ce-buscar").addEventListener("input", pintarEstudiantesCuentas);
+  $("#tb-estudiantes-cuentas").addEventListener("click", async (event) => {
+    const bloquearBtn = event.target.closest("[data-bloquear]"), desbloquearBtn = event.target.closest("[data-desbloquear]");
+    const u = estudiantesCuentas.find((x) => String(x.id) === (bloquearBtn?.dataset.bloquear || desbloquearBtn?.dataset.desbloquear)); if (!u) return;
+    if (bloquearBtn) {
+      if (!confirm("¿Bloquear la cuenta de " + u.nombre + "? No podrá ingresar hasta que la desbloquees; sus cursos y entregas se conservan.")) return;
+      if (await intentar(() => TCApi.pedir("POST", "/cuentas/estudiantes/" + u.id + "/bloquear"), bloquearBtn)) { toast("Cuenta bloqueada"); cargarEstudiantesCuentas(); }
+    } else if (await intentar(() => TCApi.pedir("POST", "/cuentas/estudiantes/" + u.id + "/desbloquear"), desbloquearBtn)) { toast("Cuenta desbloqueada"); cargarEstudiantesCuentas(); }
+  });
+  $("#ce-bloquear-todas").addEventListener("click", async (event) => {
+    const dias = Number($("#ce-dias").value), n = estudiantesCuentas.filter((u) => u.activo && u.dias_sin_uso >= dias).length;
+    if (!n || !confirm("¿Bloquear " + n + (n === 1 ? " cuenta que no ingresa" : " cuentas que no ingresan") + " hace " + dias + " días o más? Cada estudiante recibirá un correo y podrás desbloquearlas cuando quieras.")) return;
+    let r = null;
+    if (await intentar(async () => { r = await TCApi.pedir("POST", "/cuentas/estudiantes/bloquear-inactivas", { dias }); }, event.currentTarget)) {
+      toast(r.bloqueadas === 1 ? "1 cuenta bloqueada" : r.bloqueadas + " cuentas bloqueadas"); cargarEstudiantesCuentas();
+    }
+  });
 
   /* Guía de bienvenida del panel */
   const GUIA = [

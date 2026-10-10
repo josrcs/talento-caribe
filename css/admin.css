@@ -163,6 +163,14 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .entrega-sup { display: grid; gap: .6rem; }
 .entrega-sup-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; gap: .4rem; }
 .entrega-sup-cabecera small { color: var(--color-slate-400); }
+/* Cuentas: contraseña temporal de una cuenta recién creada (se muestra una sola vez) */
+.clave-temporal { display: grid; gap: .45rem; margin: 1rem 0; padding: 1rem 1.1rem; border: 1px solid rgba(34, 197, 94, .35); border-radius: var(--radius-md); background: rgba(34, 197, 94, .07); }
+.clave-temporal p { margin: 0; color: var(--color-slate-400); }
+.clave-temporal small { color: var(--color-slate-400); }
+.clave-temporal-valor { display: flex; flex-wrap: wrap; align-items: center; gap: .6rem; }
+.clave-temporal-valor code { padding: .35rem .6rem; border-radius: 8px; background: rgba(var(--o-2-6-23), .6); color: var(--texto-fuerte); font-size: 1.05rem; letter-spacing: .04em; user-select: all; }
+#form-cuenta-equipo { margin-bottom: 1rem; }
+#cuentas-estudiantes { margin-top: 2rem; }
 /* 404.html: accesos para volver a la plataforma */
 .no-encontrada-acciones { display: grid; gap: .7rem; margin-top: 1.4rem; }
 .no-encontrada-acciones .btn { justify-content: center; width: 100%; }

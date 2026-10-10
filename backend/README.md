@@ -128,6 +128,10 @@ Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `n
 | POST · PUT | `/api/cursos/:id?` | 🔒 cargos académicos | Crear y editar cursos |
 | PATCH | `/api/mensajes/:id/leido` | 🔒 admisiones / comunicaciones / gerente | Marcar mensaje como leído |
 | POST · PUT · DELETE | `/api/gastos/:id?` | 🔒 finanzas y gerente | Registrar, corregir y eliminar gastos (pesos enteros de 1 a 1.000.000.000) |
+| GET · POST · DELETE | `/api/cuentas/equipo/:id?` | 🔒 gerente | Ver, crear (con contraseña temporal que se muestra una vez) y eliminar cuentas administrativas. No deja borrar la propia ni la última que puede entrar como Gerente |
+| GET | `/api/cuentas/estudiantes` | 🔒 coordinación de admisiones y gerente | Estudiantes con su último ingreso y días sin uso |
+| POST | `/api/cuentas/estudiantes/:id/bloquear` · `/bloquear-inactivas` | 🔒 coordinación de admisiones y gerente | Bloquear una cuenta o todas las que no ingresan hace N días (mínimo 30). Cierra sus sesiones y avisa por correo |
+| POST | `/api/cuentas/estudiantes/:id/desbloquear` | 🔒 coordinación de admisiones y gerente | Desbloquear en cualquier momento; la inactividad se vuelve a contar desde ese día |
 | PUT | `/api/config-ia` | 🔒 gerente | Tono y contexto del asistente |
 | GET | `/api/seguridad/eventos?tipo=` | 🔒 gerencia, dirección general y tecnología | Registro de seguridad: últimos 200 eventos, resumen de 24 horas y conexiones con muchos fallos |
 

@@ -13,6 +13,8 @@
      respuestas de ejemplo de los estudiantes de prueba si la tabla está vacía.
    - Seguridad: agrega usuarios.sesiones_desde (cambiar la contraseña cierra las demás
      sesiones) y crea la tabla eventos_seguridad (ingresos, fallos y bloqueos).
+   - Cuentas: agrega último ingreso y datos de bloqueo a usuarios (admisiones bloquea estudiantes
+     inactivos) y los eventos de cuentas creadas, eliminadas, bloqueadas y desbloqueadas.
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -82,7 +84,15 @@ const ESTRUCTURA = `
     detalle     VARCHAR(200),
     creado_en   TIMESTAMPTZ  NOT NULL DEFAULT now()
   );
-  CREATE INDEX IF NOT EXISTS idx_eventos_seguridad_fecha ON eventos_seguridad (creado_en DESC);`;
+  CREATE INDEX IF NOT EXISTS idx_eventos_seguridad_fecha ON eventos_seguridad (creado_en DESC);
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS ultimo_ingreso  TIMESTAMPTZ;
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS bloqueado_en    TIMESTAMPTZ;
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS bloqueado_por   VARCHAR(160);
+  ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS desbloqueado_en TIMESTAMPTZ;
+  ALTER TABLE eventos_seguridad DROP CONSTRAINT IF EXISTS eventos_seguridad_tipo_check;
+  ALTER TABLE eventos_seguridad ADD CONSTRAINT eventos_seguridad_tipo_check CHECK (tipo IN ('ingreso', 'ingreso_fallido', 'bloqueo',
+    'clave_cambiada', 'recuperacion_pedida', 'clave_restablecida', 'sesiones_cerradas', 'registro', 'cuenta_creada', 'cuenta_eliminada',
+    'cuenta_bloqueada', 'cuenta_desbloqueada'));`;
 
 async function main() {
   const db = new Client({ connectionString: process.env.DATABASE_URL, ssl });
@@ -138,6 +148,16 @@ async function main() {
       }
     }
     console.log(`✔ ${ejemplos} respuesta(s) de encuesta de ejemplo`);
+
+    // Último ingreso de ejemplo para estudiantes de prueba (solo si nunca han ingresado): así admisiones
+    // tiene cuentas inactivas para revisar. No toca cuentas creadas por personas reales.
+    let inactivos = 0;
+    for (const [correo, dias] of [["kevin.ariza@correo.com", 95], ["daniela.ruiz@correo.com", 48], ["luis.gomez@correo.com", 6]]) {
+      const { rowCount } = await db.query(`UPDATE usuarios SET ultimo_ingreso = now() - make_interval(days => $2),
+        creado_en = LEAST(creado_en, now() - make_interval(days => $2 + 30)) WHERE correo = $1 AND rol = 'estudiante' AND ultimo_ingreso IS NULL`, [correo, dias]);
+      inactivos += rowCount;
+    }
+    console.log(`✔ Último ingreso de ejemplo en ${inactivos} estudiante(s) de prueba`);
 
     await db.query("COMMIT");
     const { rows } = await db.query("SELECT (SELECT count(*)::int FROM usuarios) AS usuarios, (SELECT count(*)::int FROM actividades) AS actividades, (SELECT count(*)::int FROM fichas) AS fichas");

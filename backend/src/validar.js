@@ -1,4 +1,5 @@
 /* validar.js - Ayudas para revisar los datos que llegan del navegador (nunca confiar en ellos) */
+const crypto = require("crypto");
 // Correo: letras, números y . _ % + - antes de la @, un dominio con punto y máximo 120 caracteres.
 // Más estricto que "algo@algo.algo": rechaza comas, comillas o <> que podrían colarse en las cabeceras de un correo.
 const PATRON_EMAIL = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}$/;
@@ -30,10 +31,20 @@ function claveSegura(clave, correo = "") {
   return !(usuario.length >= 4 && baja.includes(usuario));
 }
 
+/* Contraseña aleatoria fácil de dictar: 4 bloques de letras y números (ej. Kq7m-x2Pa-9rTe-W4nb).
+   La usan npm run cuenta y el Gerente al crear una cuenta administrativa. */
+function generarClave() {
+  const letras = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0/O ni 1/l/I, que se confunden
+  let clave;
+  do clave = Array.from({ length: 4 }, () => Array.from({ length: 4 }, () => letras[crypto.randomInt(letras.length)]).join("")).join("-");
+  while (!claveSegura(clave));
+  return clave;
+}
+
 /* Responde 400 con la lista de campos inválidos; devuelve true si había errores */
 function rechazar(res, errores) {
   const malos = Object.entries(errores).filter(([, ok]) => !ok).map(([campo]) => campo);
   if (malos.length) { res.status(400).json({ error: "Revisa los datos enviados.", campos: malos }); return true; }
   return false;
 }
-module.exports = { EMAIL, URL_OK, texto, linea, opcional, limpio, entero, fecha, claveSegura, MENSAJE_CLAVE, rechazar };
+module.exports = { EMAIL, URL_OK, texto, linea, opcional, limpio, entero, fecha, claveSegura, MENSAJE_CLAVE, generarClave, rechazar };

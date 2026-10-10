@@ -70,7 +70,7 @@ router.post("/login", limitarIngresos, async (req, res, next) => {
     return res.status(429).json({ error: mensajeBloqueo(espera) });
   }
   try {
-    const { rows } = await pool.query("SELECT * FROM usuarios WHERE correo = $1 AND activo", [cuenta]);
+    const { rows } = await pool.query("SELECT * FROM usuarios WHERE correo = $1", [cuenta]);
     const u = rows[0];
     // La clave se compara SIEMPRE (con un hash de relleno si el correo no existe): misma respuesta y mismo
     // tiempo, así nadie puede averiguar qué cuentas existen
@@ -81,6 +81,13 @@ router.post("/login", limitarIngresos, async (req, res, next) => {
       registrarEvento(req, bloqueo ? "bloqueo" : "ingreso_fallido", { usuarioId: u?.id, correo: cuenta, detalle: !u ? "correo sin cuenta" : u.rol !== rol ? `tipo de cuenta ${rol}` : "contraseña incorrecta" });
       return res.status(401).json({ error: "Correo o contraseña incorrectos para este tipo de cuenta." });
     }
+    // Cuenta bloqueada o desactivada: solo quien sabe la contraseña se entera (así no se revela qué cuentas existen)
+    if (!u.activo) {
+      registrarEvento(req, "ingreso_fallido", { usuarioId: u.id, correo: cuenta, detalle: "cuenta bloqueada" });
+      return res.status(403).json({ error: u.rol === "estudiante"
+        ? "Tu cuenta está bloqueada por inactividad. Escríbenos desde el formulario de contacto y el equipo de admisiones la reactiva."
+        : "Esta cuenta está desactivada. Comunícate con la gerencia de Talento Caribe." });
+    }
     let cargo = null;
     if (rol === "administrativo") {
       if (u.puesto) cargo = u.puesto;                      // cuenta con cargo fijo
@@ -89,6 +96,8 @@ router.post("/login", limitarIngresos, async (req, res, next) => {
       if (puesto && u.puesto && puesto !== u.puesto) return res.status(403).json({ error: `Tu cuenta está registrada con el cargo «${u.puesto}».` });
     }
     fallosCuenta.limpiar(cuenta); fallosIP.limpiar(ip);
+    // Último ingreso: admisiones lo usa para saber qué cuentas de estudiantes están inactivas
+    pool.query("UPDATE usuarios SET ultimo_ingreso = now() WHERE id = $1", [u.id]).catch((e) => { if (e.code !== "42703") console.error("✖ Último ingreso:", e.message); });
     registrarEvento(req, "ingreso", { usuarioId: u.id, correo: cuenta, detalle: cargo ? `cargo ${cargo}` : u.rol });
     res.json(sesion(u, cargo));
   } catch (e) { next(e); }

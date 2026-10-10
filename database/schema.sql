@@ -37,6 +37,10 @@ CREATE TABLE usuarios (
   acudiente_telefono     VARCHAR(30),
   acudiente_correo       VARCHAR(120),
   activo                 BOOLEAN      NOT NULL DEFAULT true,
+  ultimo_ingreso         TIMESTAMPTZ,   -- último inicio de sesión (NULL = nunca ha ingresado)
+  bloqueado_en           TIMESTAMPTZ,   -- estudiantes: cuándo admisiones bloqueó la cuenta por inactividad
+  bloqueado_por          VARCHAR(160),  -- nombre y cargo de quien la bloqueó
+  desbloqueado_en        TIMESTAMPTZ,   -- al desbloquear, la inactividad se vuelve a contar desde aquí
   sesiones_desde         TIMESTAMPTZ  NOT NULL DEFAULT now(), -- los tokens emitidos antes de esta hora ya no sirven (cambio de clave)
   creado_en              TIMESTAMPTZ  NOT NULL DEFAULT now(),
   CHECK (correo = lower(correo)),
@@ -181,7 +185,8 @@ CREATE TABLE recuperaciones_clave (
 CREATE TABLE eventos_seguridad (
   id          BIGSERIAL PRIMARY KEY,
   tipo        VARCHAR(25)  NOT NULL CHECK (tipo IN ('ingreso', 'ingreso_fallido', 'bloqueo', 'clave_cambiada', 'recuperacion_pedida',
-                                                     'clave_restablecida', 'sesiones_cerradas', 'registro')),
+                                                     'clave_restablecida', 'sesiones_cerradas', 'registro', 'cuenta_creada',
+                                                     'cuenta_eliminada', 'cuenta_bloqueada', 'cuenta_desbloqueada')),
   usuario_id  INTEGER      REFERENCES usuarios(id) ON DELETE SET NULL,
   correo      VARCHAR(120),             -- el correo escrito (puede no existir: intentos con cuentas inventadas)
   ip          VARCHAR(60),
