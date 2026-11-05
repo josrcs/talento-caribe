@@ -83,7 +83,21 @@ Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.5-flash)`. Sin la 
 
 ## Correos (opcional)
 
-Para que lleguen los correos de bienvenida, recuperar contraseña y avisos de inscripción, agrega en `.env` los datos de un servidor SMTP (ver `.env.ejemplo`). Con Gmail: activa la verificación en 2 pasos, crea una *contraseña de aplicación* en https://myaccount.google.com/apppasswords y úsala en `SMTP_CLAVE`. Al encender verás `Correo: ✅ SMTP configurado`. Sin esos datos, cada correo aparece en esta terminal (sirve para probar).
+Para que lleguen los correos de bienvenida, recuperar contraseña y avisos de inscripción se usa **Brevo**, que los envía por una API web. Es la opción que funciona en **Render gratis**, porque desde septiembre de 2025 Render bloquea los puertos SMTP (465 y 587) en sus servicios gratuitos.
+
+1. Crea una cuenta gratis en https://www.brevo.com (no pide tarjeta; 300 correos al día).
+2. En **Senders, Domains & Dedicated IPs → Senders**, agrega el correo que enviará los mensajes (puede ser tu Gmail) y confírmalo desde el enlace que te llega.
+3. En **SMTP & API → API Keys**, pulsa **Generate a new API key** y cópiala (empieza por `xkeysib-`).
+4. Pon en `.env` (o en **Environment** de Render):
+
+```
+BREVO_API_KEY=xkeysib-...
+CORREO_REMITENTE=Talento Caribe <el-correo-que-verificaste@gmail.com>
+```
+
+Al encender verás `Correo: ✅ Brevo (API web)`. Si Brevo rechaza un correo, la terminal (o los Logs de Render) muestra el motivo; el más común es `Sender not verified`: confirma el remitente en Brevo.
+
+**Alternativa por SMTP** (solo en tu computador o en un servidor de pago): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USUARIO` y `SMTP_CLAVE` en `.env` (ver `.env.ejemplo`). Con Gmail hace falta una *contraseña de aplicación*, que Google no ofrece en todas las cuentas. Sin ninguna de las dos configuraciones, cada correo aparece en esta terminal (sirve para probar).
 
 ## ¿Ya tenías la base creada de antes?
 

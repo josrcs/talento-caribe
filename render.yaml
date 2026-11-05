@@ -39,13 +39,11 @@ services:
       # Correos (ver backend/.env.ejemplo). SITIO_URL es la dirección de la página en GitHub Pages.
       - key: SITIO_URL
         sync: false
-      - key: SMTP_HOST
-        value: smtp.gmail.com
-      - key: SMTP_PORT
-        value: "587"
-      - key: SMTP_USUARIO
+      # Render gratis bloquea los puertos SMTP: los correos salen por la API web de Brevo (gratis, 300 al día).
+      # Clave en https://app.brevo.com → SMTP & API → API Keys. CORREO_REMITENTE debe estar verificado en Brevo.
+      - key: BREVO_API_KEY
         sync: false
-      - key: SMTP_CLAVE
+      - key: CORREO_REMITENTE
         sync: false
       - key: CORREO_EQUIPO
         sync: false

@@ -3,19 +3,22 @@
    - Bienvenida al crear la cuenta, enlace para recuperar la contraseña,
      aviso de contraseña cambiada, confirmación del formulario de
      contacto y avisos de las inscripciones (recibida, aprobada o no).
-   - Se envían con el servidor SMTP de .env (por ejemplo Gmail con una
-     "contraseña de aplicación"). Sin esa configuración no se envía
-     nada: el correo se muestra en la terminal del servidor, así se
-     puede probar todo en el computador.
+   - Se envían con Brevo (BREVO_API_KEY, API web: funciona en Render gratis)
+     o con un servidor SMTP de .env (en tu computador, por ejemplo Gmail).
+     Sin esa configuración no se envía nada: el correo se muestra en la
+     terminal del servidor, así se puede probar todo en el computador.
    - Un correo que falla nunca rompe la acción que lo pidió (registro,
      inscripción...): solo se anota el error en la terminal.
    ========================================================== */
 const nodemailer = require("nodemailer");
 
-const { SMTP_HOST, SMTP_PORT, SMTP_USUARIO, SMTP_CLAVE, CORREO_REMITENTE, CORREO_EQUIPO } = process.env;
-const configurado = () => Boolean(SMTP_HOST && SMTP_USUARIO && SMTP_CLAVE);
+const { SMTP_HOST, SMTP_PORT, SMTP_USUARIO, SMTP_CLAVE, CORREO_REMITENTE, CORREO_EQUIPO, BREVO_API_KEY } = process.env;
+const smtpConfigurado = Boolean(SMTP_HOST && SMTP_USUARIO && SMTP_CLAVE);
+const configurado = () => Boolean(BREVO_API_KEY || smtpConfigurado);
+// Para el mensaje de arranque del servidor: por dónde salen los correos
+const medio = () => (BREVO_API_KEY ? "Brevo (API web)" : smtpConfigurado ? `SMTP (${SMTP_HOST})` : "");
 const puerto = Number(SMTP_PORT) || 587;
-const transporte = configurado()
+const transporte = smtpConfigurado
   ? nodemailer.createTransport({ host: SMTP_HOST, port: puerto, secure: puerto === 465, auth: { user: SMTP_USUARIO, pass: SMTP_CLAVE } })
   : null;
 // Dirección de la página web, para los enlaces de los correos (en GitHub Pages es la URL publicada)
@@ -49,8 +52,9 @@ async function enviar({ para, asunto, titulo, parrafos, boton, responderA }) {
   parrafos = parrafos.filter(Boolean);
   asunto = unaLinea(asunto);
   const texto = [titulo, ...parrafos, boton ? `${boton.texto}: ${boton.url}` : "", "Talento Caribe · Barranquilla, Colombia"].filter(Boolean).join("\n\n");
+  if (BREVO_API_KEY) return enviarConBrevo({ para, asunto, texto, html: plantilla({ titulo, parrafos, boton }), responderA });
   if (!transporte) {
-    console.log(`\n✉  Correo de prueba (falta configurar SMTP en .env, no se envió)\n   Para: ${para}\n   Asunto: ${asunto}\n   ${texto.replace(/\n/g, "\n   ")}\n`);
+    console.log(`\n✉  Correo de prueba (falta configurar BREVO_API_KEY o SMTP en .env, no se envió)\n   Para: ${para}\n   Asunto: ${asunto}\n   ${texto.replace(/\n/g, "\n   ")}\n`);
     return { simulado: true };
   }
   try {
@@ -65,11 +69,45 @@ async function enviar({ para, asunto, titulo, parrafos, boton, responderA }) {
   }
 }
 
+/* ---------- Brevo: envío por API web (HTTPS) ----------
+   Render gratis bloquea los puertos SMTP (465 y 587) desde septiembre de 2025; una API por HTTPS
+   no tiene ese problema. Plan gratuito de Brevo: 300 correos al día, sin tarjeta. El remitente
+   (CORREO_REMITENTE) debe estar verificado en Brevo → Senders. */
+const correoDe = (t) => (String(t || "").match(/<([^>]+)>/)?.[1] || String(t || "")).trim();
+const nombreDe = (t) => (String(t || "").match(/^\s*"?([^"<]*?)"?\s*</)?.[1] || "").trim();
+async function enviarConBrevo({ para, asunto, texto, html, responderA }) {
+  const remitente = CORREO_REMITENTE || "";
+  if (!correoDe(remitente).includes("@")) {
+    console.error("✖ Falta CORREO_REMITENTE (por ejemplo: Talento Caribe <tu-correo@gmail.com>) para enviar con Brevo.");
+    return { error: "Falta CORREO_REMITENTE" };
+  }
+  try {
+    const res = await fetch("https://api.brevo.com/v3/smtp/email", {
+      method: "POST",
+      headers: { "api-key": BREVO_API_KEY, "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        sender: { name: nombreDe(remitente) || "Talento Caribe", email: correoDe(remitente) },
+        to: [{ email: para }],
+        ...(responderA ? { replyTo: { email: correoDe(responderA) } } : {}),
+        subject: asunto, textContent: texto, htmlContent: html,
+      }),
+      signal: AbortSignal.timeout(15000),
+    });
+    if (res.ok) return { enviado: true };
+    const datos = await res.json().catch(() => ({}));
+    console.error(`✖ Brevo no envió el correo a ${para} (HTTP ${res.status}):`, datos.message || datos.code || "sin detalle");
+    return { error: datos.message || `HTTP ${res.status}` };
+  } catch (error) {
+    console.error(`✖ No se pudo conectar con Brevo para enviar a ${para}:`, error.message);
+    return { error: error.message };
+  }
+}
+
 const enlaces = { cursos: `${SITIO}/cursos.html`, portal: `${SITIO}/portal.html`, ingresar: `${SITIO}/admin/login.html` };
 const INTERES = { curso: "Información de un curso", mentor: "Quiere ser mentor", alianza: "Alianzas o patrocinio", otro: "Otro tema" };
 
 module.exports = {
-  configurado, SITIO,
+  configurado, medio, SITIO,
 
   bienvenida: (u) => enviar({
     para: u.correo, asunto: "Bienvenido a Talento Caribe", titulo: `¡Hola, ${primerNombre(u.nombre)}! Tu cuenta está lista`,

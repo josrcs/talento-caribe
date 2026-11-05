@@ -85,7 +85,8 @@ const servidor = app.listen(PORT, async () => {
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
   const chat = require("./rutas/chat");
   console.log(`   Asistente IA: ${chat.iaConfigurada() ? `✅ Google Gemini (${chat.modelo})` : "⚠️  sin GEMINI_API_KEY (responde con reglas locales)"}`);
-  console.log(`   Correo: ${require("./correo").configurado() ? "✅ SMTP configurado" : "⚠️  sin SMTP (los correos se muestran en esta terminal)"}`);
+  const correo = require("./correo");
+  console.log(`   Correo: ${correo.configurado() ? `✅ ${correo.medio()}` : "⚠️  sin BREVO_API_KEY ni SMTP (los correos se muestran en esta terminal)"}`);
   try {
     await pool.query("SELECT 1 FROM usuarios LIMIT 1");
     console.log("   Base de datos: ✅ conectada\n");
