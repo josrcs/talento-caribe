@@ -68,11 +68,11 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 ## Asistente con IA (Google Gemini, gratis)
 
 1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google (es gratis y **no pide tarjeta**).
-2. Pulsa **Create API key** (Crear clave de API) y cópiala. Empieza por `AIza`.
+2. Pulsa **Create API key** (Crear clave de API) y cópiala completa (según la cuenta empieza por `AQ.` o por `AIza`).
 3. Pégala en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
 
 ```
-GEMINI_API_KEY=AIza...
+GEMINI_API_KEY=pega-aquí-tu-clave
 ```
 
 Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.8-flash)`. Sin la clave el chat responde con reglas locales.
@@ -160,6 +160,7 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 | `no existe la columna «modulos»` | Ejecuta `npm run db:actualizar` (no borra datos). |
 | El chat dice «la IA todavía no está configurada» | Falta `GEMINI_API_KEY` en `.env`, o reinicia el servidor después de agregarla. Si la terminal dice «la GEMINI_API_KEY no es válida», cópiala de nuevo desde AI Studio. |
 | El chat dice «alcanzó su límite gratuito» | Se acabó la cuota gratis de Gemini por ahora (por minuto o por día). Vuelve a funcionar sola; mientras tanto el chat usa las respuestas locales. |
+| La terminal dice que un modelo «respondió 503 … high demand» | Google está saturado (pasa en horas pico del plan gratuito). El servidor usa solo el modelo de respaldo; si los dos están saturados, el chat contesta con las respuestas locales y avisa que está muy ocupado. No hay que hacer nada. |
 | La terminal dice que un modelo «respondió 404» | Google retiró o renombró ese modelo. Pon uno vigente en `IA_MODELO` (lista en https://ai.google.dev/gemini-api/docs/models). |
 | `EADDRINUSE :::3000` | Ya hay un servidor encendido en otra terminal. Ciérralo o cambia `PORT` en `.env`. |
 | `'npm' no se reconoce` | Reinstala Node.js y abre una terminal nueva. |

@@ -120,11 +120,11 @@ En modo demostración los cargos y permisos solo se aplican en la interfaz. **Co
 - **Seguro y dentro de la cuota gratis:** el rol del usuario sale de su sesión (JWT), no de lo que diga el navegador; máximo 20 mensajes cada 10 minutos por persona y un tope diario (`IA_LIMITE_DIARIO`, 200 por defecto). Si Google corta la cuota, el chat no se rompe: contesta con las respuestas locales y avisa.
 
 1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google (es gratis y **no pide tarjeta**).
-2. Pulsa **Create API key** (Crear clave de API) y cópiala. Empieza por `AIza`.
+2. Pulsa **Create API key** (Crear clave de API) y cópiala completa (según la cuenta empieza por `AQ.` o por `AIza`).
 3. Pégala en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
 
 ```
-GEMINI_API_KEY=AIza...
+GEMINI_API_KEY=pega-aquí-tu-clave
 ```
 
 Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la IA todavía no está configurada». `GET /api/salud` indica si el asistente está conectado.

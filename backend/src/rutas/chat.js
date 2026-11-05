@@ -4,7 +4,7 @@
      los lee de PostgreSQL y los pone en las instrucciones (systemInstruction).
    - El tono y el contexto extra los define el gerente en el panel
      (tabla config_ia, PUT /api/config-ia).
-   - Sin GEMINI_API_KEY en .env, o si se acaba la cuota gratis del día, responde
+   - Sin GEMINI_API_KEY en .env, si se acaba la cuota gratis o si Google está saturado, responde
      503 { sinIA: true } y el navegador usa las respuestas locales
      (js/asistente-ia.js): la página nunca se rompe.
    - Se usa la API REST de Gemini con fetch (incluido en Node 18+): no hace
@@ -141,12 +141,13 @@ async function preguntarAGemini(modelo, sistema, contenidos, { pensar = true } =
   return { texto: textoIA, bloqueada };
 }
 
-/* Si el modelo principal no existe (404) o agotó su cuota gratis (429), se intenta con el de respaldo */
+/* Si el modelo principal no existe (404), agotó su cuota gratis (429) o Google está saturado (500/503,
+   frecuente en el plan gratuito), se intenta una vez con el de respaldo */
 async function responderConGemini(sistema, contenidos) {
   try {
     return await preguntarAGemini(MODELO, sistema, contenidos);
   } catch (error) {
-    if (!RESPALDO || RESPALDO === MODELO || ![404, 429].includes(error.estado)) throw error;
+    if (!RESPALDO || RESPALDO === MODELO || ![404, 429, 500, 503].includes(error.estado)) throw error;
     console.warn(`⚠ IA: ${MODELO} respondió ${error.estado} (${error.message}); se intenta con ${RESPALDO}`);
     return preguntarAGemini(RESPALDO, sistema, contenidos);
   }
@@ -213,6 +214,11 @@ router.post("/chat", limitar, sesionOpcional, async (req, res, next) => {
       // Cuota gratuita agotada (por minuto o por día): el navegador contesta con las respuestas locales
       console.warn("⚠ IA: cuota de Gemini agotada:", error.message);
       return res.status(503).json({ error: "El asistente con IA alcanzó su límite gratuito por ahora.", sinIA: true, limite: true });
+    }
+    if (estado === 500 || estado === 503) {
+      // Google saturado ("high demand"): pasa en horas pico; el navegador contesta con las respuestas locales
+      console.warn("⚠ IA: Gemini está saturado:", error.message);
+      return res.status(503).json({ error: "El asistente con IA está muy ocupado en este momento.", sinIA: true, ocupado: true });
     }
     console.error(`✖ IA ${estado || "sin conexión"}:`, error.message);
     res.status(estado === 0 ? 503 : 502).json({ error: estado === 0 ? "No hay conexión con el servicio de IA." : "El servicio de IA no respondió bien." });
