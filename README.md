@@ -74,8 +74,8 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Permisos por rol y cargo validados en el servidor (no solo en la interfaz)
 - [x] Cursos divididos en módulos (temas + actividades del plan) y fichas por grupo (ej. 25896)
 - [x] Inscripción en una ficha, actividades por módulo y ficha, y seguimiento docente módulo por módulo
-- [x] Asistente conectado a IA real (Claude) en `POST /api/chat`: conoce la marca, el catálogo y las fichas desde PostgreSQL y usa el tono que define el gerente
-- [x] Efecto del cursor y destello de clics/toques solo en la página de inicio
+- [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`: conoce la marca, el catálogo y las fichas desde PostgreSQL y usa el tono que define el gerente
+- [x] Inicio didáctico: orientador de cursos, rutas de aprendizaje, ritmo de cada módulo y preguntas frecuentes
 - [x] Animación de entrada nueva, hero interactivo, revelado al hacer scroll, cifras animadas y transiciones en toda la plataforma
 - [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
 - [x] Control de versiones con Git
@@ -92,12 +92,12 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Accesibilidad: contraste AA (4.5:1) revisado en tema claro y oscuro, todo se usa con teclado y con foco visible, confirmaciones con diálogos propios (Esc cancela)
 - [x] Compatible con Safari en iPhone (prefijos `-webkit-` y sin expresiones regulares que iOS antiguo no entiende) y logos livianos donde se ven pequeños
 - [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
-- [ ] Poner `ANTHROPIC_API_KEY` en `backend/.env` (sin ella el asistente usa respuestas locales)
+- [ ] Poner `GEMINI_API_KEY` (gratis en https://aistudio.google.com/apikey) en `backend/.env` (sin ella el asistente usa respuestas locales)
 - [ ] Publicar el backend en Render y llenar `API_PUBLICADA` en `js/config.js` (pasos en «Publicar el proyecto»)
 
 ## Cuentas de prueba
 
-Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`).
+Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`). **En la plataforma publicada no funcionan:** al arrancar en producción (`NODE_ENV=production`, como en Render), `npm run db:init` les cambia la contraseña por una al azar, muestra **una sola vez** en los registros (logs) la nueva del administrador y el login deja de mostrar el recuadro «Cuenta de prueba». Así nadie puede entrar al panel con las claves de este README.
 
 | Perfil | Correo | Contraseña | Entra a |
 |---|---|---|---|
@@ -111,21 +111,25 @@ En modo demostración los cargos y permisos solo se aplican en la interfaz. **Co
 
 ## Asistente con IA real
 
-`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a Claude Haiku 5.5 (Anthropic), un modelo rápido y económico, con unas instrucciones que el servidor arma en cada mensaje:
+`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a **Google Gemini** (`gemini-3.5-flash`, con `gemini-3.5-flash-lite` de respaldo) usando su **plan gratuito**, con unas instrucciones que el servidor arma en cada mensaje:
 
 - **Conoce el negocio:** historia, misión, visión, valores, mentores, cómo inscribirse y contacto de Talento Caribe.
 - **Conoce los productos:** los cursos y fichas se leen de PostgreSQL. Si el equipo crea un curso o una ficha en el panel, el asistente lo sabe de inmediato.
 - **Usa el tono de la marca:** el tono y el contexto extra los define el gerente en el panel (sección «Configurar IA», tabla `config_ia`).
 - **Responde como el negocio:** solo con esa información, sin inventar fechas ni datos, sin pedir contraseñas ni documentos, y sugiere 2 o 3 preguntas para seguir.
-- **Seguro y económico:** el rol del usuario sale de su sesión (JWT), no de lo que diga el navegador; máximo 20 mensajes cada 10 minutos por persona y un tope diario (`IA_LIMITE_DIARIO`); las instrucciones se reutilizan con la caché de la API.
+- **Seguro y dentro de la cuota gratis:** el rol del usuario sale de su sesión (JWT), no de lo que diga el navegador; máximo 20 mensajes cada 10 minutos por persona y un tope diario (`IA_LIMITE_DIARIO`, 200 por defecto). Si Google corta la cuota, el chat no se rompe: contesta con las respuestas locales y avisa.
 
-Para activarlo agrega tu clave en `backend/.env` y reinicia el servidor:
+1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google (es gratis y **no pide tarjeta**).
+2. Pulsa **Create API key** (Crear clave de API) y cópiala completa (según la cuenta empieza por `AQ.` o por `AIza`).
+3. Pégala en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=pega-aquí-tu-clave
 ```
 
-La clave se crea en https://platform.claude.com → API Keys. Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la IA todavía no está configurada». `GET /api/salud` indica si el asistente está conectado.
+Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la IA todavía no está configurada». `GET /api/salud` indica si el asistente está conectado.
+
+**Privacidad:** en el plan gratuito, Google puede usar las conversaciones para mejorar sus productos. El asistente pide no compartir contraseñas ni documentos; si más adelante el proyecto consigue recursos, activar la facturación en Google AI Studio quita ese uso. **Cuota:** Google limita los mensajes gratis por minuto y por día y cambia esos números con el tiempo; se consultan en AI Studio.
 
 ## Encuestas, correos y recuperar contraseña
 
@@ -139,19 +143,22 @@ Para enviar correos de verdad, configura SMTP en `backend/.env` (ver `backend/.e
 
 > **Si ya tenías la base creada**, ejecuta `npm run db:actualizar` en `backend/`: crea las tablas nuevas, corrige la duración de los cursos y carga respuestas de ejemplo, sin borrar nada.
 
-## Animaciones e interacción
+## Diseño, animaciones e interacción
 
-Todas las animaciones están hechas con CSS y JavaScript propios (sin librerías externas) y usan solo `transform` y `opacity`, que el navegador anima sin trabarse. Con «reducir movimiento» activado en el sistema no se muestra ninguna.
+Todo el sitio (páginas públicas, login, portal y panel) sigue el mismo criterio sobrio: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso, logros). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans**; se cargan con `<link>` y `preconnect` en el `<head>` de cada página. No hay vidrio esmerilado, manchas de color, texto con degradado, brillos ni efectos que sigan al cursor.
+
+Los colores de texto cumplen contraste **WCAG AA** (4,5:1) en los dos temas; se revisó en todas las páginas con un recorrido automático en el navegador.
+
+Las animaciones son cortas y con propósito: orientar al bajar por la página o confirmar una acción. Todas usan solo `transform` y `opacity`, y con «reducir movimiento» activado en el sistema no se muestra ninguna.
 
 | Dónde | Qué pasa |
 |---|---|
-| Entrada (`js/intro.js`) | Amanecer en el Caribe: se dibuja el horizonte, sale el sol y brilla en el agua, el emblema aparece desde su propio sol, "TALENTO" sube letra por letra y "CARIBE" se cierra. La barra espera a que la página cargue. Al salir, el telón sube como una ola y el emblema **vuela hasta el logo del hero** (técnica FLIP). Una vez por sesión; para verla otra vez: `index.html?intro`. |
-| Hero | El título sube por líneas, el texto entra en cascada y el disco del logo crece. Con mouse, la escena del logo se inclina hacia el puntero y los botones se acercan al cursor. |
-| Inicio | Cifras que cuentan desde cero (salen del catálogo), cinta de temas en movimiento, línea de tiempo en «Cómo funciona», anillo de colores en los mentores y tarjetas de cursos que giran en 3D. |
-| Todas las páginas | Revelado al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), barra superior que se esconde al bajar y vuelve al subir, línea de lectura, transición suave entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Inicio (`index.html`, `css/inicio.css`, `js/inicio.js`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`, funcionan sin JavaScript), asistente y contacto. |
+| Todas las páginas | Revelado suave al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), cifras que cuentan desde cero, barra superior que se esconde al bajar y vuelve al subir, línea de lectura, fundido corto entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Entrada (`js/intro.js`, solo portal y panel) | Amanecer en el Caribe con el emblema que vuela hasta el logo de la barra. Una vez por sesión. |
 | Plataforma | Cada sección del portal y del panel entra en cascada, los indicadores cuentan, las barras crecen y los anillos de avance se llenan. |
 
-El **efecto que sigue el cursor** (aura y estela de luces), el reflejo y giro de las tarjetas y el **destello al hacer clic o tocar la pantalla** solo se activan en la página de inicio (`<body class="page-home">`); en catálogo, registro, login, portal y panel la interfaz queda limpia para trabajar.
+`cursos.html?curso=ID` abre directamente la ficha de un curso (lo usan las rutas, el orientador y los cursos destacados del inicio).
 
 ## Seguridad
 
@@ -182,10 +189,12 @@ Después, por cada cambio con sentido (un arreglo, una sección, una función): 
 **2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp. Si el repositorio tiene otro nombre, cambia también `<base href="/talento-caribe/">` en `404.html`.
 
 **3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
-- `ANTHROPIC_API_KEY`: la clave del asistente.
+- `GEMINI_API_KEY`: la clave gratuita del asistente (https://aistudio.google.com/apikey).
 - `CORS_ORIGENES`: `https://josrcs.github.io`
 
-Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
+Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio.
+
+**Primer ingreso al panel publicado:** en Render abre el servicio `talento-caribe-api` → **Logs** y busca `🔐 Contraseña nueva del administrador`. Entra con `admin@talentocaribe.co` y esa contraseña, y cámbiala en **Mi cuenta**. Si la pierdes: en **Environment** agrega `ADMIN_CLAVE_NUEVA` con una contraseña segura, guarda (Render reinicia solo), ingresa con ella y **borra la variable** después. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
 **4. Después de la presentación.** Las contraseñas de las cuentas de prueba están en este README, así que cualquiera podría entrar al panel publicado. En Render → el servicio → *Shell*, cámbialas o desactívalas: `npm run cuenta -- clave admin@talentocaribe.co` (genera una segura y la muestra una vez) o `npm run cuenta -- desactivar estudiante@talentocaribe.co`. `npm run cuenta -- lista` muestra todas las cuentas.
 
@@ -201,7 +210,7 @@ Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, p
 | `js/login.js` | Acceso por rol, selector visual de cargo y selector de docente. |
 | `js/guia.js` | Guía paso a paso que aparece la primera vez en cada espacio (botón «Guía» para repetirla). |
 | `js/iconos.js` | Íconos SVG de línea. |
-| `css/plataforma.css` | Estilos de login, portal, panel, chat y guía (vidrio). |
+| `css/plataforma.css` | Estilos de login, portal, panel, chat y guía. |
 
 **Cuentas de prueba:** estudiante `estudiante@talentocaribe.co / Estudiante123` · docentes `docente@`, `daniel@`, `valeria@`, `andres@`, `laura@talentocaribe.co` con clave `Docente123` · administrativo `admin@talentocaribe.co / Admin123` (con cualquier cargo).
 
@@ -211,8 +220,8 @@ Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, p
 
 | Archivo | Qué hace |
 |---|---|
-| `js/intro.js` | Animación de entrada (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
-| `css/tema.css` | Paletas: oscuro (original) y claro "arena y mar". Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
+| `js/intro.js` | Animación de entrada del portal y el panel (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
+| `css/tema.css` | Paletas: oscuro (azul tinta) y claro (papel cálido). Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
 | `js/i18n.js` | Aplica tema e idioma antes de pintar, traduce textos y atributos (también lo que el JS pinta después) y añade los botones ☀/🌙 y ES/EN. Expone `TCIdioma` y `TCi18n.t()`. |
 | `js/i18n-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
 | `js/i18n-en-cursos.js` | Diccionario del plan de cursos (títulos de módulos, temas, actividades, evidencias y guía de clase). No reemplaza frases que ya traduce `i18n-en.js`. |

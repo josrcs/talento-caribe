@@ -237,5 +237,8 @@
     render();
     const cursoContinuacion = Number(new URLSearchParams(location.search).get('continuar'));
     if (cursoContinuacion > 0) { openCourse(cursoContinuacion); if (localStorage.getItem('tc_sesion_demo')) document.querySelector('#mc-inscribirme')?.click(); }
+    // Enlaces del inicio (rutas, orientador, destacados): cursos.html?curso=ID abre la ficha de ese curso
+    const cursoEnlace = Number(new URLSearchParams(location.search).get('curso'));
+    if (cursoEnlace > 0 && !(cursoContinuacion > 0)) openCourse(cursoEnlace);
   });
 })();

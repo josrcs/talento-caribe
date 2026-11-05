@@ -281,7 +281,9 @@
       const token = S()?.token;
       const res = await fetch(`${TC.API_URL}/chat`, { method: "POST", headers: { "Content-Type": "application/json", ...(token ? { Authorization: "Bearer " + token } : {}) }, body: JSON.stringify({ mensaje: texto, idioma: EN() ? "en" : "es", contexto: resumenContexto().slice(0, 2000), historial: historial.slice(-10).map((h) => ({ ...h, texto: String(h.texto).slice(0, 4000) })) }) });
       const data = await res.json().catch(() => ({}));
-      if (data.sinIA) aviso = L("\n\n_(Respuesta automática: la IA todavía no está configurada en el servidor.)_", "\n\n_(Automatic answer: AI is not configured on the server yet.)_");
+      if (data.limite) aviso = L("\n\n_(Respuesta automática: el asistente con IA alcanzó su límite gratuito por ahora. Vuelve a intentarlo más tarde.)_", "\n\n_(Automatic answer: the AI assistant reached its free limit for now. Try again later.)_");
+      else if (data.ocupado) aviso = L("\n\n_(Respuesta automática: el asistente con IA está muy ocupado en este momento. Inténtalo de nuevo en un rato.)_", "\n\n_(Automatic answer: the AI assistant is very busy right now. Try again in a while.)_");
+      else if (data.sinIA) aviso = L("\n\n_(Respuesta automática: la IA todavía no está configurada en el servidor.)_", "\n\n_(Automatic answer: AI is not configured on the server yet.)_");
       else if (res.status === 429) aviso = `\n\n_(${data.error || L("Demasiados mensajes seguidos, espera un momento.", "Too many messages, wait a moment.")})_`;
       if (!res.ok) throw new Error(data.error);
       return r(data.respuesta || L("No recibí respuesta.", "I didn't get an answer."), data.sugerencias || []);

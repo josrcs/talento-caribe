@@ -1,4 +1,4 @@
-/* main.js - Página de inicio y catálogo: menú, cursos destacados, cifras, cinta de temas
+/* main.js - Página de inicio y catálogo: menú, cursos destacados, cifras
    y menú que marca la sección que se está viendo. */
 (() => {
   const cursos = window.TALENTO_CARIBE_CURSOS || [];
@@ -14,10 +14,10 @@
   const destacados = document.querySelector('#cursos-destacados');
   if (destacados) (window.TCListo || Promise.resolve()).then(() => {
     destacados.innerHTML = cursos.filter(c => c.fase === 'Lanzamiento').slice(0, 3).map(c => `
-      <article class="curso-card" data-tilt data-revelar="escala">
+      <article class="curso-card" data-revelar>
         <div class="curso-etiquetas"><span class="tag">${esc(c.area)}</span><span class="tag tag-lanzamiento">Inscripciones abiertas</span></div>
-        <h3>${esc(c.titulo)}</h3><p>${esc(c.descripcion)}</p>
-        <div class="curso-card-pie"><span class="curso-duracion">${Number(c.duracion) || ""} semanas · ${esc(c.modalidad)}</span><a class="btn-texto-plano" href="cursos.html">Ver detalles →</a></div>
+        <h3>${esc(c.titulo)}</h3><p class="curso-objetivo">${esc(c.objetivo || c.descripcion)}</p>
+        <div class="curso-card-pie"><span class="curso-duracion">${Number(c.duracion) || ""} semanas · ${esc(c.modalidad)}</span><a class="btn-texto-plano" href="cursos.html?curso=${encodeURIComponent(c.id)}">Ver detalles →</a></div>
       </article>`).join('');
     destacados.removeAttribute('aria-busy');
     window.TCRevelar?.(destacados);
@@ -28,14 +28,6 @@
   cifra('cursos', cursos.length);
   cifra('modulos', cursos.reduce((total, c) => total + (c.modulos || []).length, 0));
   cifra('mentores', document.querySelectorAll('.mentor').length);
-
-  // Cinta de temas: se duplica la lista para que el movimiento no tenga cortes (la copia no la leen los lectores de pantalla)
-  const cinta = document.querySelector('.cinta-lista');
-  if (cinta) {
-    const copia = cinta.cloneNode(true);
-    copia.setAttribute('aria-hidden', 'true');
-    cinta.after(copia);
-  }
 
   if (!('IntersectionObserver' in window)) return;
 
