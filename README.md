@@ -93,7 +93,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Compatible con Safari en iPhone (prefijos `-webkit-` y sin expresiones regulares que iOS antiguo no entiende) y logos livianos donde se ven pequeños
 - [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
 - [ ] Poner `GEMINI_API_KEY` (gratis en https://aistudio.google.com/apikey) en `backend/.env` (sin ella el asistente usa respuestas locales)
-- [ ] Publicar el backend en Render y llenar `API_PUBLICADA` en `js/config.js` (pasos en «Publicar el proyecto»)
+- [x] Backend publicado en Render (`https://talento-caribe-api.onrender.com`) y conectado desde GitHub Pages con `API_PUBLICADA` en `js/config.js`
 
 ## Cuentas de prueba
 

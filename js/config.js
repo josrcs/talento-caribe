@@ -6,7 +6,7 @@
       (por ejemplo "https://talento-caribe-api.onrender.com"). En ese caso agrega la URL de
       GitHub Pages a CORS_ORIGENES en el .env del servidor. */
 (() => {
-  const API_PUBLICADA = "";
+  const API_PUBLICADA = "https://talento-caribe-api.onrender.com";
 
   const conServidor = location.port === "3000";
   const local = ["localhost", "127.0.0.1", ""].includes(location.hostname);
