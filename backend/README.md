@@ -75,7 +75,7 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 GEMINI_API_KEY=pega-aquí-tu-clave
 ```
 
-Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.8-flash)`. Sin la clave el chat responde con reglas locales.
+Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.5-flash)`. Sin la clave el chat responde con reglas locales.
 
 - **Cuota gratuita:** Google limita cuántos mensajes se pueden enviar por minuto y por día (los números exactos aparecen en AI Studio y cambian con el tiempo). Si el modelo principal agota su cuota, el servidor prueba con el de respaldo (`gemini-3.5-flash-lite`); si también se agota, el chat sigue contestando con las respuestas locales y avisa que se alcanzó el límite gratuito. `IA_LIMITE_DIARIO` (200 por defecto) reparte la cuota para que no se gaste en pocas horas.
 - **Otros modelos:** `IA_MODELO=` y `IA_MODELO_RESPALDO=` en `.env`. Los nombres cambian con el tiempo: revisa https://ai.google.dev/gemini-api/docs/models. Si un modelo deja de existir, el servidor usa el de respaldo y lo avisa en la terminal.

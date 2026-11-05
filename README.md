@@ -111,7 +111,7 @@ En modo demostración los cargos y permisos solo se aplican en la interfaz. **Co
 
 ## Asistente con IA real
 
-`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a **Google Gemini** (`gemini-3.8-flash`, con `gemini-3.5-flash-lite` de respaldo) usando su **plan gratuito**, con unas instrucciones que el servidor arma en cada mensaje:
+`backend/src/rutas/chat.js` recibe la pregunta en `POST /api/chat` y se la envía a **Google Gemini** (`gemini-3.5-flash`, con `gemini-3.5-flash-lite` de respaldo) usando su **plan gratuito**, con unas instrucciones que el servidor arma en cada mensaje:
 
 - **Conoce el negocio:** historia, misión, visión, valores, mentores, cómo inscribirse y contacto de Talento Caribe.
 - **Conoce los productos:** los cursos y fichas se leen de PostgreSQL. Si el equipo crea un curso o una ficha en el panel, el asistente lo sabe de inmediato.

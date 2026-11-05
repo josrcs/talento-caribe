@@ -19,15 +19,17 @@ const { SQL_CURSOS, SQL_FICHAS } = require("../consultas");
 const { texto, rechazar } = require("../validar");
 
 /* ---------- Modelos ----------
-   IA_MODELO: el principal (Flash: buena calidad y rápido).
+   IA_MODELO: el principal (Flash: buena calidad y rápido). Se usa gemini-3.5-flash y no el Flash más
+   nuevo porque, en el plan gratuito, el más nuevo suele estar saturado (en pruebas tardó hasta 19 s
+   en responder 503 "high demand"), mientras 3.5 respondía en 1 a 3 s.
    IA_MODELO_RESPALDO: si el principal no existe o agotó su cuota gratis, se intenta
    una vez con este (Flash-Lite: más liviano y con más cuota en el plan gratuito).
    Los nombres cambian con el tiempo: consulta https://ai.google.dev/gemini-api/docs/models */
-const MODELO = process.env.IA_MODELO || "gemini-3.8-flash";
+const MODELO = process.env.IA_MODELO || "gemini-3.5-flash";
 const RESPALDO = process.env.IA_MODELO_RESPALDO ?? "gemini-3.5-flash-lite";
 const URL_BASE = (process.env.GEMINI_URL_BASE || "https://generativelanguage.googleapis.com/v1beta").replace(/\/$/, "");
 const iaConfigurada = () => Boolean(process.env.GEMINI_API_KEY);
-const ESPERA_MAXIMA = 30000; // ms: si Gemini no contesta en 30 s, el navegador pasa a las respuestas locales
+const ESPERA_MAXIMA = 15000; // ms por intento: si un modelo no contesta en 15 s se prueba el de respaldo
 
 /* ---------- Límite de uso: protege la cuota gratuita ---------- */
 const limitar = limitePorIP(20, 10, "Enviaste muchos mensajes seguidos. Espera unos minutos y vuelve a intentarlo.");
@@ -141,13 +143,13 @@ async function preguntarAGemini(modelo, sistema, contenidos, { pensar = true } =
   return { texto: textoIA, bloqueada };
 }
 
-/* Si el modelo principal no existe (404), agotó su cuota gratis (429) o Google está saturado (500/503,
-   frecuente en el plan gratuito), se intenta una vez con el de respaldo */
+/* Si el modelo principal no existe (404), agotó su cuota gratis (429), Google está saturado (500/503,
+   frecuente en el plan gratuito) o no contestó a tiempo (0), se intenta una vez con el de respaldo */
 async function responderConGemini(sistema, contenidos) {
   try {
     return await preguntarAGemini(MODELO, sistema, contenidos);
   } catch (error) {
-    if (!RESPALDO || RESPALDO === MODELO || ![404, 429, 500, 503].includes(error.estado)) throw error;
+    if (!RESPALDO || RESPALDO === MODELO || ![0, 404, 429, 500, 503].includes(error.estado)) throw error;
     console.warn(`⚠ IA: ${MODELO} respondió ${error.estado} (${error.message}); se intenta con ${RESPALDO}`);
     return preguntarAGemini(RESPALDO, sistema, contenidos);
   }
