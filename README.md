@@ -75,7 +75,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Cursos divididos en módulos (temas + actividades del plan) y fichas por grupo (ej. 25896)
 - [x] Inscripción en una ficha, actividades por módulo y ficha, y seguimiento docente módulo por módulo
 - [x] Asistente conectado a IA real (Claude) en `POST /api/chat`: conoce la marca, el catálogo y las fichas desde PostgreSQL y usa el tono que define el gerente
-- [x] Efecto del cursor y destello de clics/toques solo en la página de inicio
+- [x] Inicio didáctico: orientador de cursos, rutas de aprendizaje, ritmo de cada módulo y preguntas frecuentes
 - [x] Animación de entrada nueva, hero interactivo, revelado al hacer scroll, cifras animadas y transiciones en toda la plataforma
 - [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
 - [x] Control de versiones con Git
@@ -139,19 +139,20 @@ Para enviar correos de verdad, configura SMTP en `backend/.env` (ver `backend/.e
 
 > **Si ya tenías la base creada**, ejecuta `npm run db:actualizar` en `backend/`: crea las tablas nuevas, corrige la duración de los cursos y carga respuestas de ejemplo, sin borrar nada.
 
-## Animaciones e interacción
+## Diseño, animaciones e interacción
 
-Todas las animaciones están hechas con CSS y JavaScript propios (sin librerías externas) y usan solo `transform` y `opacity`, que el navegador anima sin trabarse. Con «reducir movimiento» activado en el sistema no se muestra ninguna.
+El diseño público busca verse sobrio y profesional: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans** (Google Fonts). No hay vidrio esmerilado, manchas de color, texto con degradado ni efectos que sigan al cursor.
+
+Las animaciones son cortas y con propósito: orientar al bajar por la página o confirmar una acción. Todas usan solo `transform` y `opacity`, y con «reducir movimiento» activado en el sistema no se muestra ninguna.
 
 | Dónde | Qué pasa |
 |---|---|
-| Entrada (`js/intro.js`) | Amanecer en el Caribe: se dibuja el horizonte, sale el sol y brilla en el agua, el emblema aparece desde su propio sol, "TALENTO" sube letra por letra y "CARIBE" se cierra. La barra espera a que la página cargue. Al salir, el telón sube como una ola y el emblema **vuela hasta el logo del hero** (técnica FLIP). Una vez por sesión; para verla otra vez: `index.html?intro`. |
-| Hero | El título sube por líneas, el texto entra en cascada y el disco del logo crece. Con mouse, la escena del logo se inclina hacia el puntero y los botones se acercan al cursor. |
-| Inicio | Cifras que cuentan desde cero (salen del catálogo), cinta de temas en movimiento, línea de tiempo en «Cómo funciona», anillo de colores en los mentores y tarjetas de cursos que giran en 3D. |
-| Todas las páginas | Revelado al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), barra superior que se esconde al bajar y vuelve al subir, línea de lectura, transición suave entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Inicio (`index.html`, `css/inicio.css`, `js/inicio.js`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`, funcionan sin JavaScript), asistente y contacto. |
+| Todas las páginas | Revelado suave al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), cifras que cuentan desde cero, barra superior que se esconde al bajar y vuelve al subir, línea de lectura, fundido corto entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Entrada (`js/intro.js`, solo portal y panel) | Amanecer en el Caribe con el emblema que vuela hasta el logo de la barra. Una vez por sesión. |
 | Plataforma | Cada sección del portal y del panel entra en cascada, los indicadores cuentan, las barras crecen y los anillos de avance se llenan. |
 
-El **efecto que sigue el cursor** (aura y estela de luces), el reflejo y giro de las tarjetas y el **destello al hacer clic o tocar la pantalla** solo se activan en la página de inicio (`<body class="page-home">`); en catálogo, registro, login, portal y panel la interfaz queda limpia para trabajar.
+`cursos.html?curso=ID` abre directamente la ficha de un curso (lo usan las rutas, el orientador y los cursos destacados del inicio).
 
 ## Seguridad
 
@@ -201,7 +202,7 @@ Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, p
 | `js/login.js` | Acceso por rol, selector visual de cargo y selector de docente. |
 | `js/guia.js` | Guía paso a paso que aparece la primera vez en cada espacio (botón «Guía» para repetirla). |
 | `js/iconos.js` | Íconos SVG de línea. |
-| `css/plataforma.css` | Estilos de login, portal, panel, chat y guía (vidrio). |
+| `css/plataforma.css` | Estilos de login, portal, panel, chat y guía. |
 
 **Cuentas de prueba:** estudiante `estudiante@talentocaribe.co / Estudiante123` · docentes `docente@`, `daniel@`, `valeria@`, `andres@`, `laura@talentocaribe.co` con clave `Docente123` · administrativo `admin@talentocaribe.co / Admin123` (con cualquier cargo).
 
@@ -211,8 +212,8 @@ Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, p
 
 | Archivo | Qué hace |
 |---|---|
-| `js/intro.js` | Animación de entrada (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
-| `css/tema.css` | Paletas: oscuro (original) y claro "arena y mar". Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
+| `js/intro.js` | Animación de entrada del portal y el panel (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
+| `css/tema.css` | Paletas: oscuro (azul tinta) y claro (papel cálido). Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
 | `js/i18n.js` | Aplica tema e idioma antes de pintar, traduce textos y atributos (también lo que el JS pinta después) y añade los botones ☀/🌙 y ES/EN. Expone `TCIdioma` y `TCi18n.t()`. |
 | `js/i18n-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
 | `js/i18n-en-cursos.js` | Diccionario del plan de cursos (títulos de módulos, temas, actividades, evidencias y guía de clase). No reemplaza frases que ya traduce `i18n-en.js`. |

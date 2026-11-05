@@ -9,7 +9,6 @@
   <script src="js/i18n-en.js"></script>
   <script src="js/i18n-en-cursos.js"></script>
   <script src="js/i18n.js"></script>
-  <script src="js/intro.js"></script>
   <title>Talento Caribe | Tu talento no tiene fronteras</title>
   <meta name="description" content="Plataforma educativa gratuita e híbrida de software y hardware para jóvenes del Caribe y Latinoamérica.">
   <!-- Vista previa al compartir el enlace (WhatsApp, Facebook, LinkedIn, X). Las redes exigen la dirección
@@ -34,6 +33,7 @@
   <link rel="stylesheet" href="css/efectos.css">
   <link rel="stylesheet" href="css/plataforma.css">
   <link rel="stylesheet" href="css/modulos.css">
+  <link rel="stylesheet" href="css/inicio.css">
 </head>
 <body class="page-home">
   <a class="skip-link" href="#contenido">Saltar al contenido</a>
@@ -48,99 +48,203 @@
         <span class="nav-toggle-bar"></span>
       </button>
       <ul id="menu" class="nav-links">
-        <li><a href="#nosotros">Nosotros</a></li>
         <li><a href="cursos.html">Cursos</a></li>
-        <li><a href="#mentores">Mentores</a></li>
-        <li><a href="#asistente">Asistente IA</a></li>
+        <li><a href="#metodo">Cómo se aprende</a></li>
+        <li><a href="#nosotros">Nosotros</a></li>
+        <li><a href="#preguntas">Preguntas</a></li>
         <li><a href="#contacto">Contacto</a></li>
-        <li><a href="admin/login.html" class="btn btn-outline">Ingresar</a></li>
+        <li class="nav-acciones"><a href="admin/login.html" class="btn btn-outline">Ingresar</a><a href="#empieza" class="btn btn-primary">Inscríbete</a></li>
       </ul>
     </nav>
   </header>
 
   <main id="contenido">
-    <!-- Hero: entra en cascada (css/efectos.css). El logo es el destino del emblema que vuela en la intro (js/intro.js). -->
+    <!-- Hero: qué es, para quién y qué ves por dentro (un módulo real del primer curso) -->
     <section class="hero" aria-labelledby="hero-titulo">
-      <div class="hero-burbujas" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
       <div class="container hero-grid">
         <div class="hero-texto">
-          <p class="hero-chip"><img src="assets/img/logo-emblema.png" alt="" width="32" height="24"> Educación tecnológica gratuita · Hecha en Barranquilla</p>
-          <h1 id="hero-titulo"><span class="linea"><span>Tu talento</span></span> <span class="linea"><span><span class="texto-caribe">no tiene fronteras</span></span></span></h1>
-          <p>Cursos gratuitos de software y hardware para jóvenes de Barranquilla, el Caribe y Latinoamérica. Aprendes haciendo, con mentores y sin experiencia previa.</p>
+          <p class="eyebrow">Cursos gratuitos · Barranquilla y en línea</p>
+          <h1 id="hero-titulo">Aprende tecnología desde cero, con mentores y sin pagar un peso.</h1>
+          <p class="hero-lead">Talento Caribe es una escuela de software y hardware para jóvenes del Caribe y Latinoamérica. Clases en español, presenciales o virtuales, y un proyecto propio al terminar cada curso.</p>
           <div class="hero-acciones">
-            <a href="cursos.html" class="btn btn-primary">Ver cursos</a>
-            <a href="cursos.html#lista-cursos-seccion" class="btn btn-outline">Inscríbete gratis</a>
-            <a href="#asistente" class="btn btn-outline">Preguntarle al asistente</a>
+            <a href="#empieza" class="btn btn-primary btn-flecha">Encuentra tu curso</a>
+            <a href="cursos.html" class="btn btn-outline">Ver los 12 cursos</a>
           </div>
+          <ul class="hero-garantias">
+            <li>No necesitas experiencia previa</li>
+            <li>Desde los 14 años</li>
+            <li>Certificado al terminar</li>
+          </ul>
         </div>
-        <figure class="hero-arte hero-logo">
-          <div class="hero-escena">
-            <span class="hero-orbita hero-orbita-3" aria-hidden="true"></span>
-            <span class="hero-orbita" aria-hidden="true"></span>
-            <span class="hero-orbita hero-orbita-2" aria-hidden="true"></span>
-            <span class="hero-disco" aria-hidden="true"></span>
-            <!-- data-intro-region: parte del logo que ocupa el emblema (x, y y ancho en fracciones) -->
-            <img class="hero-logo-img" src="assets/img/logo-talento-caribe-claro.png" alt="Logo de Talento Caribe: las letras TC con un sol sobre el mar y una palmera" width="900" height="765" data-intro-destino data-intro-region="0.1378 -0.0118 0.7467">
+
+        <figure class="modulo-muestra" aria-labelledby="muestra-titulo">
+          <div class="muestra-cabecera">
+            <span class="muestra-curso">Lógica de programación</span>
+            <span class="muestra-modulo">Módulo 1 de 8</span>
           </div>
+          <div class="muestra-cuerpo">
+            <h2 id="muestra-titulo" class="muestra-titulo">Pensar en pasos</h2>
+            <div class="muestra-avance">
+              <span>Semana 1 de 2</span>
+              <span class="muestra-barra" aria-hidden="true"><span></span></span>
+            </div>
+            <ul class="muestra-temas" aria-label="Temas del módulo">
+              <li class="hecho">Problema y entradas</li>
+              <li class="hecho">Proceso</li>
+              <li class="actual">Resultados</li>
+              <li>Secuencias</li>
+            </ul>
+            <div class="muestra-ejercicio">
+              <p class="muestra-etiqueta">Ejercicio de la clase · PSeInt</p>
+<pre data-no-traducir><code><b>Algoritmo</b> Saludo
+    <b>Escribir</b> <i>"¿Cómo te llamas?"</i>
+    <b>Leer</b> nombre
+    <b>Escribir</b> <i>"Hola, "</i>, nombre
+<b>FinAlgoritmo</b></code></pre>
+            </div>
+            <p class="muestra-entrega"><strong>Entregable:</strong> tu primer algoritmo y una ficha de entradas, proceso y salidas.</p>
+          </div>
+          <figcaption>Así se ve un módulo por dentro.</figcaption>
         </figure>
       </div>
-      <a class="hero-scroll" href="#nosotros" aria-label="Bajar a la siguiente sección"><span></span></a>
-      <svg class="hero-olas" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true" focusable="false">
-        <path class="ola-1" fill="rgba(18, 104, 200, .16)" d="M0 70 Q180 30 360 70 T720 70 T1080 70 T1440 70 T1800 70 T2160 70 T2520 70 T2880 70 V120 H0 Z"/>
-        <path class="ola-2" fill="rgba(26, 176, 214, .14)" d="M0 82 Q240 50 480 82 T960 82 T1440 82 T1920 82 T2400 82 T2880 82 V120 H0 Z"/>
-        <path class="ola-3" fill="rgba(5, 11, 22, .55)" d="M0 96 Q180 78 360 96 T720 96 T1080 96 T1440 96 T1800 96 T2160 96 T2520 96 T2880 96 V120 H0 Z"/>
-      </svg>
     </section>
 
     <!-- Cifras: js/main.js toma los números del catálogo y cuentan al aparecer (data-contar) -->
     <section class="cifras" aria-label="Talento Caribe en cifras">
+      <div class="container cifras-grid">
+        <div class="cifra"><strong data-contar data-cifra="cursos">12</strong><span>cursos gratuitos</span></div>
+        <div class="cifra"><strong data-contar data-cifra="modulos">96</strong><span>módulos prácticos</span></div>
+        <div class="cifra"><strong data-contar data-cifra="mentores">5</strong><span>mentores que te acompañan</span></div>
+        <div class="cifra"><strong>0</strong><span>pesos de matrícula</span></div>
+      </div>
+    </section>
+
+    <!-- Orientador: dos preguntas y una recomendación (js/inicio.js) -->
+    <section id="empieza" class="section" aria-labelledby="empieza-titulo">
+      <div class="container orientador">
+        <div class="orientador-texto" data-revelar>
+          <span class="eyebrow">Orientación</span>
+          <h2 id="empieza-titulo">¿No sabes por dónde empezar? Responde dos preguntas.</h2>
+          <p>Te mostramos el curso que mejor encaja contigo, con su fecha de inicio. No necesitas registrarte para verlo.</p>
+        </div>
+        <form class="orientador-form" id="orientador" data-revelar>
+          <fieldset>
+            <legend><span>1</span> ¿Qué te gustaría hacer?</legend>
+            <div class="or-opciones">
+              <label class="or-opcion"><input type="radio" name="interes" value="web"><span><strong>Crear páginas web y aplicaciones</strong><small>Diseño, código y publicar en internet</small></span></label>
+              <label class="or-opcion"><input type="radio" name="interes" value="datos"><span><strong>Trabajar con datos e inteligencia artificial</strong><small>Python, automatizar tareas, IA</small></span></label>
+              <label class="or-opcion"><input type="radio" name="interes" value="hardware"><span><strong>Armar circuitos y robots</strong><small>Electrónica, Arduino, sensores</small></span></label>
+              <label class="or-opcion"><input type="radio" name="interes" value="explorar"><span><strong>Todavía no lo sé</strong><small>Quiero una base para decidir</small></span></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend><span>2</span> ¿Has programado alguna vez?</legend>
+            <div class="or-opciones or-opciones-dos">
+              <label class="or-opcion"><input type="radio" name="experiencia" value="no"><span><strong>Nunca</strong></span></label>
+              <label class="or-opcion"><input type="radio" name="experiencia" value="si"><span><strong>Sí, un poco</strong></span></label>
+            </div>
+          </fieldset>
+          <div class="orientador-resultado" id="orientador-resultado" aria-live="polite">
+            <p class="orientador-vacio">Tu recomendación aparece aquí cuando respondas las dos preguntas.</p>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- Rutas: los cursos de cada área en orden sugerido (js/inicio.js los toma del catálogo) -->
+    <section id="rutas" class="section section-alt" aria-labelledby="rutas-titulo">
       <div class="container">
-        <div class="cifras-grid" data-revelar="escala">
-          <div class="cifra"><strong data-contar data-cifra="cursos">12</strong><span>cursos gratuitos</span></div>
-          <div class="cifra"><strong data-contar data-cifra="modulos">96</strong><span>módulos prácticos</span></div>
-          <div class="cifra"><strong data-contar data-cifra="mentores">5</strong><span>mentores que te acompañan</span></div>
-          <div class="cifra"><strong data-contar>100%</strong><span>gratis, de principio a fin</span></div>
+        <div class="section-cabecera" data-revelar>
+          <span class="eyebrow">Rutas de aprendizaje</span>
+          <h2 id="rutas-titulo">Dos rutas, doce cursos</h2>
+          <p class="section-intro">Cada curso tiene 8 módulos de dos semanas. Puedes tomar uno solo o seguir la ruta completa, en el orden que te sugerimos.</p>
+        </div>
+        <div class="rutas">
+          <article class="ruta-area" data-revelar>
+            <header class="ruta-cabecera">
+              <h3>Software</h3>
+              <p>Programación, web, datos e inteligencia artificial.</p>
+            </header>
+            <ol class="ruta-lista" data-ruta="Software"></ol>
+          </article>
+          <article class="ruta-area ruta-hardware" data-revelar>
+            <header class="ruta-cabecera">
+              <h3>Hardware</h3>
+              <p>Electrónica, computadores, robótica e internet de las cosas.</p>
+            </header>
+            <ol class="ruta-lista" data-ruta="Hardware"></ol>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Nosotros -->
-    <section id="nosotros" class="section" aria-labelledby="nosotros-titulo">
+    <!-- Método: el ritmo de cada módulo (mismo guion de clase que usan los docentes, TCSesiones en js/cursos-data.js) -->
+    <section id="metodo" class="section" aria-labelledby="metodo-titulo">
       <div class="container">
-        <span class="eyebrow" data-revelar>Nosotros</span>
-        <h2 id="nosotros-titulo" data-revelar="titulo">Una plataforma joven con una idea clara</h2>
-        <div class="nosotros-grid">
-          <div class="nosotros-texto" data-escalonar>
-            <h3>Nuestra historia</h3>
-            <p>Talento Caribe nació en 2026 en Barranquilla, de la mano de José Rodríguez, estudiante de Análisis y Desarrollo de Software. Mientras avanzaba en su formación, José notó algo que se repetía a su alrededor: en la región sobran talento y curiosidad por la tecnología, pero muchos jóvenes no encuentran un lugar donde aprender gratis, en español y con ejemplos cercanos a su realidad. Los cursos suelen costar dinero, estar en otro idioma o quedar lejos de casa.</p>
-            <p>Con esa observación como punto de partida, José se propuso crear ese lugar. Diseñó desde cero una ruta de cursos de software y hardware pensada para principiantes, construyó la plataforma web que la sostiene y conformó un pequeño equipo de mentores dispuestos a acompañar a los estudiantes.</p>
-            <p>Hoy Talento Caribe es una iniciativa joven, en etapa de lanzamiento, y no pretende ser grande de entrada. Su plan es empezar con grupos reducidos en Barranquilla, aprender de la primera cohorte piloto, ajustar los cursos con lo que esa experiencia enseñe y crecer paso a paso hacia otras ciudades del Caribe y de Latinoamérica gracias al formato virtual. De ahí su lema: porque el talento no tiene fronteras, la oportunidad de desarrollarlo tampoco debería tenerlas.</p>
-          </div>
-          <div class="pilares" data-escalonar="escala">
-            <article class="pilar pilar-mision">
-              <h3>Misión</h3>
-              <p>Formar a jóvenes del Caribe y de Latinoamérica en habilidades de software y hardware mediante cursos gratuitos, prácticos y acompañados por mentores, para que puedan estudiar, emprender o conseguir empleo en tecnología.</p>
-              <p>Creemos que la tecnología se aprende haciendo, por eso cada curso termina en un proyecto real. Aprendemos desde nuestra identidad caribeña, cerramos la brecha de acceso con un modelo híbrido que combina lo presencial y lo virtual, y acompañamos a cada estudiante con mentores y una comunidad que lo impulsa, porque nadie crece solo.</p>
-            </article>
-            <article class="pilar">
-              <h3>Visión</h3>
-              <p>Ser, en 2030, la comunidad de referencia en formación tecnológica juvenil del Caribe y de Latinoamérica: un lugar donde los jóvenes descubran su vocación, desarrollen sus habilidades y encuentren oportunidades reales sin tener que irse de su tierra ni pagar por aprender.</p>
-            </article>
-            <article class="pilar">
-              <h3>Valores</h3>
-              <p>Acceso para todos, aprender haciendo, comunidad e identidad caribeña.</p>
-            </article>
-          </div>
+        <div class="section-cabecera" data-revelar>
+          <span class="eyebrow">Cómo se aprende</span>
+          <h2 id="metodo-titulo">Cada módulo dura dos semanas y siempre sigue el mismo ritmo</h2>
+          <p class="section-intro">Una clase de 90 minutos por semana. La primera es para entender y practicar con ayuda; la segunda, para resolver un reto por tu cuenta y mostrarlo.</p>
         </div>
+        <div class="semanas">
+          <article class="semana" data-revelar>
+            <h3><span>Semana 1</span> Entender y practicar</h3>
+            <div class="semana-barra" aria-hidden="true">
+              <span style="--min: 10"></span><span style="--min: 25"></span><span style="--min: 20"></span><span class="practica" style="--min: 25"></span><span style="--min: 10"></span>
+            </div>
+            <ol class="semana-pasos">
+              <li><strong>Apertura</strong><span>10 min</span><p>Una pregunta sobre algo cotidiano para entrar en el tema.</p></li>
+              <li><strong>Explicación</strong><span>25 min</span><p>El concepto en palabras sencillas y con un caso concreto.</p></li>
+              <li><strong>Demostración</strong><span>20 min</span><p>El mentor resuelve el ejercicio paso a paso, en voz alta.</p></li>
+              <li class="practica"><strong>Práctica guiada</strong><span>25 min</span><p>Haces el mismo ejercicio con apoyo y pausas para revisar.</p></li>
+              <li><strong>Cierre</strong><span>10 min</span><p>Cuentas qué entendiste y qué error lograste corregir.</p></li>
+            </ol>
+          </article>
+          <article class="semana" data-revelar>
+            <h3><span>Semana 2</span> Aplicar y mostrar</h3>
+            <div class="semana-barra" aria-hidden="true">
+              <span style="--min: 10"></span><span style="--min: 10"></span><span class="practica" style="--min: 40"></span><span class="practica" style="--min: 20"></span><span style="--min: 10"></span>
+            </div>
+            <ol class="semana-pasos">
+              <li><strong>Repaso</strong><span>10 min</span><p>Tres ideas clave con preguntas rápidas.</p></li>
+              <li><strong>Revisión guiada</strong><span>10 min</span><p>Reconstruyen juntos los pasos y aclaran dudas.</p></li>
+              <li class="practica"><strong>Reto aplicado</strong><span>40 min</span><p>Una variación del ejercicio que resuelves tú.</p></li>
+              <li class="practica"><strong>Revisión entre pares</strong><span>20 min</span><p>Intercambias tu trabajo con un compañero y se dan sugerencias.</p></li>
+              <li><strong>Entrega</strong><span>10 min</span><p>Aplicas una mejora y entregas la evidencia del módulo.</p></li>
+            </ol>
+          </article>
+        </div>
+        <p class="semanas-nota" data-revelar><span class="semana-leyenda" aria-hidden="true"></span> Más de la mitad del tiempo de clase es práctica: tú con las manos en el código o en el circuito.</p>
       </div>
     </section>
 
-    <!-- Cursos destacados: js/main.js los carga desde el catálogo; mientras tanto se ven tarjetas esqueleto. -->
-    <section id="cursos" class="section section-alt" aria-labelledby="cursos-titulo">
+    <!-- Cómo funciona: de la inscripción al certificado (es una secuencia, por eso es una lista ordenada) -->
+    <section id="como-funciona" class="section section-alt" aria-labelledby="pasos-titulo">
       <div class="container">
-        <span class="eyebrow" data-revelar>Cursos</span>
-        <h2 id="cursos-titulo" data-revelar="titulo">Empieza por uno de estos cursos</h2>
-        <p class="section-intro" data-revelar>Cada curso termina con un proyecto que tú construyes.</p>
+        <div class="section-cabecera" data-revelar>
+          <span class="eyebrow">El proceso</span>
+          <h2 id="pasos-titulo">De la inscripción al certificado</h2>
+        </div>
+        <ol class="pasos" data-escalonar>
+          <li><h3>Elige tu curso</h3><p>Usa el orientador o revisa el catálogo: modalidad, horario y fecha de inicio de cada grupo.</p><span class="paso-tiempo">5 minutos</span></li>
+          <li><h3>Inscríbete</h3><p>Crea tu cuenta y envía la solicitud. Si eres menor de edad, te pedimos los datos de un acudiente.</p><span class="paso-tiempo">10 minutos</span></li>
+          <li><h3>Aprende y construye</h3><p>Ocho módulos con clases guiadas y una entrega en cada uno. Tu mentor revisa tu avance.</p><span class="paso-tiempo">16 semanas</span></li>
+          <li><h3>Presenta tu proyecto</h3><p>Terminas con un proyecto propio, tu certificado y la recomendación del siguiente curso.</p><span class="paso-tiempo">Al terminar</span></li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Cursos con inscripciones abiertas: js/main.js los carga desde el catálogo; mientras tanto se ven tarjetas esqueleto. -->
+    <section id="cursos" class="section" aria-labelledby="cursos-titulo">
+      <div class="container">
+        <div class="section-cabecera section-cabecera-fila" data-revelar>
+          <div>
+            <span class="eyebrow">Inscripciones abiertas</span>
+            <h2 id="cursos-titulo">Empieza por uno de estos cursos</h2>
+            <p class="section-intro">Cada curso termina con un proyecto que tú construyes.</p>
+          </div>
+          <a href="cursos.html" class="btn btn-outline btn-flecha">Ver todo el catálogo</a>
+        </div>
         <div id="destacados-error" class="estado estado-error" role="alert" hidden>
           <p>No pudimos cargar los cursos. Revisa tu conexión e inténtalo de nuevo.</p>
           <button type="button" class="btn btn-outline" id="destacados-reintentar">Reintentar</button>
@@ -150,50 +254,18 @@
           <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
           <div class="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
         </div>
-        <p class="section-cta" data-revelar><a href="cursos.html" class="btn btn-primary">Ver todo el catálogo</a></p>
-      </div>
-    </section>
-
-    <!-- Cinta de temas: js/main.js duplica la lista para que se mueva sin cortes -->
-    <section class="cinta" aria-label="Temas de los cursos">
-      <div class="cinta-pista">
-        <ul class="cinta-lista">
-          <li>Lógica de programación</li>
-          <li>Python</li>
-          <li>HTML y CSS</li>
-          <li>JavaScript</li>
-          <li>Git y GitHub</li>
-          <li>Bases de datos</li>
-          <li>Inteligencia artificial</li>
-          <li>Electrónica</li>
-          <li>Arduino</li>
-          <li>Computadores</li>
-          <li>Robótica</li>
-          <li>Internet de las Cosas</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- Cómo funciona (es una secuencia, por eso es una lista ordenada) -->
-    <section id="como-funciona" class="section" aria-labelledby="pasos-titulo">
-      <div class="container">
-        <span class="eyebrow" data-revelar>El proceso</span>
-        <h2 id="pasos-titulo" data-revelar="titulo">Cómo funciona</h2>
-        <ol class="pasos" data-escalonar>
-          <li><h3>Inscríbete gratis</h3><p>Elige el curso que te interesa y déjanos tus datos.</p></li>
-          <li><h3>Aprende con práctica</h3><p>Sesiones guiadas, presenciales o virtuales, con ejercicios en cada clase.</p></li>
-          <li><h3>Construye un proyecto</h3><p>Una página web, un circuito o un robot que puedes mostrar.</p></li>
-          <li><h3>Recibe tu certificado</h3><p>Y una recomendación del siguiente curso para seguir avanzando.</p></li>
-        </ol>
       </div>
     </section>
 
     <!-- Mentores (perfiles ficticios del proyecto académico) -->
     <section id="mentores" class="section section-alt" aria-labelledby="mentores-titulo">
       <div class="container">
-        <span class="eyebrow" data-revelar>Mentores</span>
-        <h2 id="mentores-titulo" data-revelar="titulo">Quiénes te acompañan</h2>
-        <ul class="mentores" data-escalonar="escala">
+        <div class="section-cabecera" data-revelar>
+          <span class="eyebrow">Mentores</span>
+          <h2 id="mentores-titulo">Quiénes te acompañan</h2>
+          <p class="section-intro">Profesionales de la región que enseñan lo que hacen en su trabajo y revisan tus entregas.</p>
+        </div>
+        <ul class="mentores" data-escalonar>
           <li class="mentor"><span class="avatar" aria-hidden="true">CO</span><h3>Camila Ospino</h3><p>Ingeniera de software. Desarrollo web.</p></li>
           <li class="mentor"><span class="avatar" aria-hidden="true">DB</span><h3>Daniel Barrios</h3><p>Ingeniero de sistemas. Programación y datos.</p></li>
           <li class="mentor"><span class="avatar" aria-hidden="true">VH</span><h3>Valeria De la Hoz</h3><p>Especialista en IA aplicada a negocios.</p></li>
@@ -203,7 +275,70 @@
       </div>
     </section>
 
-    <!-- Asistente IA: js/chat.js envía el mensaje a POST /api/chat (el backend añade el contexto de la marca) -->
+    <!-- Nosotros -->
+    <section id="nosotros" class="section" aria-labelledby="nosotros-titulo">
+      <div class="container nosotros-grid">
+        <div class="nosotros-texto" data-revelar>
+          <span class="eyebrow">Nosotros</span>
+          <h2 id="nosotros-titulo">Una plataforma joven con una idea clara</h2>
+          <p>Talento Caribe nació en 2026 en Barranquilla, de la mano de José Rodríguez, estudiante de Análisis y Desarrollo de Software. Mientras avanzaba en su formación, José notó algo que se repetía a su alrededor: en la región sobran talento y curiosidad por la tecnología, pero muchos jóvenes no encuentran un lugar donde aprender gratis, en español y con ejemplos cercanos a su realidad. Los cursos suelen costar dinero, estar en otro idioma o quedar lejos de casa.</p>
+          <p>Con esa observación como punto de partida, José se propuso crear ese lugar. Diseñó desde cero una ruta de cursos de software y hardware pensada para principiantes, construyó la plataforma web que la sostiene y conformó un pequeño equipo de mentores dispuestos a acompañar a los estudiantes.</p>
+          <p>Hoy Talento Caribe es una iniciativa joven, en etapa de lanzamiento, y no pretende ser grande de entrada. Su plan es empezar con grupos reducidos en Barranquilla, aprender de la primera cohorte piloto, ajustar los cursos con lo que esa experiencia enseñe y crecer paso a paso hacia otras ciudades del Caribe y de Latinoamérica gracias al formato virtual. De ahí su lema: porque el talento no tiene fronteras, la oportunidad de desarrollarlo tampoco debería tenerlas.</p>
+        </div>
+        <div class="pilares" data-escalonar>
+          <article class="pilar">
+            <h3>Misión</h3>
+            <p>Formar a jóvenes del Caribe y de Latinoamérica en habilidades de software y hardware mediante cursos gratuitos, prácticos y acompañados por mentores, para que puedan estudiar, emprender o conseguir empleo en tecnología.</p>
+          </article>
+          <article class="pilar">
+            <h3>Visión</h3>
+            <p>Ser, en 2030, la comunidad de referencia en formación tecnológica juvenil del Caribe y de Latinoamérica: un lugar donde los jóvenes descubran su vocación, desarrollen sus habilidades y encuentren oportunidades reales sin tener que irse de su tierra ni pagar por aprender.</p>
+          </article>
+          <article class="pilar">
+            <h3>Valores</h3>
+            <p>Acceso para todos, aprender haciendo, comunidad e identidad caribeña.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- Preguntas frecuentes: <details> funciona sin JavaScript y con teclado -->
+    <section id="preguntas" class="section section-alt" aria-labelledby="preguntas-titulo">
+      <div class="container preguntas-grid">
+        <div class="section-cabecera" data-revelar>
+          <span class="eyebrow">Preguntas frecuentes</span>
+          <h2 id="preguntas-titulo">Lo que casi todos preguntan antes de inscribirse</h2>
+          <p class="section-intro">¿Tu duda no está aquí? Pregúntale al asistente o escríbenos.</p>
+        </div>
+        <div class="preguntas" data-revelar>
+          <details open>
+            <summary>¿De verdad es gratis?</summary>
+            <p>Sí. Los cursos y el certificado no tienen costo: no cobramos matrícula ni mensualidades.</p>
+          </details>
+          <details>
+            <summary>¿Necesito saber programar?</summary>
+            <p>No. Los cursos de nivel básico empiezan desde cero. Si nunca has programado, te sugerimos Lógica de programación o HTML y CSS.</p>
+          </details>
+          <details>
+            <summary>¿Qué edad debo tener?</summary>
+            <p>La mayoría de cursos reciben estudiantes desde los 14 años; la edad exacta aparece en la ficha de cada curso. Si eres menor de edad, en la inscripción te pedimos los datos de tu acudiente.</p>
+          </details>
+          <details>
+            <summary>¿Las clases son presenciales o virtuales?</summary>
+            <p>Depende del curso. Cada uno indica su modalidad (presencial, virtual o híbrida) y su jornada: mañana, tarde, noche o sábados.</p>
+          </details>
+          <details>
+            <summary>¿Cuánto tiempo le tengo que dedicar?</summary>
+            <p>Un curso dura 16 semanas, con una clase de 90 minutos por semana. Además, conviene reservar un rato para terminar las entregas de cada módulo.</p>
+          </details>
+          <details>
+            <summary>¿Qué recibo al terminar?</summary>
+            <p>Un proyecto propio que puedes mostrar, tu certificado y la recomendación del siguiente curso de la ruta.</p>
+          </details>
+        </div>
+      </div>
+    </section>
+
     <section id="asistente" class="section" aria-labelledby="asistente-titulo">
       <div class="container asistente-grid">
         <div data-revelar="izquierda">
@@ -216,7 +351,6 @@
       </div>
     </section>
 
-    <!-- Contacto: js/contacto.js valida y envía a POST /api/contacto -->
     <section id="contacto" class="section section-alt" aria-labelledby="contacto-titulo">
       <div class="container contacto-grid">
         <div class="contacto-info" data-revelar="izquierda">
@@ -282,22 +416,52 @@
         </form>
       </div>
     </section>
+
+    <!-- Cierre: un último empujón antes del contacto -->
+    <section class="cta-final" aria-labelledby="cta-titulo">
+      <div class="container cta-final-caja" data-revelar>
+        <div>
+          <h2 id="cta-titulo">Tu primer paso toma cinco minutos.</h2>
+          <p>Responde el orientador o explora el catálogo. Las inscripciones de los próximos grupos ya están abiertas.</p>
+        </div>
+        <div class="cta-final-acciones">
+          <a href="#empieza" class="btn btn-primary">Encuentra tu curso</a>
+          <a href="cursos.html" class="btn btn-outline">Ver el catálogo</a>
+        </div>
+      </div>
+    </section>
+
   </main>
 
   <footer class="site-footer">
-    <div class="container footer-grid" data-escalonar>
+    <div class="container footer-grid">
       <div>
         <a href="index.html" class="footer-logo"><img src="assets/img/logo-talento-caribe-claro-sm.png" alt="Talento Caribe" width="152" height="130" loading="lazy"></a>
         <p>Tu talento no tiene fronteras.</p>
       </div>
       <nav aria-label="Pie de página">
+        <p class="footer-titulo">Aprende</p>
         <ul>
-          <li><a href="cursos.html">Cursos</a></li>
-          <li><a href="#mentores">Mentores</a></li>
-          <li><a href="#contacto">Contacto</a></li>
-          <li><a href="admin/login.html">Ingresar</a></li>
+          <li><a href="cursos.html">Catálogo de cursos</a></li>
+          <li><a href="#rutas">Rutas de aprendizaje</a></li>
+          <li><a href="#metodo">Cómo se aprende</a></li>
         </ul>
       </nav>
+      <nav aria-label="Talento Caribe">
+        <p class="footer-titulo">Talento Caribe</p>
+        <ul>
+          <li><a href="#nosotros">Nosotros</a></li>
+          <li><a href="#mentores">Mentores</a></li>
+          <li><a href="#preguntas">Preguntas frecuentes</a></li>
+        </ul>
+      </nav>
+      <div>
+        <p class="footer-titulo">Contacto</p>
+        <ul>
+          <li><a href="mailto:contacto@talentocaribe.co">contacto@talentocaribe.co</a></li>
+          <li><a href="admin/login.html">Ingresar a la plataforma</a></li>
+        </ul>
+      </div>
       <p class="copy">&copy; 2026 Talento Caribe. Barranquilla, Colombia.</p>
     </div>
   </footer>
@@ -312,6 +476,7 @@
   <script src="js/chat.js" defer></script>
   <script src="js/asistente-global.js" defer></script>
   <script src="js/contacto.js" defer></script>
+  <script src="js/inicio.js" defer></script>
   <script src="js/efectos.js" defer></script>
 </body>
 </html>
