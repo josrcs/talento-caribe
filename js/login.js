@@ -108,6 +108,8 @@
     const caja = $("#acceso-dinamico"); caja.classList.remove("cambia"); void caja.offsetWidth; caja.classList.add("cambia");
     const historia = $("#acceso-historia"); historia.classList.remove("cambia"); void historia.offsetWidth; historia.classList.add("cambia");
   }
+  // En la página publicada las cuentas de prueba no funcionan (el servidor les cambió la clave): se ocultan
+  if (window.TC?.PUBLICADA) document.querySelector(".login-demo").hidden = true;
   $$("[data-role]").forEach((o) => o.addEventListener("click", () => elegir(o.dataset.role)));
   $("#l-ver").addEventListener("click", (e) => { const v = $("#l-clave").type === "password"; $("#l-clave").type = v ? "text" : "password"; e.currentTarget.textContent = v ? "Ocultar" : "Mostrar"; e.currentTarget.setAttribute("aria-pressed", v); });
   $("#demo-usar").addEventListener("click", () => {

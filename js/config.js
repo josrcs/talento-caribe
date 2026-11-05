@@ -15,6 +15,8 @@
     API_URL: conServidor ? "/api" : conApiPublicada ? API_PUBLICADA.replace(/\/+$/, "") + "/api" : "http://localhost:3000/api",
     MODO_DEMO: !(conServidor || conApiPublicada), // false: cuentas, inscripciones, actividades y panel se guardan en PostgreSQL
     API_CONTACTO: conServidor || conApiPublicada,
+    // true en la página publicada con su API: allí no se muestran las cuentas de prueba (el servidor les cambia la clave)
+    PUBLICADA: conApiPublicada,
     // Mensaje si la API no responde: en el computador se recuerda encender el servidor; publicada, el
     // servidor gratuito puede estar "despertando" (tarda unos segundos tras un rato sin visitas)
     SIN_CONEXION: conServidor ? "No hay conexión con el servidor. Revisa que esté encendido (npm start)." : "No hay conexión con el servidor. Puede estar iniciando: inténtalo de nuevo en unos segundos."

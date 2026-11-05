@@ -97,7 +97,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 
 ## Cuentas de prueba
 
-Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`).
+Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`). **En la plataforma publicada no funcionan:** al arrancar en producción (`NODE_ENV=production`, como en Render), `npm run db:init` les cambia la contraseña por una al azar, muestra **una sola vez** en los registros (logs) la nueva del administrador y el login deja de mostrar el recuadro «Cuenta de prueba». Así nadie puede entrar al panel con las claves de este README.
 
 | Perfil | Correo | Contraseña | Entra a |
 |---|---|---|---|
@@ -192,7 +192,9 @@ Después, por cada cambio con sentido (un arreglo, una sección, una función): 
 - `GEMINI_API_KEY`: la clave gratuita del asistente (https://aistudio.google.com/apikey).
 - `CORS_ORIGENES`: `https://josrcs.github.io`
 
-Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
+Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio.
+
+**Primer ingreso al panel publicado:** en Render abre el servicio `talento-caribe-api` → **Logs** y busca `🔐 Contraseña nueva del administrador`. Entra con `admin@talentocaribe.co` y esa contraseña, y cámbiala en **Mi cuenta**. Si la pierdes: en **Environment** agrega `ADMIN_CLAVE_NUEVA` con una contraseña segura, guarda (Render reinicia solo), ingresa con ella y **borra la variable** después. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
 **4. Después de la presentación.** Las contraseñas de las cuentas de prueba están en este README, así que cualquiera podría entrar al panel publicado. En Render → el servicio → *Shell*, cámbialas o desactívalas: `npm run cuenta -- clave admin@talentocaribe.co` (genera una segura y la muestra una vez) o `npm run cuenta -- desactivar estudiante@talentocaribe.co`. `npm run cuenta -- lista` muestra todas las cuentas.
 
