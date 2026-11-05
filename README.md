@@ -80,7 +80,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
 - [x] Control de versiones con Git
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
-- [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con SMTP en `backend/.env`)
+- [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con Brevo, gratis, o SMTP en `backend/.env`)
 - [x] Vista previa con imagen al compartir el enlace (cambiar `josrcs` en `index.html` y `cursos.html` al publicar)
 - [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
 - [x] Toda la interfaz en inglés, incluido el plan de los 12 cursos (módulos, temas, actividades, evidencias y guía de clase)
@@ -139,7 +139,7 @@ Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la I
 | Recuperar contraseña (`recuperar.html`) | Desde «¿Olvidaste tu contraseña?» en el ingreso. Llega un enlace al correo que sirve una sola vez y vence en 1 hora; en la base solo se guarda su huella (SHA-256). |
 | Correos (`backend/src/correo.js`) | Bienvenida al crear la cuenta, recuperar contraseña, contraseña cambiada, confirmación del formulario de contacto (y copia al equipo con `CORREO_EQUIPO`), solicitud de inscripción recibida y aprobada o no aprobada. |
 
-Para enviar correos de verdad, configura SMTP en `backend/.env` (ver `backend/.env.ejemplo`; con Gmail se usa una «contraseña de aplicación»). Sin esa configuración los correos no se envían: aparecen en la terminal del servidor, así se puede probar todo en el computador.
+Para enviar correos de verdad, configura **Brevo** (`BREVO_API_KEY` y `CORREO_REMITENTE`, gratis hasta 300 al día; pasos en [backend/README.md](backend/README.md)). Es la opción que funciona en Render gratis, que bloquea los puertos SMTP. En tu computador también sirve SMTP (ver `backend/.env.ejemplo`). Sin esa configuración los correos no se envían: aparecen en la terminal del servidor, así se puede probar todo en el computador.
 
 > **Si ya tenías la base creada**, ejecuta `npm run db:actualizar` en `backend/`: crea las tablas nuevas, corrige la duración de los cursos y carga respuestas de ejemplo, sin borrar nada.
 
@@ -192,7 +192,7 @@ Después, por cada cambio con sentido (un arreglo, una sección, una función): 
 - `GEMINI_API_KEY`: la clave gratuita del asistente (https://aistudio.google.com/apikey).
 - `CORS_ORIGENES`: `https://josrcs.github.io`
 
-Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de SMTP; puedes dejarlos vacíos al principio.
+Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de Brevo (`BREVO_API_KEY`, `CORREO_REMITENTE`); puedes dejarlos vacíos al principio.
 
 **Primer ingreso al panel publicado:** en Render abre el servicio `talento-caribe-api` → **Logs** y busca `🔐 Contraseña nueva del administrador`. Entra con `admin@talentocaribe.co` y esa contraseña, y cámbiala en **Mi cuenta**. Si la pierdes: en **Environment** agrega `ADMIN_CLAVE_NUEVA` con una contraseña segura, guarda (Render reinicia solo), ingresa con ella y **borra la variable** después. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
