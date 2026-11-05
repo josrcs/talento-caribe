@@ -7,7 +7,7 @@
 /* ---------- Fichas: chip con el número ---------- */
 .ficha-chip {
   display: inline-flex; align-items: center; gap: .25rem;
-  padding: .18rem .55rem; border-radius: 999px;
+  padding: .18rem .55rem; border-radius: var(--radius-lg);
   border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--tinte), .05);
   color: var(--celeste); font-size: .74rem; font-weight: 700; letter-spacing: .04em;
   font-variant-numeric: tabular-nums; white-space: nowrap;
@@ -21,7 +21,7 @@
 
 /* ---------- Módulos del curso (catálogo y panel) ---------- */
 .modulos-lista { display: grid; gap: .55rem; margin: .6rem 0 .4rem; }
-.modulo { border: 1px solid rgba(var(--tinte), .1); border-radius: 14px; background: rgba(var(--tinte), .03); transition: border-color .25s, background .25s; }
+.modulo { border: 1px solid rgba(var(--tinte), .1); border-radius: var(--radius-md); background: rgba(var(--tinte), .03); transition: border-color .25s, background .25s; }
 .modulo[open] { border-color: rgba(26, 176, 214, .35); background: rgba(26, 176, 214, .05); }
 .modulo summary { display: grid; grid-template-columns: auto 1fr auto auto; align-items: center; gap: .75rem; padding: .7rem .85rem; cursor: pointer; list-style: none; }
 .modulo summary::-webkit-details-marker { display: none; }
@@ -32,9 +32,9 @@
 }
 .modulo[open] summary::after, .mod-av[open] summary::after { transform: rotate(-135deg) translateY(-2px); }
 .modulo-num {
-  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: 10px;
-  background: linear-gradient(135deg, var(--caribe-oceano), var(--caribe-mar)); color: #fff; font-weight: 800; font-size: .9rem;
-  box-shadow: 0 6px 14px rgba(18, 104, 200, .3);
+  display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--radius-md);
+  background: var(--accion); color: #fff; font-weight: 800; font-size: .9rem;
+ 
 }
 .modulo-titulo { display: grid; color: var(--texto-fuerte); font-weight: 700; line-height: 1.3; }
 .modulo-titulo small, .mod-av-sub, .modulo-sub { color: var(--celeste); font-size: .7rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
@@ -51,7 +51,7 @@
 .fichas-lista { display: grid; gap: .5rem; margin: .5rem 0 .3rem; }
 .ficha-opcion {
   position: relative; display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: .9rem;
-  padding: .7rem .9rem; border-radius: 14px; border: 1px solid rgba(var(--tinte), .12); background: rgba(var(--tinte), .03);
+  padding: .7rem .9rem; border-radius: var(--radius-md); border: 1px solid rgba(var(--tinte), .12); background: rgba(var(--tinte), .03);
   cursor: pointer; transition: border-color .2s, box-shadow .2s, background .2s;
 }
 .ficha-opcion input { position: absolute; opacity: 0; pointer-events: none; }
@@ -59,7 +59,7 @@
 .ficha-opcion:has(input:checked) { border-color: var(--caribe-mar); background: rgba(26, 176, 214, .08); box-shadow: 0 0 0 3px rgba(26, 176, 214, .18); }
 .ficha-opcion:has(input:focus-visible) { outline: 2px solid var(--caribe-mar); outline-offset: 2px; }
 .ficha-opcion.is-cerrada { cursor: default; opacity: .62; }
-.ficha-numero { display: grid; justify-items: center; min-width: 4.4rem; padding: .35rem .5rem; border-radius: 10px; background: rgba(var(--tinte), .06); color: var(--texto-fuerte); font-weight: 800; font-size: 1.05rem; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
+.ficha-numero { display: grid; justify-items: center; min-width: 4.4rem; padding: .35rem .5rem; border-radius: var(--radius-md); background: rgba(var(--tinte), .06); color: var(--texto-fuerte); font-weight: 800; font-size: 1.05rem; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
 .ficha-numero small { color: var(--color-slate-400); font-size: .6rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; }
 .ficha-datos { display: grid; gap: .1rem; min-width: 0; }
 .ficha-datos strong { color: var(--texto-fuerte); }
@@ -70,7 +70,7 @@
 .curso-portal-ancho { display: grid; gap: .65rem; }
 .curso-portal-ancho h2 { margin: 0; }
 .modulos-avance { display: grid; gap: .45rem; margin: .2rem 0; }
-.mod-av { border: 1px solid rgba(var(--tinte), .09); border-radius: 14px; background: rgba(var(--tinte), .025); transition: border-color .25s, background .25s; }
+.mod-av { border: 1px solid rgba(var(--tinte), .09); border-radius: var(--radius-md); background: rgba(var(--tinte), .025); transition: border-color .25s, background .25s; }
 .mod-av[open] { border-color: rgba(26, 176, 214, .32); background: rgba(26, 176, 214, .045); }
 .mod-av summary { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; align-items: center; gap: .75rem; padding: .6rem .75rem; cursor: pointer; list-style: none; }
 .mod-av summary::-webkit-details-marker { display: none; }
@@ -96,10 +96,10 @@
 .proyecto-linea svg { flex: none; margin-top: .15rem; color: var(--caribe-sol); }
 .fichas-docente { display: grid; gap: .5rem; grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr)); }
 .ficha-boton {
-  display: grid; gap: .1rem; justify-items: start; padding: .6rem .75rem; border-radius: 12px; text-align: left;
+  display: grid; gap: .1rem; justify-items: start; padding: .6rem .75rem; border-radius: var(--radius-md); text-align: left;
   border: 1px solid rgba(var(--tinte), .12); background: rgba(var(--tinte), .04); color: var(--texto-fuerte); transition: border-color .2s, transform .2s;
 }
-.ficha-boton:hover { border-color: var(--caribe-mar); transform: translateY(-2px); }
+.ficha-boton:hover { border-color: var(--color-primary-400); }
 .ficha-boton strong { font-size: 1.05rem; letter-spacing: .05em; font-variant-numeric: tabular-nums; }
 .ficha-boton small, .ficha-estado { color: var(--color-slate-400); font-size: .74rem; }
 .ficha-estado { color: var(--celeste); font-weight: 600; }
@@ -113,7 +113,7 @@
 .tabla-seguimiento tbody td:first-child, .tabla-seguimiento thead th:first-child, .tabla-seguimiento tfoot th { position: sticky; left: 0; z-index: 1; background: rgb(var(--o-15-23-42)); }
 .chips-fichas .chip-filtro { display: inline-flex; align-items: baseline; gap: .4rem; font-variant-numeric: tabular-nums; }
 .chips-fichas .chip-filtro small { font-weight: 500; opacity: .8; font-size: .72rem; }
-.buscar-ficha { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: 999px; border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--tinte), .04); color: var(--color-slate-400); }
+.buscar-ficha { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .75rem; border-radius: var(--radius-lg); border: 1px solid rgba(var(--tinte), .14); background: rgba(var(--tinte), .04); color: var(--color-slate-400); }
 .buscar-ficha input { width: 10.5rem; border: 0; background: none; color: var(--texto-fuerte); font: inherit; font-size: .85rem; outline: none; }
 .seguimiento-cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-end; gap: .75rem 1.5rem; margin-bottom: 1rem; }
 .seguimiento-cabecera .tarjeta-titulo { margin: .2rem 0 0; }
@@ -130,14 +130,14 @@
 .persona-boton:hover span:not(.avatar) { color: var(--celeste); }
 .celda-mod {
   --pct: 0; --c: var(--color-slate-500);
-  display: inline-grid; justify-items: center; gap: .05rem; min-width: 3.9rem; padding: .4rem .5rem .5rem; border-radius: 10px;
+  display: inline-grid; justify-items: center; gap: .05rem; min-width: 3.9rem; padding: .4rem .5rem .5rem; border-radius: var(--radius-md);
   border: 1px solid color-mix(in srgb, var(--c) 35%, transparent); color: var(--c); font: inherit; cursor: pointer;
   background:
     linear-gradient(90deg, var(--c) calc(var(--pct) * 1%), transparent 0) bottom / 100% 3px no-repeat,
     color-mix(in srgb, var(--c) 12%, transparent);
   transition: transform .15s, box-shadow .15s;
 }
-.celda-mod:hover { transform: translateY(-2px); box-shadow: 0 6px 16px color-mix(in srgb, var(--c) 30%, transparent); }
+.celda-mod:hover { box-shadow: inset 0 0 0 1px var(--c); }
 .celda-mod strong { font-size: .88rem; }
 .celda-mod small { color: var(--color-slate-400); font-size: .68rem; }
 .mod-completo { --c: var(--color-green-400); }
@@ -169,7 +169,7 @@
 
 /* ---------- Ajustes de contraste en ambos temas ---------- */
 .avatar { color: #fff; }
-[data-tema="claro"] .tipo-icono { background: linear-gradient(140deg, var(--tipo), color-mix(in srgb, var(--tipo) 70%, #0a2d5e)); }
+
 [data-tema="claro"] .mod-av-num > span { background: #fff; }
 .nav-links a.btn-primary { padding: .5rem 1.1rem; color: #fff; }
 /* Aire entre los títulos de sección y su contenido */
@@ -180,7 +180,7 @@
 /* ---------- Plan del módulo: evidencia y guía de clase ---------- */
 .modulo-evidencia { margin: .7rem 0 0; padding: .55rem .75rem; border-left: 3px solid var(--caribe-sol); border-radius: 0 10px 10px 0; background: rgba(248, 172, 36, .07); color: var(--color-slate-300); font-size: .85rem; }
 .modulo-evidencia strong { color: var(--texto-fuerte); }
-.guia-clase { margin: .8rem 0 .2rem; border: 1px dashed rgba(var(--tinte), .18); border-radius: 12px; }
+.guia-clase { margin: .8rem 0 .2rem; border: 1px dashed rgba(var(--tinte), .18); border-radius: var(--radius-md); }
 .guia-clase > summary { display: flex; align-items: center; gap: .5rem; padding: .55rem .75rem; color: var(--celeste); font-size: .85rem; font-weight: 700; cursor: pointer; list-style: none; }
 .guia-clase > summary::-webkit-details-marker { display: none; }
 .guia-clase[open] > summary { border-bottom: 1px dashed rgba(var(--tinte), .14); }

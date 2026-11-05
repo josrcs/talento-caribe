@@ -141,7 +141,9 @@ Para enviar correos de verdad, configura SMTP en `backend/.env` (ver `backend/.e
 
 ## Diseño, animaciones e interacción
 
-El diseño público busca verse sobrio y profesional: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans** (Google Fonts). No hay vidrio esmerilado, manchas de color, texto con degradado ni efectos que sigan al cursor.
+Todo el sitio (páginas públicas, login, portal y panel) sigue el mismo criterio sobrio: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso, logros). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans**; se cargan con `<link>` y `preconnect` en el `<head>` de cada página. No hay vidrio esmerilado, manchas de color, texto con degradado, brillos ni efectos que sigan al cursor.
+
+Los colores de texto cumplen contraste **WCAG AA** (4,5:1) en los dos temas; se revisó en todas las páginas con un recorrido automático en el navegador.
 
 Las animaciones son cortas y con propósito: orientar al bajar por la página o confirmar una acción. Todas usan solo `transform` y `opacity`, y con «reducir movimiento» activado en el sistema no se muestra ninguna.
 

@@ -216,6 +216,8 @@ window.TC_EN = {
   "# min": "# min",
   "Una pregunta sobre algo cotidiano para entrar en el tema.": "A question about everyday life to get into the topic.",
   "Apertura": "Opening",
+  "Desde los {n} años": "From age {n}",
+  "La mayoría de cursos reciben estudiantes desde los {n} años; la edad exacta aparece en la ficha de cada curso. Si eres menor de edad, en la inscripción te pedimos los datos de tu acudiente.": "Most courses accept students from age {n}; the exact age is listed on each course page. If you're under 18, we'll ask for your guardian's details when you sign up.",
   "Explicación": "Explanation",
   "El concepto en palabras sencillas y con un caso concreto.": "The concept in plain words, with a concrete example.",
   "Demostración": "Demonstration",

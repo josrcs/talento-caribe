@@ -71,8 +71,22 @@
       </div>`;
   }
 
+  /* ---------- Edad mínima: sale del catálogo (cada curso la define en el panel) ---------- */
+  function pintarEdades() {
+    const edades = cursos().map((c) => Number(c.edadMinima ?? 14)).filter((n) => n > 0);
+    if (!edades.length) return;
+    const minima = Math.min(...edades);
+    const frecuencia = edades.reduce((m, n) => m.set(n, (m.get(n) || 0) + 1), new Map());
+    const habitual = [...frecuencia].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0][0];
+    const hero = document.querySelector("[data-edad-minima]");
+    if (hero) hero.textContent = t("Desde los {n} años", { n: minima });
+    const faq = document.querySelector("[data-edad-faq]");
+    if (faq) faq.textContent = t("La mayoría de cursos reciben estudiantes desde los {n} años; la edad exacta aparece en la ficha de cada curso. Si eres menor de edad, en la inscripción te pedimos los datos de tu acudiente.", { n: habitual });
+  }
+
   (window.TCListo || Promise.resolve()).then(() => {
     pintarRutas();
+    pintarEdades();
     if (form && salida) {
       form.addEventListener("change", recomendar);
       form.addEventListener("submit", (e) => e.preventDefault());

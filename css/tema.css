@@ -15,8 +15,8 @@
   --superficie-2: #16223a;
   --linea: #23324b;
   --linea-fuerte: #31435f;
-  --accion: #2d7bd6;                   /* botón principal */
-  --accion-hover: #2569b9;
+  --accion: #2a72cc;                   /* botón principal: texto blanco 4.8:1 */
+  --accion-hover: #2462ad;
   --acento: #f2a61f;                   /* sol: subrayados, números de paso */
   --palma: #2bb58f;
   --texto-fuerte: #eef2f8;
@@ -43,7 +43,7 @@
   --linea-fuerte: #cdc7b8;
   --accion: #1260b8;
   --accion-hover: #0e4f99;
-  --acento: #c97a00;
+  --acento: #9c5c00;                   /* 4.5:1 o más sobre papel, blanco y gris */
   --palma: #0d8a6c;
   --texto-fuerte: #0e2240;             /* azul marino del logo */
   --celeste: #0b5aa6;                  /* contraste AA (4.5:1) sobre blanco y sobre el papel */
@@ -70,7 +70,7 @@
   --color-slate-700: #d6d1c4;
   --color-red-400: #b42318;
   --color-green-400: #056a4c;
-  --color-yellow-400: #a15c07;
+  --color-yellow-400: #98560a;
   --borde: #e1ddd2;
   --shadow-lg: 0 12px 32px rgba(14, 34, 64, .1);
   --shadow-primary: none;
@@ -114,16 +114,16 @@
 [data-tema="claro"] .intro-horizonte { background: linear-gradient(90deg, transparent 4%, rgba(18, 104, 200, .45) 30%, rgba(248, 172, 36, .9) 50%, rgba(18, 104, 200, .45) 70%, transparent 96%); box-shadow: 0 0 18px 1px rgba(248, 172, 36, .35); }
 
 /* Plataforma */
-[data-tema="claro"] .ruta-punto { background: radial-gradient(closest-side, #fff 78%, transparent 80% 100%), conic-gradient(#1ab0d6 calc(var(--pct) * 1%), rgba(10, 45, 94, .1) 0); box-shadow: 0 6px 18px rgba(18, 104, 200, .18); }
+
 [data-tema="claro"] .ruta-parada.is-completa .ruta-punto { background: radial-gradient(closest-side, #0f9a80 78%, transparent 80% 100%), conic-gradient(#0f9a80 100%, transparent 0); color: #fff; }
-[data-tema="claro"] .app-link.activo { background: rgba(18, 96, 184, .08); box-shadow: inset 2px 0 0 #1260b8; }
+[data-tema="claro"] .app-link.activo { background: rgba(18, 96, 184, .08); }
 [data-tema="claro"] .app .app-nav { background: #fff; }
-[data-tema="claro"] .app-nav-tip { background: rgba(248, 172, 36, .1); border-color: rgba(217, 138, 6, .25); color: #b26a00; }
-[data-tema="claro"] .acceso-aviso [data-icono] { color: #b26a00; }
-[data-tema="claro"] .sabias h3 { color: #b26a00; }
+[data-tema="claro"] .app-nav-tip { color: var(--acento); }
+[data-tema="claro"] .acceso-aviso [data-icono] { color: var(--acento); }
+[data-tema="claro"] .sabias h3 { color: var(--acento); }
 [data-tema="claro"] .plantillas { background: rgba(248, 172, 36, .08); border-color: rgba(217, 138, 6, .35); }
-[data-tema="claro"] .logro.is-ganado .logro-icono { color: #4a2c00; }
-[data-tema="claro"] .ia-burbuja { background: #fff; border-color: #e1ddd2; box-shadow: none; }
+[data-tema="claro"] .logro.is-ganado .logro-icono { background: #f2a61f; color: #2a1a00; }
+[data-tema="claro"] .ia-burbuja { background: #f6f5f1; border-color: #e1ddd2; box-shadow: none; }
 [data-tema="claro"] .ia-msg-yo .ia-burbuja { background: #1260b8; }
 [data-tema="claro"] .ia-burbuja code { background: rgba(18, 104, 200, .08); }
 [data-tema="claro"] .ia-form { background: #fff; }

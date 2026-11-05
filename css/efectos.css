@@ -155,7 +155,7 @@ html.intro-cubre::after { content: ""; position: fixed; inset: 0; z-index: 10000
 @keyframes esqueleto { from { opacity: .45; } to { opacity: 1; } }
 
 /* ---------- 5. Logos, chat y transiciones ---------- */
-.brand img { width: auto; height: 2.1rem; }
+.brand img { flex: 0 0 auto; width: auto; height: 2.1rem; }
 .footer-logo { display: inline-block; margin-bottom: .9rem; }
 .footer-logo img { width: 8.5rem; height: auto; }
 
