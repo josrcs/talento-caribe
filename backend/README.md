@@ -65,15 +65,21 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 | `npm run cuenta -- clave <correo>` | Pone una contraseña nueva y segura a esa cuenta (la muestra una sola vez) y cierra sus sesiones. Con `clave <correo> "MiClave2026"` usa la que escribas |
 | `npm run cuenta -- desactivar <correo>` | La cuenta ya no puede ingresar (`activar` la habilita de nuevo) |
 
-## Asistente con IA (Claude)
+## Asistente con IA (Google Gemini, gratis)
 
-Agrega tu clave en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
+1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google (es gratis y **no pide tarjeta**).
+2. Pulsa **Create API key** (Crear clave de API) y cópiala. Empieza por `AIza`.
+3. Pégala en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
 
 ```
-ANTHROPIC_API_KEY=sk-ant-...
+GEMINI_API_KEY=AIza...
 ```
 
-Al encender verás `Asistente IA: ✅ conectado a Claude`. Sin la clave el chat responde con reglas locales. Opcional: `IA_MODELO=` para usar otro modelo (por defecto `claude-haiku-5-5`, rápido y económico).
+Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.8-flash)`. Sin la clave el chat responde con reglas locales.
+
+- **Cuota gratuita:** Google limita cuántos mensajes se pueden enviar por minuto y por día (los números exactos aparecen en AI Studio y cambian con el tiempo). Si el modelo principal agota su cuota, el servidor prueba con el de respaldo (`gemini-3.5-flash-lite`); si también se agota, el chat sigue contestando con las respuestas locales y avisa que se alcanzó el límite gratuito. `IA_LIMITE_DIARIO` (200 por defecto) reparte la cuota para que no se gaste en pocas horas.
+- **Otros modelos:** `IA_MODELO=` y `IA_MODELO_RESPALDO=` en `.env`. Los nombres cambian con el tiempo: revisa https://ai.google.dev/gemini-api/docs/models. Si un modelo deja de existir, el servidor usa el de respaldo y lo avisa en la terminal.
+- **Privacidad:** en el plan gratuito Google puede usar las conversaciones para mejorar sus productos. El asistente ya pide no compartir contraseñas ni documentos; no lo uses con datos personales reales.
 
 ## Correos (opcional)
 
@@ -152,7 +158,9 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 | `JWT_SECRETO falta o es débil` (el servidor no arranca) | En producción se exige un secreto de 32 caracteres o más que no sea el del ejemplo. Genera uno con el comando que muestra el mensaje. |
 | `no existe la columna «sesiones_desde»` | Ejecuta `npm run db:actualizar` (no borra datos). |
 | `no existe la columna «modulos»` | Ejecuta `npm run db:actualizar` (no borra datos). |
-| El chat dice «la IA todavía no está configurada» | Falta `ANTHROPIC_API_KEY` en `.env`, o reinicia el servidor después de agregarla. |
+| El chat dice «la IA todavía no está configurada» | Falta `GEMINI_API_KEY` en `.env`, o reinicia el servidor después de agregarla. Si la terminal dice «la GEMINI_API_KEY no es válida», cópiala de nuevo desde AI Studio. |
+| El chat dice «alcanzó su límite gratuito» | Se acabó la cuota gratis de Gemini por ahora (por minuto o por día). Vuelve a funcionar sola; mientras tanto el chat usa las respuestas locales. |
+| La terminal dice que un modelo «respondió 404» | Google retiró o renombró ese modelo. Pon uno vigente en `IA_MODELO` (lista en https://ai.google.dev/gemini-api/docs/models). |
 | `EADDRINUSE :::3000` | Ya hay un servidor encendido en otra terminal. Ciérralo o cambia `PORT` en `.env`. |
 | `'npm' no se reconoce` | Reinstala Node.js y abre una terminal nueva. |
 | PowerShell: `la ejecución de scripts está deshabilitada` | Usa la terminal **Command Prompt** (cmd) en VS Code, o ejecuta una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |

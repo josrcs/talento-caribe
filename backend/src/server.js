@@ -6,7 +6,7 @@
 
    Rutas de la API (detalle en backend/README.md):
      públicas      GET /api/salud · GET /api/cursos · POST /api/contacto
-     asistente IA  POST /api/chat  (Claude; necesita ANTHROPIC_API_KEY en .env)
+     asistente IA  POST /api/chat  (Google Gemini, plan gratuito; necesita GEMINI_API_KEY en .env)
      cuenta        POST /api/auth/registro · POST /api/auth/login · GET /api/auth/yo · PUT /api/auth/perfil
                    POST /api/auth/recuperar · POST /api/auth/restablecer  (contraseña olvidada)
      datos         GET /api/datos  (lo que el usuario actual puede ver)
@@ -83,7 +83,8 @@ app.use((error, req, res, next) => {
 const servidor = app.listen(PORT, async () => {
   console.log(`\n🌴 Talento Caribe en http://localhost:${PORT}`);
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
-  console.log(`   Asistente IA: ${require("./rutas/chat").iaConfigurada() ? "✅ conectado a Claude" : "⚠️  sin ANTHROPIC_API_KEY (responde con reglas locales)"}`);
+  const chat = require("./rutas/chat");
+  console.log(`   Asistente IA: ${chat.iaConfigurada() ? `✅ Google Gemini (${chat.modelo})` : "⚠️  sin GEMINI_API_KEY (responde con reglas locales)"}`);
   console.log(`   Correo: ${require("./correo").configurado() ? "✅ SMTP configurado" : "⚠️  sin SMTP (los correos se muestran en esta terminal)"}`);
   try {
     await pool.query("SELECT 1 FROM usuarios LIMIT 1");

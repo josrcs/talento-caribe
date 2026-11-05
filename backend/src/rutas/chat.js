@@ -1,34 +1,39 @@
 /* ==========================================================
-   POST /api/chat - Asistente de Talento Caribe con IA real (Claude, de Anthropic)
+   POST /api/chat - Asistente de Talento Caribe con IA real (Google Gemini, plan gratuito)
    - La IA conoce la marca, el catálogo y las fichas porque el servidor
-     los lee de PostgreSQL y los pone en las instrucciones (system prompt).
+     los lee de PostgreSQL y los pone en las instrucciones (systemInstruction).
    - El tono y el contexto extra los define el gerente en el panel
      (tabla config_ia, PUT /api/config-ia).
-   - Sin ANTHROPIC_API_KEY en .env responde 503 y el navegador usa las
-     respuestas locales (js/asistente-ia.js), así la página nunca se rompe.
+   - Sin GEMINI_API_KEY en .env, o si se acaba la cuota gratis del día, responde
+     503 { sinIA: true } y el navegador usa las respuestas locales
+     (js/asistente-ia.js): la página nunca se rompe.
+   - Se usa la API REST de Gemini con fetch (incluido en Node 18+): no hace
+     falta instalar ninguna librería.
+   Ojo: en el plan gratuito Google puede usar las conversaciones para mejorar
+   sus productos. Por eso el asistente pide no compartir datos personales.
    ========================================================== */
 const router = require("express").Router();
-const { Anthropic } = require("@anthropic-ai/sdk");
 const pool = require("../db");
 const { sesionOpcional, limitePorIP } = require("../seguridad");
 const { SQL_CURSOS, SQL_FICHAS } = require("../consultas");
 const { texto, rechazar } = require("../validar");
 
-// Claude Haiku 5.5: rápido y económico, ideal para un chat de preguntas cortas sobre el catálogo.
-// Piensa solo lo necesario (output_config.effort: "low") y no acepta temperature ni respuestas prellenadas.
-const MODELO = process.env.IA_MODELO || "claude-haiku-5-5";
-// Si la IA declina una pregunta por seguridad, la API la reintenta sola con otro modelo
-// ("fallbacks"). Solo estos modelos lo aceptan; con Haiku 5.5 una pregunta declinada recibe el mensaje amable de abajo.
-const CON_RESPALDO = ["claude-opus-5-5", "claude-opus-5", "claude-fable-5-1", "claude-sonnet-5-5"].includes(MODELO);
-const iaConfigurada = () => Boolean(process.env.ANTHROPIC_API_KEY);
-let cliente = null;
-const ia = () => (cliente ??= new Anthropic()); // lee ANTHROPIC_API_KEY del .env
+/* ---------- Modelos ----------
+   IA_MODELO: el principal (Flash: buena calidad y rápido).
+   IA_MODELO_RESPALDO: si el principal no existe o agotó su cuota gratis, se intenta
+   una vez con este (Flash-Lite: más liviano y con más cuota en el plan gratuito).
+   Los nombres cambian con el tiempo: consulta https://ai.google.dev/gemini-api/docs/models */
+const MODELO = process.env.IA_MODELO || "gemini-3.8-flash";
+const RESPALDO = process.env.IA_MODELO_RESPALDO ?? "gemini-3.5-flash-lite";
+const URL_BASE = (process.env.GEMINI_URL_BASE || "https://generativelanguage.googleapis.com/v1beta").replace(/\/$/, "");
+const iaConfigurada = () => Boolean(process.env.GEMINI_API_KEY);
+const ESPERA_MAXIMA = 30000; // ms: si Gemini no contesta en 30 s, el navegador pasa a las respuestas locales
 
-/* ---------- Límite de uso: cada mensaje cuesta dinero, así que se frena el abuso ---------- */
+/* ---------- Límite de uso: protege la cuota gratuita ---------- */
 const limitar = limitePorIP(20, 10, "Enviaste muchos mensajes seguidos. Espera unos minutos y vuelve a intentarlo.");
-// Tope diario para TODA la plataforma (IA_LIMITE_DIARIO en .env, 500 por defecto): aunque alguien use
-// muchas IPs, la factura de la IA no puede pasar de ese número de mensajes al día.
-const LIMITE_DIARIO = Number(process.env.IA_LIMITE_DIARIO) || 500;
+// Tope diario para TODA la plataforma (IA_LIMITE_DIARIO en .env, 200 por defecto). El plan gratuito de
+// Gemini tiene su propio límite diario por proyecto; este tope evita gastarlo en pocas horas.
+const LIMITE_DIARIO = Number(process.env.IA_LIMITE_DIARIO) || 200;
 const usoDiario = { dia: "", cuenta: 0 };
 function dentroDelTopeDiario() {
   const hoy = new Date().toISOString().slice(0, 10);
@@ -38,7 +43,7 @@ function dentroDelTopeDiario() {
 
 /* ---------- Instrucciones del asistente ----------
    Se arman con datos de la base en orden fijo (ORDER BY): mientras el catálogo no cambie,
-   el texto es idéntico en cada mensaje y la API lo reutiliza de su caché (más rápido y barato). */
+   el texto es idéntico en cada mensaje (Gemini puede reutilizarlo de su caché implícita). */
 async function instrucciones() {
   const [cursos, fichas, config] = await Promise.all([
     pool.query(SQL_CURSOS + " ORDER BY id").then((r) => r.rows),
@@ -95,6 +100,58 @@ ${catalogo}
 SUGERENCIAS: pregunta 1 | pregunta 2 | pregunta 3`;
 }
 
+/* ---------- Llamada a Gemini ----------
+   Devuelve { texto, bloqueada }. Lanza un ErrorGemini con el estado HTTP si la API falla. */
+class ErrorGemini extends Error {
+  constructor(estado, mensaje) { super(mensaje); this.estado = estado; }
+}
+async function preguntarAGemini(modelo, sistema, contenidos, { pensar = true } = {}) {
+  const cuerpo = {
+    systemInstruction: { parts: [{ text: sistema }] },
+    contents: contenidos,
+    generationConfig: {
+      temperature: 0.7,
+      maxOutputTokens: 2048,
+      // Los modelos Gemini 3 "piensan" antes de responder; en un chat basta con poco (más rápido y gasta menos cuota)
+      ...(pensar && modelo.startsWith("gemini-3") ? { thinkingConfig: { thinkingLevel: "low" } } : {}),
+    },
+  };
+  let res;
+  try {
+    res = await fetch(`${URL_BASE}/models/${encodeURIComponent(modelo)}:generateContent`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "x-goog-api-key": process.env.GEMINI_API_KEY },
+      body: JSON.stringify(cuerpo),
+      signal: AbortSignal.timeout(ESPERA_MAXIMA),
+    });
+  } catch (error) {
+    throw new ErrorGemini(0, error.name === "TimeoutError" ? "Gemini tardó demasiado en responder" : `Sin conexión con Gemini: ${error.message}`);
+  }
+  const datos = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    const mensaje = datos.error?.message || `HTTP ${res.status}`;
+    // Algunos modelos no aceptan thinkingConfig: se reintenta una vez sin esa opción
+    if (res.status === 400 && pensar && /thinking/i.test(mensaje)) return preguntarAGemini(modelo, sistema, contenidos, { pensar: false });
+    throw new ErrorGemini(res.status, mensaje);
+  }
+  if (datos.promptFeedback?.blockReason) return { texto: "", bloqueada: true };
+  const candidato = datos.candidates?.[0];
+  const textoIA = (candidato?.content?.parts || []).filter((p) => p.text && !p.thought).map((p) => p.text).join("").trim();
+  const bloqueada = !textoIA && ["SAFETY", "PROHIBITED_CONTENT", "BLOCKLIST", "SPII", "RECITATION"].includes(candidato?.finishReason);
+  return { texto: textoIA, bloqueada };
+}
+
+/* Si el modelo principal no existe (404) o agotó su cuota gratis (429), se intenta con el de respaldo */
+async function responderConGemini(sistema, contenidos) {
+  try {
+    return await preguntarAGemini(MODELO, sistema, contenidos);
+  } catch (error) {
+    if (!RESPALDO || RESPALDO === MODELO || ![404, 429].includes(error.estado)) throw error;
+    console.warn(`⚠ IA: ${MODELO} respondió ${error.estado} (${error.message}); se intenta con ${RESPALDO}`);
+    return preguntarAGemini(RESPALDO, sistema, contenidos);
+  }
+}
+
 /* Separa la línea "SUGERENCIAS: a | b | c" del texto de la respuesta */
 function separarSugerencias(respuesta) {
   const m = respuesta.match(/\n?\s*SUGERENCIAS:\s*(.+)\s*$/i);
@@ -111,13 +168,14 @@ router.post("/chat", limitar, sesionOpcional, async (req, res, next) => {
     historial: historial.length <= 20 && historial.every((h) => h && ["user", "assistant"].includes(h.rol) && texto(h.texto, 1, 4000)),
     contexto: b.contexto === undefined || texto(b.contexto, 0, 2000),
   })) return;
-  if (!iaConfigurada()) return res.status(503).json({ error: "El asistente con IA no está configurado en el servidor (falta ANTHROPIC_API_KEY).", sinIA: true });
+  const en = b.idioma === "en";
   // sinIA: el navegador sigue contestando con las respuestas locales
-  if (!dentroDelTopeDiario()) return res.status(503).json({ error: "El asistente con IA llegó a su límite de hoy. Mañana vuelve a estar disponible.", sinIA: true });
+  if (!iaConfigurada()) return res.status(503).json({ error: "El asistente con IA no está configurado en el servidor (falta GEMINI_API_KEY).", sinIA: true });
+  if (!dentroDelTopeDiario()) return res.status(503).json({ error: "El asistente con IA llegó a su límite de hoy. Mañana vuelve a estar disponible.", sinIA: true, limite: true });
 
   // Conversación: últimos mensajes en orden; debe empezar con el usuario y terminar con la pregunta actual
   const mensajes = historial.slice(-10).map((h) => ({ role: h.rol, content: h.texto.trim() }));
-  // Máximo unos 12.000 caracteres de historial (se quitan los más viejos): cada carácter enviado a la IA cuesta
+  // Máximo unos 12.000 caracteres de historial (se quitan los más viejos): cuida la cuota de tokens
   while (mensajes.length > 1 && mensajes.reduce((total, m) => total + m.content.length, 0) > 12000) mensajes.shift();
   while (mensajes.length && mensajes[0].role !== "user") mensajes.shift();
   const ultimo = mensajes[mensajes.length - 1];
@@ -125,33 +183,42 @@ router.post("/chat", limitar, sesionOpcional, async (req, res, next) => {
   // El rol sale de la sesión verificada (JWT), no de lo que diga el navegador
   const rol = req.usuario?.rol || "visitante";
   const espacio = (b.contexto || "").replace(/^\s*Rol:[^.]*\.\s*(Nombre:[^.]*\.\s*)?/, "").trim(); // rol y nombre ya van verificados
-  const pagina = [`Idioma: ${b.idioma === "en" ? "en" : "es"}`, `Rol: ${rol}`, req.usuario?.nombre && `Nombre: ${req.usuario.nombre}`, espacio && `Datos de su espacio: ${espacio}`].filter(Boolean).join(". ");
+  const pagina = [`Idioma: ${en ? "en" : "es"}`, `Rol: ${rol}`, req.usuario?.nombre && `Nombre: ${req.usuario.nombre}`, espacio && `Datos de su espacio: ${espacio}`].filter(Boolean).join(". ");
   mensajes[mensajes.length - 1] = { role: "user", content: `[${pagina}]\n\n${mensajes[mensajes.length - 1].content}` };
+  // Gemini llama "model" a las respuestas del asistente y no acepta dos turnos seguidos del mismo rol
+  const contenidos = [];
+  for (const m of mensajes) {
+    const role = m.role === "assistant" ? "model" : "user";
+    const previo = contenidos[contenidos.length - 1];
+    if (previo?.role === role) previo.parts[0].text += `\n\n${m.content}`;
+    else contenidos.push({ role, parts: [{ text: m.content }] });
+  }
 
   try {
-    const system = await instrucciones();
-    const respuesta = await ia().beta.messages.create({
-      model: MODELO,
-      max_tokens: 16000,
-      output_config: { effort: "low" }, // chat: respuestas rápidas
-      system: [{ type: "text", text: system, cache_control: { type: "ephemeral" } }],
-      messages: mensajes,
-      ...(CON_RESPALDO ? { betas: ["server-side-fallback-2026-07-01"], fallbacks: "default" } : {}),
-    });
-    if (respuesta.stop_reason === "refusal") {
-      return res.json({ respuesta: b.idioma === "en" ? "I can't help with that one. Ask me about our courses, how to enroll or a tech concept 🌴" : "Con eso no te puedo ayudar. Pregúntame por los cursos, cómo inscribirte o un concepto de tecnología 🌴", sugerencias: [] });
+    const sistema = await instrucciones();
+    const { texto: textoIA, bloqueada } = await responderConGemini(sistema, contenidos);
+    if (bloqueada) {
+      return res.json({ respuesta: en ? "I can't help with that one. Ask me about our courses, how to enroll or a tech concept 🌴" : "Con eso no te puedo ayudar. Pregúntame por los cursos, cómo inscribirte o un concepto de tecnología 🌴", sugerencias: [] });
     }
-    const textoIA = respuesta.content.filter((bloque) => bloque.type === "text").map((bloque) => bloque.text).join("\n").trim();
-    if (!textoIA) throw new Error("La IA no devolvió texto");
+    if (!textoIA) throw new ErrorGemini(502, "Gemini no devolvió texto");
     res.json(separarSugerencias(textoIA));
   } catch (error) {
-    if (error instanceof Anthropic.AuthenticationError) { console.error("✖ IA: la ANTHROPIC_API_KEY no es válida"); return res.status(503).json({ error: "La clave del asistente con IA no es válida.", sinIA: true }); }
-    if (error instanceof Anthropic.RateLimitError) return res.status(429).json({ error: "El asistente está atendiendo muchas preguntas. Intenta de nuevo en un momento." });
-    if (error instanceof Anthropic.APIConnectionError) return res.status(503).json({ error: "No hay conexión con el servicio de IA." });
-    if (error instanceof Anthropic.APIError) { console.error(`✖ IA ${error.status}:`, error.message); return res.status(502).json({ error: "El servicio de IA no respondió bien." }); }
-    next(error);
+    if (!(error instanceof ErrorGemini)) return next(error);
+    const { estado } = error;
+    if ((estado === 400 && /api key/i.test(error.message)) || estado === 401 || estado === 403) {
+      console.error("✖ IA: la GEMINI_API_KEY no es válida o no tiene permiso:", error.message);
+      return res.status(503).json({ error: "La clave del asistente con IA no es válida.", sinIA: true });
+    }
+    if (estado === 429) {
+      // Cuota gratuita agotada (por minuto o por día): el navegador contesta con las respuestas locales
+      console.warn("⚠ IA: cuota de Gemini agotada:", error.message);
+      return res.status(503).json({ error: "El asistente con IA alcanzó su límite gratuito por ahora.", sinIA: true, limite: true });
+    }
+    console.error(`✖ IA ${estado || "sin conexión"}:`, error.message);
+    res.status(estado === 0 ? 503 : 502).json({ error: estado === 0 ? "No hay conexión con el servicio de IA." : "El servicio de IA no respondió bien." });
   }
 });
 
 module.exports = router;
 module.exports.iaConfigurada = iaConfigurada;
+module.exports.modelo = MODELO;
