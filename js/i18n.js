@@ -138,7 +138,9 @@
     const meta = document.querySelector('meta[name="description"]'); if (meta && idioma === "en") meta.content = traducir(meta.content);
     procesar(document.body);
     raiz.classList.remove("i18n-pendiente");
-    montarControles();
+    // En las páginas hechas con React (<html data-react>) el encabezado aún no existe aquí:
+    // el componente Encabezado llama a TCi18n.montarControles() cuando ya está en pantalla
+    if (!raiz.hasAttribute("data-react")) montarControles();
   });
 
   /* ---------- Controles: cambiar tema e idioma ---------- */
@@ -170,7 +172,7 @@
     }).catch(() => {}); // si se cambia de tema dos veces seguidas, la primera transición se omite
     transicion.finished.finally(() => raiz.classList.remove("vt-tema"));
   }
-  function montarControles() {
+  function montarControles(destino) {
     if (document.querySelector(".prefs")) return;
     const caja = document.createElement("div");
     caja.className = "prefs";
@@ -179,12 +181,13 @@
     caja.querySelector("[data-pref=tema]").addEventListener("click", cambiarTema);
     caja.querySelector("[data-pref=idioma]").addEventListener("click", () => { guardar("tc_idioma", idioma === "en" ? "es" : "en"); location.reload(); });
     const nav = document.querySelector(".nav-links"), app = document.querySelector(".app-header-acciones");
-    if (app) app.prepend(caja);
+    if (destino) destino.append(caja); // React reserva su propio lugar (no se mezcla con los nodos que React controla)
+    else if (app) app.prepend(caja);
     else if (nav) { const li = document.createElement("li"); li.className = "prefs-li"; li.append(caja); nav.insertBefore(li, nav.lastElementChild); }
     else { caja.classList.add("prefs-flotante"); document.body.append(caja); }
   }
 
-  window.TCi18n = { idioma, locale, t, traducir, tema: () => raiz.dataset.tema, fecha: (d, op) => new Date(d).toLocaleDateString(locale, op) };
+  window.TCi18n = { idioma, locale, t, traducir, montarControles, tema: () => raiz.dataset.tema, fecha: (d, op) => new Date(d).toLocaleDateString(locale, op) };
   /* Interfaz que usan asistente-ia.js, portal.js y panel.js */
   window.TCIdioma = { actual: idioma, locale, t: traducir, plantilla: t };
 })();

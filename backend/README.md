@@ -36,7 +36,17 @@ Crea la base de datos, las tablas y los 12 cursos (no necesitas `psql`):
 npm run db:init
 ```
 
-Enciende el servidor:
+El sitio público está hecho con React, así que antes hay que **construir la página**. En otra terminal, en la carpeta principal del proyecto (no en `backend`):
+
+```bash
+npm install
+```
+
+```bash
+npm run build
+```
+
+Repite `npm run build` cada vez que cambies algo del frontend y quieras verlo aquí. Luego, en `backend`, enciende el servidor:
 
 ```bash
 npm start
@@ -47,8 +57,11 @@ Verás:
 ```
 🌴 Talento Caribe en http://localhost:3000
    API:    http://localhost:3000/api/salud
+   Página: ✅ versión construida (dist/)
    Base de datos: ✅ conectada
 ```
+
+Si dice `Página: ⚠️ falta construirla`, ejecuta `npm run build` en la carpeta principal y reinicia el servidor.
 
 Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl + C`.
 
@@ -162,6 +175,8 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 
 | Mensaje | Solución |
 |---|---|
+| La página dice «Falta construir la página» | Ejecuta `npm install` y `npm run build` en la carpeta principal (no en `backend`) y reinicia el servidor. |
+| Cambié algo en `src/` y no se ve en el puerto 3000 | El servidor muestra la versión construida: vuelve a ejecutar `npm run build`. Para ver los cambios al instante usa `npm run dev` (puerto 5173). |
 | `La contraseña del usuario postgres no es correcta` | Revisa `DATABASE_URL` en `backend/.env`. Si la clave tiene `@`, `#` o `/`, escríbela codificada (`@` → `%40`, `#` → `%23`, `/` → `%2F`). |
 | `PostgreSQL no está encendido` | Windows → busca **Servicios** → `postgresql-x64-16` (o tu versión) → *Iniciar*. |
 | `faltan las tablas` | Ejecuta `npm run db:init`. |

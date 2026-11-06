@@ -121,6 +121,11 @@ address { font-style: normal; line-height: 1.9; color: var(--color-slate-300); }
 .nav-links a:not(.btn):hover, .nav-links a[aria-current="page"], .nav-links a.en-vista { color: var(--texto-fuerte); }
 .nav-links a:not(.btn)::after { content: ""; position: absolute; left: 0; right: 0; bottom: .15rem; height: 2px; background: var(--acento); transform: scaleX(0); transform-origin: left; transition: transform var(--transition); }
 .nav-links a[aria-current="page"]::after, .nav-links a.en-vista::after { transform: scaleX(1); }
+/* Botones al final del menú (Ingresar, Inscríbete): juntos y a la derecha */
+.nav-acciones { display: flex; flex-wrap: wrap; gap: .6rem; padding-top: .6rem; }
+.noscript { padding: 2rem 1rem; text-align: center; }
+/* Grupo de campos sin marco (se usa para desactivar varios campos juntos) */
+.campos-sin-borde { display: grid; gap: 1rem; min-width: 0; margin: 0; padding: 0; border: 0; }
 .nav-links .btn { min-height: 2.4rem; padding: .5rem 1rem; font-size: .88rem; color: var(--texto-fuerte); }
 .nav-links .btn-primary { color: #fff; }
 
@@ -253,7 +258,8 @@ textarea { resize: vertical; }
 }
 @media (min-width: 860px) {
   .nav-toggle { display: none; }
-  .nav-links { display: flex; position: static; flex-direction: row; align-items: center; gap: 1.6rem; padding: 0; background: none; border: 0; }
+  .nav-links { display: flex; position: static; flex-direction: row; align-items: center; gap: 1.5rem; padding: 0; background: none; border: 0; }
+  .nav-acciones { padding-top: 0; }
   .nosotros-grid { grid-template-columns: 1.3fr 1fr; gap: 3.5rem; }
   .pilares { grid-template-columns: 1fr; }
   .pasos { grid-template-columns: repeat(4, 1fr); }

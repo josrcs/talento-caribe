@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="es" data-react>
 <head>
   <meta charset="UTF-8">
   <!-- Seguridad: el navegador solo ejecuta scripts de este sitio (en GitHub Pages no hay cabeceras propias; el servidor envía la suya). -->
@@ -11,38 +11,28 @@
        Si el repositorio cambia de nombre, cambia /talento-caribe/ aquí. El servidor de Node la reemplaza por "/". -->
   <base href="/talento-caribe/">
   <!-- Tema e idioma: se aplican antes de pintar (sin parpadeo) -->
-  <script src="js/i18n-en.js"></script>
-  <script src="js/i18n.js"></script>
+  <script vite-ignore src="js/i18n-en.js"></script>
+  <script vite-ignore src="js/i18n.js"></script>
   <title>Página no encontrada | Talento Caribe</title>
   <meta name="description" content="La página que buscas no existe o cambió de dirección.">
-  <link rel="icon" href="assets/img/favicon.png">
+  <link rel="icon" vite-ignore href="assets/img/favicon.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&amp;family=Source+Serif+4:opsz,wght@8..60,600&amp;display=swap">
-  <link rel="stylesheet" href="css/tema.css">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="stylesheet" href="css/efectos.css">
-  <link rel="stylesheet" href="css/plataforma.css">
+  <link rel="stylesheet" vite-ignore href="css/tema.css">
+  <link rel="stylesheet" vite-ignore href="css/style.css">
+  <link rel="stylesheet" vite-ignore href="css/admin.css">
+  <link rel="stylesheet" vite-ignore href="css/efectos.css">
+  <link rel="stylesheet" vite-ignore href="css/plataforma.css">
 </head>
 <body class="page-login">
-  <main class="login login-shell">
-    <section class="login-story" aria-label="Talento Caribe">
-      <a href="index.html" class="login-logo"><img src="assets/img/logo-talento-caribe-claro-sm.png" alt="Talento Caribe — inicio" width="208" height="177"></a>
-      <div class="login-story-copy"><span class="eyebrow">Error 404</span><h1>Esta ruta no está en el mapa.</h1><p>Pero el talento no tiene fronteras: desde aquí puedes volver a cualquier parte de la plataforma.</p></div>
-      <p class="acceso-pie">Plataforma educativa gratuita · Barranquilla, Colombia</p>
-    </section>
+  <a class="skip-link" href="#contenido">Saltar al contenido</a>
+  <!-- La página la arma React (src/paginas/no-encontrada/). Si JavaScript está apagado, se ve este aviso. -->
+  <div id="raiz"><noscript><p class="noscript">Activa JavaScript para usar Talento Caribe.</p></noscript></div>
+  <div id="toasts" class="toasts" aria-live="polite"></div>
 
-    <section class="login-card" aria-labelledby="no-encontrada-titulo">
-      <div class="login-card-heading"><img class="login-card-logo" src="assets/img/logo-emblema.png" alt="" width="64" height="48"><span class="eyebrow">Página no encontrada</span><h2 id="no-encontrada-titulo">No encontramos esta página</h2><p>Puede que el enlace esté incompleto o que la página haya cambiado de dirección.</p></div>
-      <div class="no-encontrada-acciones">
-        <a class="btn btn-primary" href="index.html">Ir al inicio</a>
-        <a class="btn btn-outline" href="cursos.html">Ver los cursos</a>
-        <a class="btn btn-outline" href="admin/login.html">Ingresar a mi cuenta</a>
-      </div>
-      <p class="login-volver"><a href="index.html#contacto">¿Llegaste aquí desde un enlace nuestro? Avísanos</a></p>
-    </section>
-  </main>
-  <script src="js/efectos.js" defer></script>
+  <!-- Scripts compartidos con el portal y el panel (el puente de React está en src/lib/plataforma.js) -->
+  <script vite-ignore src="js/efectos.js" defer></script>
+  <script type="module" src="/src/paginas/no-encontrada.jsx"></script>
 </body>
 </html>
