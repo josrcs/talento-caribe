@@ -4,3 +4,6 @@ node_modules/
 Thumbs.db
 npm-debug.log*
 *.log
+
+# Versión construida del frontend (npm run build): se genera, no se sube
+dist/

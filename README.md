@@ -3,48 +3,65 @@
 Plataforma educativa gratuita e híbrida de software y hardware para jóvenes de Barranquilla, el Caribe y Latinoamérica.
 *Tu talento no tiene fronteras.*
 
+## Tecnologías
+
+| Parte | Hecha con |
+|---|---|
+| Sitio público: inicio, catálogo de cursos, registro, recuperar contraseña y 404 (**5 de 8 páginas**) | **React 19** + **Vite** (`src/`) |
+| Portal del estudiante y del docente, login y panel administrativo | HTML, CSS y JavaScript sin framework (`js/`, `portal.html`, `admin/`) |
+| API | Node.js + Express (`backend/`) |
+| Base de datos | PostgreSQL |
+| Asistente con IA | Google Gemini (plan gratuito) |
+
+Las dos partes del frontend comparten los mismos estilos (`css/`) y los mismos scripts de datos, sesión e idioma (`js/config.js`, `js/datos.js`, `js/auth.js`, `js/i18n.js`…). React los usa a través de un único puente: `src/lib/plataforma.js`.
+
 ## Estructura
 
 ```
 talento-caribe/
-├── index.html            Inicio: marca, nosotros, cursos destacados, mentores, asistente IA y contacto
-├── cursos.html           Catálogo, detalle e inscripción de estudiantes registrados
-├── registro.html         Registro de cuenta y perfil por país
-├── admin/
-│   ├── login.html        Acceso unificado: estudiantes, docentes y administrativos
-│   └── panel.html        Panel por cargo, áreas y encuestas departamentales
-├── portal.html           Espacios de estudiante, docente y administrativo (vista previa)
-├── recuperar.html        Recuperar la contraseña con un enlace por correo
-├── 404.html              Página no encontrada (la usan GitHub Pages y el servidor)
-├── css/                  style.css (público) y admin.css (panel)
-├── js/                   Lógica del frontend (incluye asistente global y permisos por cargo de demostración)
-├── assets/img/           Logo, ilustraciones y favicon
-├── database/
-│   ├── schema.sql        Tablas de PostgreSQL
-│   └── seed.sql          Datos iniciales (12 cursos y configuración del asistente)
-└── README.md
+├── src/                     Sitio público en React
+│   ├── paginas/             Un punto de entrada por página (inicio.jsx, cursos.jsx, registro.jsx…)
+│   │   ├── inicio/          Portada, Orientador, Secciones, Asistente, Contacto y contenido.js (textos y datos)
+│   │   ├── cursos/          Catalogo, ModalCurso, ModalInscripcion y requisitos.js (documentos por país)
+│   │   ├── registro/        Registro (crear cuenta o completar el perfil)
+│   │   ├── recuperar/       Recuperar (pedir el enlace y crear la contraseña nueva)
+│   │   └── no-encontrada/   Página 404
+│   ├── componentes/         Encabezado, Pie y PanelMarca (compartidos entre páginas)
+│   └── lib/                 plataforma.js (puente con js/), ganchos.js (hooks) y montar.jsx
+├── index.html  cursos.html  registro.html  recuperar.html  404.html
+│                            Páginas React: solo traen la cabecera y <div id="raiz">
+├── portal.html              Espacios de estudiante y docente (sin framework)
+├── admin/                   login.html y panel.html (sin framework)
+├── css/                     Estilos de todo el sitio
+├── js/                      Scripts compartidos y lógica del portal y el panel
+├── assets/img/              Logo, ilustraciones y favicon
+├── backend/                 API (Node.js + Express) — ver backend/README.md
+├── database/                schema.sql y seed.sql (PostgreSQL)
+├── vite.config.js           Construcción del frontend
+├── .github/workflows/       Publicación automática en GitHub Pages
+└── package.json             React, Vite y los comandos del frontend
 ```
 
-## Dos formas de abrir el proyecto
+## Correr el proyecto en tu computador
 
-| Cómo lo abres | Modo | Dónde se guardan los datos |
-|---|---|---|
-| `npm start` en `backend/` → **http://localhost:3000** | **Real** | PostgreSQL: cuentas (clave con bcrypt), inscripciones, actividades, entregas, notas, mensajes, gastos y cursos |
-| Live Server (clic derecho en `index.html` → Open with Live Server) | Demostración | El navegador (`localStorage`), sin servidor |
-| GitHub Pages | Demostración, o **Real** si `API_PUBLICADA` en `js/config.js` apunta al backend publicado | Igual que arriba |
+**Una sola vez**, en la carpeta principal (`talento-caribe/`):
 
-`js/config.js` elige el modo solo: si la página la sirve el puerto 3000, usa la API; en GitHub Pages usa `API_PUBLICADA` cuando está llena.
-
-## Correr el servidor (página + API + PostgreSQL)
-
-Sigue la guía de [`backend/README.md`](backend/README.md). En resumen, dentro de `backend/`:
-
-```
+```bash
 npm install
-copy .env.ejemplo .env      (y pon tu contraseña de postgres)
-npm run db:init
-npm start                   → http://localhost:3000
 ```
+
+Y dentro de `backend/` (ver [`backend/README.md`](backend/README.md)): `npm install`, copiar `.env.ejemplo` como `.env` y `npm run db:init`.
+
+Luego elige cómo trabajar:
+
+| Para qué | Comandos | Abre | Datos |
+|---|---|---|---|
+| **Diseñar o programar el frontend** (se recarga solo al guardar) | `npm run dev` en la carpeta principal | http://localhost:5173 | Modo demostración (`localStorage`) |
+| **Probar todo de verdad** (página + API + PostgreSQL) | `npm run build` en la carpeta principal, luego `npm start` en `backend/` | http://localhost:3000 | PostgreSQL |
+
+Cada vez que cambies algo en `src/`, `css/` o `js/` y quieras verlo en el puerto 3000, vuelve a ejecutar `npm run build` (el servidor sirve la carpeta `dist/` que genera ese comando). Con `npm run dev` no hace falta: los cambios se ven al instante.
+
+`js/config.js` elige el modo solo: si la página la sirve el puerto 3000 usa la API; en GitHub Pages usa `API_PUBLICADA` cuando está llena; en los demás casos (`npm run dev`) usa el modo demostración.
 
 ## Crear la base de datos manualmente (opcional, con psql)
 
@@ -153,7 +170,7 @@ Las animaciones son cortas y con propósito: orientar al bajar por la página o 
 
 | Dónde | Qué pasa |
 |---|---|
-| Inicio (`index.html`, `css/inicio.css`, `js/inicio.js`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`, funcionan sin JavaScript), asistente y contacto. |
+| Inicio (`src/paginas/inicio/`, `css/inicio.css`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`, funcionan sin JavaScript), asistente y contacto. |
 | Todas las páginas | Revelado suave al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), cifras que cuentan desde cero, barra superior que se esconde al bajar y vuelve al subir, línea de lectura, fundido corto entre páginas y tarjetas esqueleto mientras cargan los cursos. |
 | Entrada (`js/intro.js`, solo portal y panel) | Amanecer en el Caribe con el emblema que vuela hasta el logo de la barra. Una vez por sesión. |
 | Plataforma | Cada sección del portal y del panel entra en cascada, los indicadores cuentan, las barras crecen y los anillos de avance se llenan. |
@@ -172,7 +189,7 @@ Con el servidor, la plataforma se protege así (detalle en [backend/README.md](b
 - **Archivos privados**: el servidor solo publica las páginas y las carpetas del frontend; el código del servidor y los scripts SQL no se pueden descargar.
 
 La política CSP también va como etiqueta `<meta>` en cada página (GitHub Pages no permite cabeceras propias). Dos efectos a tener en cuenta:
-- Con **Live Server** la recarga automática deja de funcionar (Live Server inserta un script en la página y la CSP lo bloquea): recarga con F5 después de guardar.
+- Las páginas React ya **no se abren con Live Server**: el navegador no entiende JSX. Usa `npm run dev` (Vite relaja la CSP solo mientras desarrollas, para su recarga automática; la versión publicada la conserva estricta).
 - Si publicas la API en un dominio que no termine en `onrender.com`, agrégalo a `connect-src` en esa etiqueta de cada página.
 
 ## Publicar el proyecto
@@ -186,7 +203,7 @@ git push -u origin main
 
 Después, por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env` no se sube (está en `.gitignore`).
 
-**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp. Si el repositorio tiene otro nombre, cambia también `<base href="/talento-caribe/">` en `404.html`.
+**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Build and deployment → Source: **GitHub Actions***. Desde ahí, cada cambio que llega a `main` se construye con Vite y se publica solo (`.github/workflows/publicar.yml`); el avance se ve en la pestaña **Actions**. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp. Si el repositorio tiene otro nombre, cambia también `<base href="/talento-caribe/">` en `404.html`.
 
 **3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
 - `GEMINI_API_KEY`: la clave gratuita del asistente (https://aistudio.google.com/apikey).

@@ -57,17 +57,28 @@ app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta $
    Lista blanca: solo se publican las páginas y las carpetas del frontend. Nunca la carpeta del
    servidor (código y .env), los scripts SQL, el README ni la configuración. (Bloquear solo
    "/backend" no basta: "/%62ackend" es la misma ruta escrita de otra forma.) */
+/* El sitio público está hecho con React: se sirve la versión construida (carpeta dist/, se crea con
+   "npm run build" en la carpeta principal). Sin dist/ la API funciona igual, pero las páginas avisan
+   cómo construirla (en Render no hace falta: allí solo vive la API y la página está en GitHub Pages). */
+const WEB = path.join(RAIZ, "dist");
+const hayWeb = fs.existsSync(path.join(WEB, "index.html"));
 const estaticos = { dotfiles: "deny", index: false, extensions: ["html"] };
 // HTML, CSS y JS se revalidan siempre (así una actualización se ve de inmediato); las imágenes se guardan 7 días
-for (const carpeta of ["css", "js", "admin"]) app.use(`/${carpeta}`, express.static(path.join(RAIZ, carpeta), estaticos));
-app.use("/assets", express.static(path.join(RAIZ, "assets"), { ...estaticos, maxAge: "7d" }));
+for (const carpeta of ["css", "js", "admin"]) app.use(`/${carpeta}`, express.static(path.join(WEB, carpeta), estaticos));
+app.use("/assets", express.static(path.join(WEB, "assets"), { ...estaticos, maxAge: "7d" }));
+// Archivos que genera Vite: su nombre cambia con cada versión (index-a1b2c3.js), así que se pueden guardar un año
+app.use("/app", express.static(path.join(WEB, "app"), { ...estaticos, maxAge: "365d", immutable: true }));
 const PAGINAS = ["index", "cursos", "portal", "registro", "recuperar"];
+const SIN_WEB = `<!doctype html><html lang="es"><meta charset="utf-8"><title>Talento Caribe</title><body style="font-family:system-ui;max-width:40rem;margin:4rem auto;padding:0 1rem;line-height:1.6">
+<h1>Falta construir la página</h1><p>El sitio está hecho con React y hay que construirlo una vez. En una terminal, en la carpeta principal del proyecto (no en backend/):</p>
+<pre style="background:#eee;padding:1rem">npm install\nnpm run build</pre><p>Después recarga esta página. La API ya funciona: <a href="/api/salud">/api/salud</a>.</p></body></html>`;
 app.get(/^\/(?:([a-z]+)(?:\.html)?)?$/, (req, res, next) => {
   const pagina = req.params[0] || "index";
-  PAGINAS.includes(pagina) ? res.sendFile(path.join(RAIZ, `${pagina}.html`)) : next();
+  if (!PAGINAS.includes(pagina)) return next();
+  hayWeb ? res.sendFile(path.join(WEB, `${pagina}.html`)) : res.status(503).type("html").send(SIN_WEB);
 });
 // Página 404 con la marca (la misma que usa GitHub Pages; aquí la base de sus enlaces es la raíz del sitio)
-const pagina404 = fs.readFileSync(path.join(RAIZ, "404.html"), "utf8").replace('<base href="/talento-caribe/">', '<base href="/">');
+const pagina404 = hayWeb ? fs.readFileSync(path.join(WEB, "404.html"), "utf8").replace('<base href="/talento-caribe/">', '<base href="/">') : SIN_WEB;
 app.use((req, res) => (req.method === "GET" && req.accepts("html") ? res.status(404).type("html").send(pagina404) : res.status(404).type("text/plain").send("No encontrado")));
 
 /* ---------- Errores ---------- */
@@ -83,6 +94,7 @@ app.use((error, req, res, next) => {
 const servidor = app.listen(PORT, async () => {
   console.log(`\n🌴 Talento Caribe en http://localhost:${PORT}`);
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
+  console.log(`   Página: ${hayWeb ? "✅ versión construida (dist/)" : "⚠️  falta construirla: npm run build en la carpeta principal"}`);
   const chat = require("./rutas/chat");
   console.log(`   Asistente IA: ${chat.iaConfigurada() ? `✅ Google Gemini (${chat.modelo})` : "⚠️  sin GEMINI_API_KEY (responde con reglas locales)"}`);
   const correo = require("./correo");

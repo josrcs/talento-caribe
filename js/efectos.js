@@ -10,9 +10,11 @@
   const reducirMovimiento = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const raiz = document.documentElement;
 
-  // 1. Barra de navegación de las páginas públicas
-  const header = document.querySelector('.site-header');
-  if (header) {
+  // 1. Barra de navegación de las páginas públicas. En las páginas React la barra aparece después:
+  //    el componente Encabezado llama a window.TCPrepararBarra(header) cuando ya está en pantalla.
+  function prepararBarra(header) {
+    if (!header || header.dataset.barraLista) return;
+    header.dataset.barraLista = '1';
     const lectura = document.createElement('span');
     lectura.className = 'progreso-lectura';
     lectura.setAttribute('aria-hidden', 'true');
@@ -32,6 +34,8 @@
     marcar();
     addEventListener('scroll', () => { if (!pendiente) { pendiente = true; requestAnimationFrame(marcar); } }, { passive: true });
   }
+  prepararBarra(document.querySelector('.site-header'));
+  window.TCPrepararBarra = prepararBarra;
 
   // 2. Revelado al hacer scroll. Los elementos que entran juntos en pantalla se escalonan
   //    (uno tras otro); los que entran solos aparecen sin espera. Los hijos de [data-escalonar]
