@@ -13,6 +13,23 @@ window.TC_EN = {
   "No hay conexión con el servidor. Revisa que esté encendido (npm start).": "Cannot reach the server. Make sure it is running (npm start).",
   "No hay conexión con el servidor. Puede estar iniciando: inténtalo de nuevo en unos segundos.": "Cannot reach the server. It may be starting up: try again in a few seconds.",
 
+  /* ---------- Frontend en React ---------- */
+  "Talento Caribe necesita JavaScript activado para funcionar.": "Talento Caribe needs JavaScript enabled to work.",
+  "Cuentas creadas por database/seed.sql en tu base de datos local. El servidor valida la contraseña, el rol y el cargo.": "Accounts created by database/seed.sql in your local database. The server checks the password, the role and the position.",
+  "No pudimos cargar tu espacio": "We couldn't load your space",
+  "Datos personales protegidos: el servidor solo los entrega a los cargos con permiso de admisiones.": "Protected personal data: the server only shows it to positions with admissions permission.",
+  "Módulo #": "Module #",
+  "módulos": "modules",
+  "#/# actividades · # módulos": "#/# activities · # modules",
+  "# temas · # actividades publicadas": "# topics · # published activities",
+  "# temas · # actividad publicada": "# topics · # published activity",
+  "· promedio": "· average",
+  "# sin entregar": "# not submitted",
+  "Módulo #: #/# entregas": "Module #: #/# submissions",
+  "Módulo #: sin actividades": "Module #: no activities",
+  "#/# entregas": "#/# submissions",
+  "promedio #": "average #",
+
   /* ---------- Gerencia: todas las áreas y supervisión ---------- */
   "Gerencia · todas las áreas": "Management · all areas",
   "Supervisas el trabajo de toda la organización y puedes corregirlo cuando haga falta: oferta académica, actividades y notas de los docentes, admisiones, comunicaciones, finanzas y el asistente.": "You oversee the work of the whole organization and can correct it when needed: course offering, teachers' activities and grades, admissions, communications, finance and the assistant.",
@@ -1634,7 +1651,8 @@ window.TC_EN_PATRONES = [
   [/^¡Hola, (.+)! 🌴$/, "Hi, $1! 🌴"],
   [/^(Buenos días|Buenas tardes|Buenas noches), (.+) 👋$/, (m, s, n) => ({ "Buenos días": "Good morning", "Buenas tardes": "Good afternoon", "Buenas noches": "Good evening" }[s] + ", " + n + " 👋")],
   [/^Docente · (.+)$/, (m, e) => "Teacher · " + (window.TC_EN[e] || e)],
-  [/^(.+) · (.+)$/, (m, a, b) => { const A = window.TC_EN[a], B = window.TC_EN[b]; return A || B ? (A || a) + " · " + (B || b) : null; }],
+  // Partes separadas por « · »: se traduce cada parte (también las que llevan números, como «Módulo 2»)
+  [/^(.+) · (.+)$/, (m, a, b) => { const tr = window.TCi18n?.traducir || ((x) => window.TC_EN[x] || x); const A = tr(a), B = tr(b); return A !== a || B !== b ? A + " · " + B : null; }],
   [/^Retroalimentación de (.+)$/, "Feedback from $1"],
   [/^Abrir (.+)$/, (m, x) => window.TC_EN[x] ? "Open " + window.TC_EN[x] : null],
   [/^Ideas de actividad para (.+)$/, (m, c) => "Activity ideas for " + (window.TC_EN[c] || c)],

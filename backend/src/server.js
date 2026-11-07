@@ -1,7 +1,9 @@
 /* ==========================================================
    server.js - Servidor de Talento Caribe
-   - Sirve la página web (index.html, cursos.html, portal.html...)
    - Expone la API en /api conectada a PostgreSQL
+   - Sirve la página web en React ya compilada (frontend/dist: se crea con
+     "npm run build" dentro de frontend/). Mientras programas puedes usar
+     "npm run dev" en frontend/ (puerto 5173), que envía /api a este servidor.
    Abre http://localhost:3000 después de ejecutar: npm start
 
    Rutas de la API (detalle en backend/README.md):
@@ -25,18 +27,19 @@ const { cabecerasSeguras, limitePorIP, PRODUCCION } = require("./seguridad");
 
 const app = express();
 const PORT = Number(process.env.PORT) || 3000;
-const RAIZ = path.join(__dirname, "..", ".."); // carpeta talento-caribe (el frontend)
+const RAIZ = path.join(__dirname, "..", "..", "frontend", "dist"); // la página en React ya compilada
 
 app.disable("x-powered-by");
 // En Render (u otro hosting con proxy) la IP real del visitante llega en X-Forwarded-For
 if (process.env.RENDER || process.env.TRUST_PROXY) app.set("trust proxy", 1);
 app.use(cabecerasSeguras);
 app.use(express.json({ limit: "100kb" }));
-// Permite llamar a la API desde Live Server (puerto 5500) y desde los dominios de CORS_ORIGENES
+// Permite llamar a la API desde Vite (npm run dev: 5173, npm run preview: 4173) y desde los dominios de CORS_ORIGENES
 // (por ejemplo la página publicada en GitHub Pages: https://tu-usuario.github.io)
 const ORIGENES_EXTRA = (process.env.CORS_ORIGENES || "").split(",").map((o) => o.trim().replace(/\/$/, "")).filter(Boolean);
-// En producción solo se aceptan los dominios de CORS_ORIGENES (los de Live Server son para trabajar en el computador)
-const ORIGENES_LOCALES = PRODUCCION ? [] : ["http://127.0.0.1:5500", "http://localhost:5500", `http://localhost:${PORT}`];
+// En producción solo se aceptan los dominios de CORS_ORIGENES (los de Vite son para trabajar en el computador).
+// Vite normalmente reenvía /api por su cuenta (proxy en vite.config.js), así que estas entradas son un respaldo.
+const ORIGENES_LOCALES = PRODUCCION ? [] : ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:4173", "http://127.0.0.1:4173", `http://localhost:${PORT}`];
 app.use(cors({ origin: [...ORIGENES_LOCALES, ...ORIGENES_EXTRA], maxAge: 600 }));
 
 /* ---------- API ---------- */
@@ -53,21 +56,25 @@ app.use("/api", require("./rutas/admin"));
 app.use("/api", require("./rutas/cuentas"));
 app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta ${req.method} ${req.originalUrl}` }));
 
-/* ---------- Página web ----------
-   Lista blanca: solo se publican las páginas y las carpetas del frontend. Nunca la carpeta del
-   servidor (código y .env), los scripts SQL, el README ni la configuración. (Bloquear solo
-   "/backend" no basta: "/%62ackend" es la misma ruta escrita de otra forma.) */
+/* ---------- Página web (React compilado en frontend/dist) ----------
+   Lista blanca: solo se publican las páginas y las carpetas del build. Nunca la carpeta del
+   servidor (código y .env), los scripts SQL, el README ni la configuración. */
+const HAY_BUILD = fs.existsSync(path.join(RAIZ, "index.html"));
 const estaticos = { dotfiles: "deny", index: false, extensions: ["html"] };
-// HTML, CSS y JS se revalidan siempre (así una actualización se ve de inmediato); las imágenes se guardan 7 días
-for (const carpeta of ["css", "js", "admin"]) app.use(`/${carpeta}`, express.static(path.join(RAIZ, carpeta), estaticos));
+// Los archivos de static/ llevan una huella en el nombre (index-a1b2c3.js): si cambian, cambia el nombre, así que se guardan un año.
+// Las páginas HTML se revalidan siempre (así una actualización se ve de inmediato).
+app.use("/static", express.static(path.join(RAIZ, "static"), { ...estaticos, maxAge: "365d", immutable: true }));
 app.use("/assets", express.static(path.join(RAIZ, "assets"), { ...estaticos, maxAge: "7d" }));
+app.use("/admin", express.static(path.join(RAIZ, "admin"), estaticos));
 const PAGINAS = ["index", "cursos", "portal", "registro", "recuperar"];
 app.get(/^\/(?:([a-z]+)(?:\.html)?)?$/, (req, res, next) => {
   const pagina = req.params[0] || "index";
-  PAGINAS.includes(pagina) ? res.sendFile(path.join(RAIZ, `${pagina}.html`)) : next();
+  if (!PAGINAS.includes(pagina)) return next();
+  if (!HAY_BUILD) return res.status(503).type("text/plain; charset=utf-8").send("La página en React aún no está compilada. Ejecuta: cd frontend && npm install && npm run build\n(La API sigue funcionando en /api.)");
+  res.sendFile(path.join(RAIZ, `${pagina}.html`));
 });
 // Página 404 con la marca (la misma que usa GitHub Pages; aquí la base de sus enlaces es la raíz del sitio)
-const pagina404 = fs.readFileSync(path.join(RAIZ, "404.html"), "utf8").replace('<base href="/talento-caribe/">', '<base href="/">');
+const pagina404 = HAY_BUILD ? fs.readFileSync(path.join(RAIZ, "404.html"), "utf8").replace(/<base href="[^"]*">/, '<base href="/">') : "<h1>Página no encontrada</h1>";
 app.use((req, res) => (req.method === "GET" && req.accepts("html") ? res.status(404).type("html").send(pagina404) : res.status(404).type("text/plain").send("No encontrado")));
 
 /* ---------- Errores ---------- */
@@ -83,6 +90,7 @@ app.use((error, req, res, next) => {
 const servidor = app.listen(PORT, async () => {
   console.log(`\n🌴 Talento Caribe en http://localhost:${PORT}`);
   console.log(`   API:    http://localhost:${PORT}/api/salud`);
+  if (!HAY_BUILD) console.log("   Página: ⚠️  falta compilar React → cd frontend && npm install && npm run build (o usa npm run dev en frontend/)");
   const chat = require("./rutas/chat");
   console.log(`   Asistente IA: ${chat.iaConfigurada() ? `✅ Google Gemini (${chat.modelo})` : "⚠️  sin GEMINI_API_KEY (responde con reglas locales)"}`);
   const correo = require("./correo");
@@ -93,7 +101,7 @@ const servidor = app.listen(PORT, async () => {
   } catch (error) {
     const msj = error.code === "42P01" ? "faltan las tablas → ejecuta npm run db:init" : error.message;
     console.log(`   Base de datos: ⚠️  ${msj}`);
-    console.log("   (La página funciona igual en modo demostración.)\n");
+    console.log("   (La página necesita la base de datos: revisa DATABASE_URL en .env.)\n");
   }
 });
 // Una conexión que envía su petición muy despacio (ataque "slowloris") se corta a los 30 s

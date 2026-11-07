@@ -23,7 +23,7 @@ const BASE_404 = process.env.VITE_BASE_404 || "/talento-caribe/";
 const politicaSeguridad = {
   name: "politica-de-seguridad",
   apply: "build",
-  transformIndexHtml: (html, ctx) => html.replace("<head>", `<head>\n  <meta http-equiv="Content-Security-Policy" content="${CSP}">` +
+  transformIndexHtml: (html, ctx) => html.replace(/<meta charset="UTF-8">/i, (charset) => `${charset}\n  <meta http-equiv="Content-Security-Policy" content="${CSP}">` +
     (ctx.filename.endsWith("404.html") ? `\n  <base href="${BASE_404}">` : "")),
 };
 
@@ -34,7 +34,13 @@ export default defineConfig({
     outDir: "dist",
     assetsDir: "static",
     emptyOutDir: true,
-    rollupOptions: { input: Object.fromEntries(paginas.map((p) => [p, resolve(raiz, `${p}.html`)])) },
+    rollupOptions: {
+      input: Object.fromEntries(paginas.map((p) => [p, resolve(raiz, `${p}.html`)])),
+      // Nombres claros para los archivos compartidos: React y los diccionarios de idioma
+      output: {
+        manualChunks: (id) => (id.includes("node_modules/react") || id.includes("node_modules/scheduler") ? "react" : id.includes("/src/i18n/") ? "idioma" : undefined),
+      },
+    },
   },
   server: {
     port: 5173,

@@ -3,48 +3,97 @@
 Plataforma educativa gratuita e híbrida de software y hardware para jóvenes de Barranquilla, el Caribe y Latinoamérica.
 *Tu talento no tiene fronteras.*
 
+| Parte | Tecnología | Dónde se publica |
+|---|---|---|
+| **Frontend** | **React 19** con **Vite** (JavaScript, JSX y CSS) | GitHub Pages: `https://josrcs.github.io/talento-caribe/` |
+| **Backend** | Node.js + Express (API REST, JWT, bcrypt) | Render: `https://talento-caribe-api.onrender.com` |
+| **Base de datos** | PostgreSQL | Render (u otro PostgreSQL) |
+
+```
+Navegador ── React (frontend/) ──fetch──▶ API Express (backend/) ──SQL──▶ PostgreSQL (database/)
+             GitHub Pages                 Render                          Render
+```
+
+El frontend **siempre** trabaja con la API real: no hay modo de demostración. Todo lo que se ve
+(cursos, inscripciones, actividades, notas, mensajes, gastos, encuestas) sale de PostgreSQL a
+través de la API, y todo lo que se guarda pasa por ella.
+
 ## Estructura
 
 ```
 talento-caribe/
-├── index.html            Inicio: marca, nosotros, cursos destacados, mentores, asistente IA y contacto
-├── cursos.html           Catálogo, detalle e inscripción de estudiantes registrados
-├── registro.html         Registro de cuenta y perfil por país
-├── admin/
-│   ├── login.html        Acceso unificado: estudiantes, docentes y administrativos
-│   └── panel.html        Panel por cargo, áreas y encuestas departamentales
-├── portal.html           Espacios de estudiante, docente y administrativo (vista previa)
-├── recuperar.html        Recuperar la contraseña con un enlace por correo
-├── 404.html              Página no encontrada (la usan GitHub Pages y el servidor)
-├── css/                  style.css (público) y admin.css (panel)
-├── js/                   Lógica del frontend (incluye asistente global y permisos por cargo de demostración)
-├── assets/img/           Logo, ilustraciones y favicon
-├── database/
-│   ├── schema.sql        Tablas de PostgreSQL
-│   └── seed.sql          Datos iniciales (12 cursos y configuración del asistente)
-└── README.md
+├── frontend/                    Frontend en React (Vite)
+│   ├── index.html, cursos.html, registro.html, recuperar.html, portal.html, 404.html
+│   ├── admin/login.html, admin/panel.html
+│   │                            Cada página HTML solo tiene <div id="root"> y carga su entrada de React
+│   ├── src/
+│   │   ├── entradas/            Un archivo por página: importa sus estilos y monta el componente
+│   │   ├── paginas/             Componentes de cada página
+│   │   │   ├── inicio/          Inicio: orientador, rutas, cursos destacados, contacto
+│   │   │   ├── cursos/          Catálogo, detalle del curso y preinscripción
+│   │   │   ├── acceso/          Ingreso, registro, recuperar contraseña y 404
+│   │   │   ├── portal/          Espacio de estudiantes y docentes
+│   │   │   └── panel/           Panel administrativo por cargo
+│   │   ├── componentes/         Piezas reutilizables (encabezado, chat del asistente, ventanas, íconos...)
+│   │   │   └── app/             Las que comparten portal y panel (cabecera, guía, intro, "Mi cuenta")
+│   │   ├── contexto/Datos.jsx   Contexto de React: carga GET /api/datos y ofrece las acciones de escritura
+│   │   ├── lib/                 Lógica sin interfaz: API, sesión, modelo de datos, asistente, utilidades
+│   │   ├── i18n/                Idioma (español/inglés) y tema (claro/oscuro)
+│   │   ├── estilos/             CSS (los mismos estilos de siempre)
+│   │   └── assets/img/          Logos y favicon
+│   ├── public/assets/img/       Imagen para compartir el enlace (se publica tal cual)
+│   └── vite.config.js           Páginas, proxy de /api y política de seguridad (CSP)
+├── backend/                     API en Node + Express (ver backend/README.md)
+├── compartido/                  Datos que usan frontend y backend
+│   ├── cursos.json              Catálogo inicial: 12 cursos, 96 módulos y fichas
+│   └── encuestas.json           Encuestas por departamento y respuestas de ejemplo
+├── database/                    schema.sql (tablas) y seed.sql (datos iniciales)
+├── .github/workflows/pages.yml  Compila React y lo publica en GitHub Pages
+└── render.yaml                  Despliegue del backend y la base en Render
 ```
 
-## Dos formas de abrir el proyecto
+## Cómo está hecho el frontend en React
 
-| Cómo lo abres | Modo | Dónde se guardan los datos |
+| Pieza | Archivo | Qué hace |
 |---|---|---|
-| `npm start` en `backend/` → **http://localhost:3000** | **Real** | PostgreSQL: cuentas (clave con bcrypt), inscripciones, actividades, entregas, notas, mensajes, gastos y cursos |
-| Live Server (clic derecho en `index.html` → Open with Live Server) | Demostración | El navegador (`localStorage`), sin servidor |
-| GitHub Pages | Demostración, o **Real** si `API_PUBLICADA` en `js/config.js` apunta al backend publicado | Igual que arriba |
+| Páginas | `src/paginas/**/*.jsx` | Cada página es un componente (`Inicio`, `Cursos`, `Login`, `Portal`, `Panel`...) armado con componentes más pequeños. |
+| Estado | `useState`, `useMemo`, `useEffect` | Filtros, formularios, ventanas abiertas, sección actual del portal y del panel. |
+| Datos | `src/contexto/Datos.jsx` | `<DatosProvider>` pide `GET /api/datos` al abrir la página y comparte, con el hook `useDatos()`, el **modelo** (consultas: cursos de un docente, progreso por módulo...) y las **acciones** (inscribirse, entregar, calificar, crear cursos...). Cada acción llama a la API y recarga los datos. |
+| API | `src/lib/api.js` | `pedir(metodo, ruta, cuerpo)`: `fetch` con el token JWT; si la sesión venció, vuelve al ingreso. |
+| Sesión | `src/lib/sesion.js` | Guarda el token y el perfil público tras iniciar sesión. |
+| Contextos de página | `PortalContexto.jsx`, `PanelContexto.jsx` | Comparten la navegación y las ventanas entre las secciones del portal y del panel. |
+| Formularios | `src/lib/validacion.jsx` | Hook `useValidacion()` con las mismas reglas que valida el servidor. |
+| Asistente | `src/componentes/ChatIA.jsx`, `src/lib/asistente.js` | Chat como componente; envía la pregunta a `POST /api/chat` (Gemini) y, si no hay IA, responde con reglas locales. |
 
-`js/config.js` elige el modo solo: si la página la sirve el puerto 3000, usa la API; en GitHub Pages usa `API_PUBLICADA` cuando está llena.
+**¿Por qué varias páginas HTML y no una sola?** Cada página (`index.html`, `cursos.html`, `admin/login.html`...) monta su propio componente de React. Así las direcciones son las mismas de siempre: los enlaces de los correos (`recuperar.html?token=...`, `admin/login.html`) siguen funcionando y GitHub Pages no necesita trucos para las rutas.
 
-## Correr el servidor (página + API + PostgreSQL)
+**¿Qué guarda el navegador?** Solo lo que es de esa persona en ese navegador: el token de la sesión, el idioma, el tema, si ya vio la guía de bienvenida y el historial del asistente. Los datos de la plataforma están en PostgreSQL.
 
-Sigue la guía de [`backend/README.md`](backend/README.md). En resumen, dentro de `backend/`:
+## Correr el proyecto en tu computador
+
+Necesitas **Node.js 20.19 o superior** y **PostgreSQL**. Primero el backend (guía completa en [`backend/README.md`](backend/README.md)):
 
 ```
+cd backend
 npm install
 copy .env.ejemplo .env      (y pon tu contraseña de postgres)
 npm run db:init
-npm start                   → http://localhost:3000
+npm start                   → API en http://localhost:3000
 ```
+
+Luego, en **otra terminal**, el frontend:
+
+```
+cd frontend
+npm install
+npm run dev                 → http://localhost:5173
+```
+
+Vite recarga la página al instante cuando guardas un archivo y envía las peticiones de `/api` al backend del puerto 3000 (proxy en `vite.config.js`).
+
+**Ver la versión final:** `npm run build` dentro de `frontend/` crea `frontend/dist`. Con eso, `npm start` en `backend/` sirve la página y la API juntas en **http://localhost:3000**.
+
+> Live Server ya no sirve para abrir el proyecto: React se escribe en JSX y Vite tiene que compilarlo. Usa `npm run dev`.
 
 ## Crear la base de datos manualmente (opcional, con psql)
 
@@ -54,60 +103,47 @@ psql -U postgres -d talento_caribe -f database/schema.sql
 psql -U postgres -d talento_caribe -f database/seed.sql
 ```
 
-## Estado del frontend
+## Funcionalidades
 
-- [x] Estructura HTML
-- [x] Base de datos
-- [x] CSS
-- [x] Catálogo local de 12 cursos con búsqueda, filtros, detalle y preinscripción de vista previa por país
-- [x] Acceso por cargo administrativo y vistas departamentales de demostración
+- [x] **Frontend en React 19 + Vite**: componentes, hooks, contexto y páginas con la misma apariencia de siempre
+- [x] El frontend trabaja siempre con la API real (sin modo demostración)
+- [x] Catálogo de 12 cursos con búsqueda, filtros por área, nivel, modalidad y número de ficha, detalle y preinscripción guiada por país
 - [x] Registro estudiantil por país, con documento, contacto, edad y datos de acudiente cuando aplica
-- [x] Inscripción desde el catálogo: solicita cuenta, registra el perfil y permite continuar al curso
-- [x] Asistente conversacional compartido entre catálogo, registro, login, portal y panel
-- [x] Permisos de interfaz por departamento y cargo administrativo; encuestas agrupadas por departamento
-- [x] Crear y editar cursos en el catálogo local de demostración, con edad mínima configurable
-- [x] Encuestas de ejemplo organizadas por departamento para el equipo administrativo
-- [x] Panel de estudiante con actividades pendientes y cursos solicitados
-- [x] Servidor Node + Express que sirve la página y la API con PostgreSQL
 - [x] Registro e inicio de sesión de los tres roles con contraseñas cifradas (bcrypt) y sesión JWT
 - [x] Inscripciones, aprobación por admisiones, actividades, entregas y calificaciones guardadas en PostgreSQL
 - [x] Permisos por rol y cargo validados en el servidor (no solo en la interfaz)
 - [x] Cursos divididos en módulos (temas + actividades del plan) y fichas por grupo (ej. 25896)
 - [x] Inscripción en una ficha, actividades por módulo y ficha, y seguimiento docente módulo por módulo
-- [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`: conoce la marca, el catálogo y las fichas desde PostgreSQL y usa el tono que define el gerente
-- [x] Inicio didáctico: orientador de cursos, rutas de aprendizaje, ritmo de cada módulo y preguntas frecuentes
-- [x] Animación de entrada nueva, hero interactivo, revelado al hacer scroll, cifras animadas y transiciones en toda la plataforma
-- [x] Preparado para publicar: `.nojekyll` para GitHub Pages, `render.yaml` para el backend, CORS y SSL configurables
-- [x] Control de versiones con Git
-- [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
-- [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (con Brevo, gratis, o SMTP en `backend/.env`)
-- [x] Vista previa con imagen al compartir el enlace (cambiar `josrcs` en `index.html` y `cursos.html` al publicar)
-- [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta» para cambiar la contraseña, registro de seguridad en el panel, CSP y archivos del servidor privados (ver «Seguridad»)
-- [x] Toda la interfaz en inglés, incluido el plan de los 12 cursos (módulos, temas, actividades, evidencias y guía de clase)
-- [x] Página 404 con la marca y accesos para volver (GitHub Pages y servidor)
+- [x] Portal del estudiante: inicio didáctico, cursos, actividades, logros, encuestas y tutor IA
+- [x] Portal del docente: cursos con guía de clase, actividades con plantillas, entregas por calificar y seguimiento
+- [x] Panel por cargo: indicadores, gráficas, actividad académica, cursos y fichas, inscripciones, mensajes, encuestas, finanzas, configuración de la IA, seguridad y cuentas
 - [x] Gerencia con acceso a todas las áreas: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas de los docentes
-- [x] Cuentas: el Gerente crea y elimina cuentas administrativas; Coordinación de admisiones bloquea estudiantes inactivos (30 días o más sin ingresar) y los desbloquea cuando quiera; todo queda en el registro de seguridad
-- [x] Finanzas registra, corrige y elimina gastos con cualquier cifra (50000, 50.000 o 12.345)
-- [x] Contacto honesto sin servidor: en GitHub Pages el formulario abre el correo de la persona con el mensaje listo
-- [x] Accesibilidad: contraste AA (4.5:1) revisado en tema claro y oscuro, todo se usa con teclado y con foco visible, confirmaciones con diálogos propios (Esc cancela)
-- [x] Compatible con Safari en iPhone (prefijos `-webkit-` y sin expresiones regulares que iOS antiguo no entiende) y logos livianos donde se ven pequeños
-- [x] Repositorio en GitHub y frontend publicado en GitHub Pages (modo demostración)
+- [x] Cuentas: el Gerente crea y elimina cuentas administrativas; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
+- [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`, con respuestas locales de respaldo
+- [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
+- [x] Recuperar contraseña por correo y correos de bienvenida, contacto e inscripción (Brevo o SMTP)
+- [x] Seguridad: bloqueo por intentos fallidos, sesiones revocables, «Mi cuenta», registro de seguridad, CSP y archivos del servidor privados
+- [x] Toda la interfaz en inglés y modo claro u oscuro
+- [x] Animación de entrada, revelado al hacer scroll, cifras animadas y transiciones
+- [x] Accesibilidad: contraste AA, todo se usa con teclado, foco visible y diálogos propios (Esc cancela)
+- [x] Página 404 con la marca (GitHub Pages y servidor)
+- [x] Publicación automática del frontend en GitHub Pages con GitHub Actions
+- [x] Backend publicado en Render (`https://talento-caribe-api.onrender.com`)
 - [ ] Poner `GEMINI_API_KEY` (gratis en https://aistudio.google.com/apikey) en `backend/.env` (sin ella el asistente usa respuestas locales)
-- [x] Backend publicado en Render (`https://talento-caribe-api.onrender.com`) y conectado desde GitHub Pages con `API_PUBLICADA` en `js/config.js`
 
 ## Cuentas de prueba
 
-Funcionan igual en los dos modos (con servidor vienen de `database/seed.sql`). **En la plataforma publicada no funcionan:** al arrancar en producción (`NODE_ENV=production`, como en Render), `npm run db:init` les cambia la contraseña por una al azar, muestra **una sola vez** en los registros (logs) la nueva del administrador y el login deja de mostrar el recuadro «Cuenta de prueba». Así nadie puede entrar al panel con las claves de este README.
+Las crea `database/seed.sql`. **En la plataforma publicada no funcionan:** al arrancar en producción (`NODE_ENV=production`, como en Render), `npm run db:init` les cambia la contraseña por una al azar, muestra **una sola vez** en los registros (logs) la nueva del administrador y el login deja de mostrar el recuadro «Cuenta de prueba». Así nadie puede entrar al panel con las claves de este README.
 
 | Perfil | Correo | Contraseña | Entra a |
 |---|---|---|---|
 | Estudiante | estudiante@talentocaribe.co | Estudiante123 | portal.html |
-| Docente | docente@talentocaribe.co | Docente123 | portal.html |
-| Administrativo | admin@talentocaribe.co | Admin123 | admin/panel.html |
+| Docente | docente@talentocaribe.co (también `daniel@`, `valeria@`, `andres@`, `laura@`) | Docente123 | portal.html |
+| Administrativo | admin@talentocaribe.co (con cualquier cargo) | Admin123 | admin/panel.html |
 
-**En modo demostración** las cuentas y perfiles de estudiante se guardan localmente en `localStorage`, incluidos los números de documento y datos de contacto; las contraseñas se guardan derivadas mediante PBKDF2. **No ingreses documentos reales en esta demostración:** cualquier persona con acceso al navegador puede inspeccionar esos datos. El correo activo se solicita, pero el envío de confirmaciones todavía requiere un servicio de correo conectado.
+Cada rol y cargo recibe del servidor **solo sus datos** (por ejemplo, solo admisiones ve documentos y teléfonos de los estudiantes).
 
-En modo demostración los cargos y permisos solo se aplican en la interfaz. **Con el servidor** los valida el backend: cada rol y cargo recibe solo sus datos (por ejemplo, solo admisiones ve documentos y teléfonos de los estudiantes). En modo demostración el asistente contesta con reglas locales; con el servidor usa la IA real de `/api/chat` (ver «Asistente con IA real»). En modo demostración las respuestas de las encuestas se guardan en el navegador; con el servidor, en PostgreSQL. El formulario de contacto, sin servidor, abre la aplicación de correo de la persona con el mensaje listo para la dirección de la sección «Contacto» de `index.html`; con el servidor se guarda en la base y llega a la bandeja del panel.
+**Flujo de actividades:** el docente publica una actividad en un curso que dicta → la ven los estudiantes con inscripción *aprobada* en ese curso → el estudiante entrega → el docente califica (1.0 a 5.0) con retroalimentación → el estudiante ve su nota.
 
 ## Asistente con IA real
 
@@ -135,8 +171,8 @@ Sin clave, el chat sigue funcionando con las respuestas locales y muestra «la I
 
 | Qué | Cómo funciona |
 |---|---|
-| Encuestas (`js/encuestas-data.js`) | 5 encuestas por departamento. El estudiante las responde una vez en *Mi espacio → Encuestas* (el menú muestra cuántas le faltan). El panel muestra promedios, barras por opción y comentarios, sin nombres. El servidor valida cada respuesta con el mismo archivo. |
-| Recuperar contraseña (`recuperar.html`) | Desde «¿Olvidaste tu contraseña?» en el ingreso. Llega un enlace al correo que sirve una sola vez y vence en 1 hora; en la base solo se guarda su huella (SHA-256). |
+| Encuestas (`compartido/encuestas.json`) | 5 encuestas por departamento. El estudiante las responde una vez en *Mi espacio → Encuestas* (el menú muestra cuántas le faltan). El panel muestra promedios, barras por opción y comentarios, sin nombres. El servidor valida cada respuesta con el mismo archivo. |
+| Recuperar contraseña (`recuperar.html`, `src/paginas/acceso/Recuperar.jsx`) | Desde «¿Olvidaste tu contraseña?» en el ingreso. Llega un enlace al correo que sirve una sola vez y vence en 1 hora; en la base solo se guarda su huella (SHA-256). |
 | Correos (`backend/src/correo.js`) | Bienvenida al crear la cuenta, recuperar contraseña, contraseña cambiada, confirmación del formulario de contacto (y copia al equipo con `CORREO_EQUIPO`), solicitud de inscripción recibida y aprobada o no aprobada. |
 
 Para enviar correos de verdad, configura **Brevo** (`BREVO_API_KEY` y `CORREO_REMITENTE`, gratis hasta 300 al día; pasos en [backend/README.md](backend/README.md)). Es la opción que funciona en Render gratis, que bloquea los puertos SMTP. En tu computador también sirve SMTP (ver `backend/.env.ejemplo`). Sin esa configuración los correos no se envían: aparecen en la terminal del servidor, así se puede probar todo en el computador.
@@ -145,7 +181,7 @@ Para enviar correos de verdad, configura **Brevo** (`BREVO_API_KEY` y `CORREO_RE
 
 ## Diseño, animaciones e interacción
 
-Todo el sitio (páginas públicas, login, portal y panel) sigue el mismo criterio sobrio: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso, logros). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans**; se cargan con `<link>` y `preconnect` en el `<head>` de cada página. No hay vidrio esmerilado, manchas de color, texto con degradado, brillos ni efectos que sigan al cursor.
+Todo el sitio (páginas públicas, login, portal y panel) sigue el mismo criterio sobrio: superficies sólidas, bordes finos, un solo color de acción (azul océano) y el naranja del sol reservado para detalles (etiquetas de sección, números de paso, logros). Los títulos de las páginas públicas usan **Source Serif 4** y el texto **Public Sans**; se cargan con `<link>` y `preconnect` en el `<head>` de cada página (`frontend/*.html`). No hay vidrio esmerilado, manchas de color, texto con degradado, brillos ni efectos que sigan al cursor.
 
 Los colores de texto cumplen contraste **WCAG AA** (4,5:1) en los dos temas; se revisó en todas las páginas con un recorrido automático en el navegador.
 
@@ -153,9 +189,9 @@ Las animaciones son cortas y con propósito: orientar al bajar por la página o 
 
 | Dónde | Qué pasa |
 |---|---|
-| Inicio (`index.html`, `css/inicio.css`, `js/inicio.js`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`, funcionan sin JavaScript), asistente y contacto. |
-| Todas las páginas | Revelado suave al hacer scroll (`data-revelar`, `data-escalonar` en el HTML), cifras que cuentan desde cero, barra superior que se esconde al bajar y vuelve al subir, línea de lectura, fundido corto entre páginas y tarjetas esqueleto mientras cargan los cursos. |
-| Entrada (`js/intro.js`, solo portal y panel) | Amanecer en el Caribe con el emblema que vuela hasta el logo de la barra. Una vez por sesión. |
+| Inicio (`src/paginas/inicio/`, `src/estilos/inicio.css`) | Hero con una **vista real del primer módulo** de Lógica de programación; **orientador** de dos preguntas que recomienda un curso con su próximo grupo; **rutas** de Software y Hardware armadas desde el catálogo; el **ritmo de cada módulo** (dos clases de 90 minutos, con la práctica marcada); proceso de inscripción, cursos abiertos, mentores, nosotros, **preguntas frecuentes** (`<details>`), asistente y contacto. |
+| Todas las páginas | Revelado suave al hacer scroll (`data-revelar`, `data-escalonar` en los componentes; los anima `src/lib/efectos.js`), cifras que cuentan desde cero, barra superior que se esconde al bajar y vuelve al subir, línea de lectura, fundido corto entre páginas y tarjetas esqueleto mientras cargan los cursos. |
+| Entrada (`src/componentes/app/Intro.jsx`, solo portal y panel) | Amanecer en el Caribe con el emblema que vuela hasta el logo de la barra. Una vez por sesión. |
 | Plataforma | Cada sección del portal y del panel entra en cascada, los indicadores cuentan, las barras crecen y los anillos de avance se llenan. |
 
 `cursos.html?curso=ID` abre directamente la ficha de un curso (lo usan las rutas, el orientador y los cursos destacados del inicio).
@@ -169,88 +205,63 @@ Con el servidor, la plataforma se protege así (detalle en [backend/README.md](b
 - **Contra la fuerza bruta**: tras varios intentos fallidos se bloquean por 15 minutos la conexión y la cuenta atacada; registro, contacto, recuperación y asistente IA tienen límites de uso.
 - **Registro de seguridad** en el panel (sección **Seguridad**, para gerencia, dirección general y tecnología): ingresos, fallos, bloqueos y conexiones sospechosas.
 - **Navegador blindado**: una política CSP solo deja ejecutar los scripts del propio sitio, la página no se puede meter en iframes y todo texto de la base se escapa antes de mostrarse.
-- **Archivos privados**: el servidor solo publica las páginas y las carpetas del frontend; el código del servidor y los scripts SQL no se pueden descargar.
+- **Archivos privados**: el servidor solo publica el React compilado (`frontend/dist`); el código del servidor y los scripts SQL no se pueden descargar.
+- **React escapa todo el texto** que pinta (nombres, respuestas, mensajes): un dato malicioso guardado en la base no puede convertirse en código.
 
-La política CSP también va como etiqueta `<meta>` en cada página (GitHub Pages no permite cabeceras propias). Dos efectos a tener en cuenta:
-- Con **Live Server** la recarga automática deja de funcionar (Live Server inserta un script en la página y la CSP lo bloquea): recarga con F5 después de guardar.
-- Si publicas la API en un dominio que no termine en `onrender.com`, agrégalo a `connect-src` en esa etiqueta de cada página.
+La política CSP también va como etiqueta `<meta>` en cada página (GitHub Pages no permite cabeceras propias): la agrega `frontend/vite.config.js` al compilar (en `npm run dev` no se pone, porque Vite necesita sus propios scripts para recargar al instante). Si publicas la API en un dominio que no termine en `onrender.com`, agrégalo a `connect-src` en la constante `CSP` de ese archivo.
 
 ## Publicar el proyecto
 
-**1. Subir a GitHub.** Crea un repositorio vacío llamado `talento-caribe` en GitHub (sin README ni .gitignore) y, en la carpeta del proyecto:
+**1. Subir a GitHub.** Por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env`, `node_modules` y `frontend/dist` no se suben (están en `.gitignore`).
 
-```
-git remote add origin https://github.com/josrcs/talento-caribe.git
-git push -u origin main
-```
+**2. Frontend en GitHub Pages (con GitHub Actions).** Como React se compila, GitHub Pages ya no publica la carpeta del repositorio tal cual: lo hace la acción `.github/workflows/pages.yml`, que en cada `push` a `main` ejecuta `npm ci` y `npm run build` en `frontend/` y publica `frontend/dist`. **Configuración única:** en GitHub → *Settings → Pages → Build and deployment → Source* elige **GitHub Actions**. La página queda en `https://josrcs.github.io/talento-caribe/` y cada publicación se ve en la pestaña *Actions*. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `frontend/index.html` y `frontend/cursos.html` para que se vea la imagen al compartir el enlace.
 
-Después, por cada cambio con sentido (un arreglo, una sección, una función): `git add .`, `git commit -m "Qué cambió"` y `git push`. `backend/.env` no se sube (está en `.gitignore`).
-
-**2. Frontend en GitHub Pages.** En GitHub: *Settings → Pages → Source: Deploy from a branch → main / (root)*. La página queda en `https://josrcs.github.io/talento-caribe/`. Sin backend funciona en modo demostración. Cambia `josrcs` por tu usuario en las etiquetas `og:` de `index.html` y `cursos.html` para que se vea la imagen al compartir el enlace por WhatsApp. Si el repositorio tiene otro nombre, cambia también `<base href="/talento-caribe/">` en `404.html`.
-
-**3. Backend en Render (para cuentas reales, contacto real e IA).** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
+**3. Backend en Render.** En https://render.com: *New → Blueprint* → elige el repositorio. `render.yaml` crea la base PostgreSQL y el servidor, y te pide:
 - `GEMINI_API_KEY`: la clave gratuita del asistente (https://aistudio.google.com/apikey).
 - `CORS_ORIGENES`: `https://josrcs.github.io`
+- `SITIO_URL`: la dirección de la página en GitHub Pages (para los enlaces de los correos), y los datos de Brevo (`BREVO_API_KEY`, `CORREO_REMITENTE`); puedes dejarlos vacíos al principio.
 
-Render también pide `SITIO_URL` (la dirección de la página en GitHub Pages, para los enlaces de los correos) y los datos de Brevo (`BREVO_API_KEY`, `CORREO_REMITENTE`); puedes dejarlos vacíos al principio.
+La dirección del backend está en `API_PUBLICADA` de `frontend/src/lib/config.js` (o en la variable `VITE_API_URL`, ver `frontend/.env.ejemplo`). El plan gratis de Render se duerme tras 15 minutos sin uso: la primera petición tarda alrededor de un minuto mientras despierta (mientras tanto la página muestra las tarjetas de carga; si se agota la espera, aparece un botón para reintentar). Abre la página un minuto antes de presentarla. La base gratis de Render vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
 
-**Primer ingreso al panel publicado:** en Render abre el servicio `talento-caribe-api` → **Logs** y busca `🔐 Contraseña nueva del administrador`. Entra con `admin@talentocaribe.co` y esa contraseña, y cámbiala en **Mi cuenta**. Si la pierdes: en **Environment** agrega `ADMIN_CLAVE_NUEVA` con una contraseña segura, guarda (Render reinicia solo), ingresa con ella y **borra la variable** después. Cuando Render termine, copia la URL del servidor (por ejemplo `https://talento-caribe-api.onrender.com`) en `API_PUBLICADA` de `js/config.js`, haz commit y push: GitHub Pages pasará a usar la API real. El plan gratis de Render se duerme tras 15 minutos sin uso (la primera petición tarda ~1 minuto) y su base gratis vence a los 30 días; para una base permanente puedes usar Neon o Supabase con `DATABASE_SSL=true`.
+**Primer ingreso al panel publicado:** en Render abre el servicio `talento-caribe-api` → **Logs** y busca `🔐 Contraseña nueva del administrador`. Entra con `admin@talentocaribe.co` y esa contraseña, y cámbiala en **Mi cuenta**. Si la pierdes: en **Environment** agrega `ADMIN_CLAVE_NUEVA` con una contraseña segura, guarda (Render reinicia solo), ingresa con ella y **borra la variable** después.
 
-**4. Después de la presentación.** Las contraseñas de las cuentas de prueba están en este README, así que cualquiera podría entrar al panel publicado. En Render → el servicio → *Shell*, cámbialas o desactívalas: `npm run cuenta -- clave admin@talentocaribe.co` (genera una segura y la muestra una vez) o `npm run cuenta -- desactivar estudiante@talentocaribe.co`. `npm run cuenta -- lista` muestra todas las cuentas.
+**4. Después de la presentación.** En Render → el servicio → *Shell*: `npm run cuenta -- clave admin@talentocaribe.co` (genera una contraseña segura y la muestra una vez), `npm run cuenta -- desactivar estudiante@talentocaribe.co` o `npm run cuenta -- lista`.
 
-## Plataforma: roles, actividades y asistente IA (modo demostración)
-
-| Archivo | Qué hace |
-|---|---|
-| `js/datos.js` | Modelo compartido: matrículas, actividades y entregas. Con servidor los pide a `GET /api/datos` y guarda con la API; sin servidor usa `localStorage`. |
-| `js/auth.js` | Registro, inicio de sesión y perfil (API con JWT, o local en modo demostración). |
-| `js/asistente-ia.js` | Asistente IA por rol (estudiante, docente, administrativo, visitante) con datos reales del usuario + componente de chat completo. Con `MODO_DEMO: false` envía la pregunta y el contexto a `POST /api/chat`. |
-| `js/portal.js` | Espacio de estudiantes (inicio didáctico, cursos, actividades, logros, tutor IA) y de docentes (crear actividades, calificar entregas, seguimiento). |
-| `js/panel.js` | Panel administrativo por cargo: indicadores, gráficas, actividad académica, asistente de gestión. |
-| `js/login.js` | Acceso por rol, selector visual de cargo y selector de docente. |
-| `js/guia.js` | Guía paso a paso que aparece la primera vez en cada espacio (botón «Guía» para repetirla). |
-| `js/iconos.js` | Íconos SVG de línea. |
-| `css/plataforma.css` | Estilos de login, portal, panel, chat y guía. |
-
-**Cuentas de prueba:** estudiante `estudiante@talentocaribe.co / Estudiante123` · docentes `docente@`, `daniel@`, `valeria@`, `andres@`, `laura@talentocaribe.co` con clave `Docente123` · administrativo `admin@talentocaribe.co / Admin123` (con cualquier cargo).
-
-**Flujo de actividades:** el docente publica una actividad en un curso que dicta → la ven los estudiantes con inscripción *aprobada* en ese curso → el estudiante entrega → el docente califica (1.0 a 5.0) con retroalimentación → el estudiante ve su nota.
-
-## Animación de entrada, modo claro e inglés
+## Idioma, tema y animación de entrada
 
 | Archivo | Qué hace |
 |---|---|
-| `js/intro.js` | Animación de entrada del portal y el panel (amanecer caribeño, emblema que aparece desde su sol, "TALENTO CARIBE" letra a letra, lema, barra de carga y salida en forma de ola con el emblema volando al logo). Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
-| `css/tema.css` | Paletas: oscuro (azul tinta) y claro (papel cálido). Se carga antes de `style.css`. Los colores de los demás CSS usan variables (`--tinte`, `--texto-fuerte`, `--o-*`...). |
-| `js/i18n.js` | Aplica tema e idioma antes de pintar, traduce textos y atributos (también lo que el JS pinta después) y añade los botones ☀/🌙 y ES/EN. Expone `TCIdioma` y `TCi18n.t()`. |
-| `js/i18n-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
-| `js/i18n-en-cursos.js` | Diccionario del plan de cursos (títulos de módulos, temas, actividades, evidencias y guía de clase). No reemplaza frases que ya traduce `i18n-en.js`. |
+| `src/i18n/idioma.js` | Aplica el tema y el idioma antes de montar React. En inglés, un `MutationObserver` traduce lo que React pinta (textos y atributos) con el diccionario; React compara con sus propios datos, así que lo traducido no se pierde al volver a pintar. Exporta `t()` para frases con variables. |
+| `src/i18n/diccionario-en.js` | Diccionario español → inglés. `#` = cualquier número. `TC_EN_PATRONES` cubre frases con nombres. |
+| `src/i18n/diccionario-en-cursos.js` | Diccionario del plan de cursos (módulos, temas, actividades, evidencias y guía de clase). |
+| `src/componentes/Preferencias.jsx` | Botones ☀/🌙 y ES/EN. |
+| `src/componentes/app/Intro.jsx` | Animación de entrada del portal y el panel. Una vez por sesión (o con `?intro`); se salta con clic, rueda del mouse o Esc; respeta "reducir movimiento". |
+| `src/estilos/tema.css` | Paletas: oscuro (azul tinta) y claro (papel cálido). |
 
-- Preferencias guardadas en `localStorage`: `tc_tema` (`claro`/`oscuro`; por defecto sigue al sistema) y `tc_idioma` (`es`/`en`; por defecto español).
-- Para traducir un texto nuevo, agrega la línea `"Texto en español": "English text"` en `js/i18n-en.js` (o en `js/i18n-en-cursos.js` si es contenido de un curso).
+- Para traducir un texto nuevo, agrega `"Texto en español": "English text"` en `src/i18n/diccionario-en.js`. Escribe cada frase completa en un solo texto (por ejemplo ``{`${n} cursos encontrados`}``): si se parte en varios pedazos, el diccionario no la reconoce.
 - El contenido escrito por personas (respuestas, mensajes del chat) lleva `data-no-traducir` y no se modifica.
 
 ## Módulos y fichas
 
 | Concepto | Qué es | Dónde se define |
 |---|---|---|
-| **Módulo** | Parte de un curso (2 semanas) con sus temas, la actividad del plan y la evidencia que se entrega. Los 96 módulos (8 por curso, 16 semanas) vienen del documento *Plan de cursos y clases desarrolladas*. | `js/cursos-data.js` (propiedad `modulos` de cada curso). Si no existe, se arma desde `temario`: cada línea es un módulo. En el panel: «Nombre del módulo: tema 1, tema 2». |
-| **Ficha** | Grupo de un curso con número propio, jornada, fecha de inicio, cupos y estado. | `TALENTO_CARIBE_FICHAS` en `js/cursos-data.js`; en el panel → Cursos → Fichas. Con servidor: tabla `fichas`. |
+| **Módulo** | Parte de un curso (2 semanas) con sus temas, la actividad del plan y la evidencia que se entrega. Los 96 módulos (8 por curso, 16 semanas) vienen del documento *Plan de cursos y clases desarrolladas*. | `compartido/cursos.json` (propiedad `modulos` de cada curso) y, con el servidor, la tabla `cursos`. Si no existe, se arma desde `temario` (`modulosDe` en `frontend/src/lib/cursos.js`): cada línea es un módulo. En el panel: «Nombre del módulo: tema 1, tema 2». |
+| **Ficha** | Grupo de un curso con número propio, jornada, fecha de inicio, cupos y estado. | `fichas` en `compartido/cursos.json` (datos iniciales); en el panel → Cursos → Fichas. Se guardan en la tabla `fichas`. |
 
 - **Estudiante:** en el catálogo elige la ficha (solo las que tienen *Inscripciones abiertas*). En *Mis cursos* ve su avance en cada módulo.
 - **Guía de clase:** en *Mis cursos*, cada módulo muestra al docente sus dos sesiones de 90 minutos (inicio, desarrollo, modelado, práctica, cierre, reto, revisión entre pares y entrega), la forma de trabajo según la modalidad y las normas de seguridad. El botón *Publicar la actividad de este módulo* deja la actividad lista para revisar y publicar.
 - **Docente:** al publicar una actividad elige el **módulo** y la **ficha** (o *todas las fichas*). En *Seguimiento* ve una tabla por ficha: cada estudiante × cada módulo, con porcentaje de entregas; tocando un estudiante ve el detalle y puede calificar.
 - **Búsqueda por ficha:** en el catálogo (`cursos.html?ficha=25896`), en Seguimiento del docente y en Inscripciones del panel.
 
-Formato para escribir los módulos de un curso a mano en `js/cursos-data.js`:
+Formato de los módulos de un curso en `compartido/cursos.json`:
 
-```js
-modulos: [
-  { titulo: 'Fundamentos', temas: ['Variables', 'Tipos de datos'], actividades: ['Taller: mi primera variable'] },
-  { titulo: 'Decisiones', temas: ['Condicionales', 'Ciclos'], actividades: ['Quiz de condicionales'] }
+```json
+"modulos": [
+  { "titulo": "Fundamentos", "temas": ["Variables", "Tipos de datos"], "actividades": ["Taller: mi primera variable"] },
+  { "titulo": "Decisiones", "temas": ["Condicionales", "Ciclos"], "actividades": ["Quiz de condicionales"] }
 ]
 ```
 
-Después de cambiar el catálogo o las fichas, regenera los datos de PostgreSQL con `node scripts/generar-seed.js` (en `backend/`) y luego `npm run db:reiniciar`.
+Después de cambiar ese archivo, regenera los datos de PostgreSQL con `node scripts/generar-seed.js` (en `backend/`) y luego `npm run db:reiniciar`.
 
 > **Si ya tenías la base creada:** las tablas cambiaron (nueva tabla `fichas` y columnas `modulos`, `ficha_id` y `modulo`). Ejecuta `npm run db:reiniciar` en `backend/` (borra los datos de prueba y los vuelve a crear).

@@ -64,7 +64,7 @@ function SelectorCargo({ puesto, alElegir }) {
   const grupos = CARGOS.map((g) => ({ ...g, items: g.items.filter((i) => !f || sinTildes(i[0]).includes(f) || sinTildes(i[2]).includes(f)) })).filter((g) => g.items.length);
   return (
     <div className="cargo-selector" id="cargo-selector">
-      <label className="cargo-buscar"><span><Icono nombre="buscar" tam={18} /></span><span className="sr-only">Buscar cargo</span>
+      <label className="cargo-buscar"><span data-icono><Icono nombre="buscar" tam={18} /></span><span className="sr-only">Buscar cargo</span>
         <input type="search" id="cargo-buscar" placeholder="Busca tu cargo: director, admisiones, finanzas…" value={filtro} onChange={(e) => setFiltro(e.target.value)} autoFocus />
       </label>
       <div className="cargo-grupos" id="cargo-grupos" role="radiogroup" aria-label="Cargo administrativo">
@@ -182,7 +182,7 @@ export default function Login() {
             <input type="hidden" name="puesto" value={puesto} />
             <div className={"acceso-dinamico" + (cambios ? " cambia" : "")} key={"d" + rol}>
               {rol === "estudiante" && (
-                <p className="acceso-aviso"><span><Icono nombre="destello" tam={18} /></span><span>¿Eres nuevo? <a href={enlace("registro.html") + (cursoPendiente > 0 ? "?curso=" + cursoPendiente : "")}>Crea tu cuenta gratis</a> en menos de 3 minutos.</span></p>
+                <p className="acceso-aviso"><span data-icono><Icono nombre="destello" tam={18} /></span><span>¿Eres nuevo? <a href={enlace("registro.html") + (cursoPendiente > 0 ? "?curso=" + cursoPendiente : "")}>Crea tu cuenta gratis</a> en menos de 3 minutos.</span></p>
               )}
 
               {/* Docentes: elegir su nombre llena el correo */}

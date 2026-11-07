@@ -1,0 +1,53 @@
+# Publica el frontend en React en GitHub Pages.
+# Cada vez que se sube un cambio a main, GitHub instala las dependencias, compila con Vite
+# (frontend/dist) y publica el resultado. Configuración única en GitHub:
+#   Settings → Pages → Build and deployment → Source: «GitHub Actions».
+# La API (backend/) se publica aparte en Render (ver render.yaml).
+name: Publicar en GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch: # también se puede lanzar a mano desde la pestaña Actions
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construir:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - name: Instalar dependencias
+        working-directory: frontend
+        run: npm ci
+      - name: Compilar con Vite
+        working-directory: frontend
+        # La página 404 necesita la ruta del sitio: https://usuario.github.io/<repositorio>/
+        env:
+          VITE_BASE_404: /${{ github.event.repository.name }}/
+        run: npm run build
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/dist
+
+  publicar:
+    needs: construir
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.despliegue.outputs.page_url }}
+    steps:
+      - id: despliegue
+        uses: actions/deploy-pages@v4

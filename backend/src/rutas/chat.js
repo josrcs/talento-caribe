@@ -6,7 +6,7 @@
      (tabla config_ia, PUT /api/config-ia).
    - Sin GEMINI_API_KEY en .env, si se acaba la cuota gratis o si Google está saturado, responde
      503 { sinIA: true } y el navegador usa las respuestas locales
-     (js/asistente-ia.js): la página nunca se rompe.
+     (frontend/src/lib/asistente.js): la página nunca se rompe.
    - Se usa la API REST de Gemini con fetch (incluido en Node 18+): no hace
      falta instalar ninguna librería.
    Ojo: en el plan gratuito Google puede usar las conversaciones para mejorar

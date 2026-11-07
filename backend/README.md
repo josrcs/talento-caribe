@@ -1,11 +1,13 @@
 # Servidor de Talento Caribe (Node + Express + PostgreSQL)
 
-Un solo servidor sirve **la página web** y **la API** conectada a PostgreSQL.
+Este servidor expone **la API** conectada a PostgreSQL y, si ya compilaste el frontend en React
+(`npm run build` dentro de `frontend/`), también sirve **la página web**.
 Después de seguir estos pasos abres `http://localhost:3000` y listo.
+Para programar la parte visual usa además `npm run dev` en `frontend/` (ver el [README principal](../README.md)).
 
 ## Requisitos (una sola vez)
 
-1. **Node.js** 18 o superior → https://nodejs.org (versión LTS). Comprueba con `node -v`.
+1. **Node.js** 20.19 o superior → https://nodejs.org (versión LTS). Comprueba con `node -v`. (El servidor funciona desde Node 18; Vite, que compila React, pide 20.19 o más).
 2. **PostgreSQL** → https://www.postgresql.org/download/windows/
    Durante la instalación **anota la contraseña** del usuario `postgres`. Deja el puerto 5432.
 
@@ -34,6 +36,15 @@ Crea la base de datos, las tablas y los 12 cursos (no necesitas `psql`):
 
 ```bash
 npm run db:init
+```
+
+Compila la página en React (una vez, y cada vez que cambies algo en `frontend/`):
+
+```bash
+cd ../frontend
+npm install
+npm run build
+cd ../backend
 ```
 
 Enciende el servidor:
@@ -184,7 +195,7 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 
 **Datos y secretos**
 - `backend/.env` tiene tus claves: **nunca** lo subas a GitHub (ya está en `.gitignore`). En producción el servidor no arranca si `JWT_SECRETO` falta, es corto o es el del ejemplo: con un secreto conocido cualquiera podría fabricar una sesión de administrador.
-- El servidor publica **solo** lo que está en una lista blanca: las páginas (`index`, `cursos`, `portal`, `registro`, `recuperar`) y las carpetas `css`, `js`, `assets` y `admin`. El código del servidor, `database/`, el README y los archivos de configuración no se pueden descargar, ni siquiera escribiendo la ruta de otra forma (`/%62ackend/...`).
+- El servidor publica **solo** lo que está en una lista blanca de `frontend/dist` (el React compilado): las páginas (`index`, `cursos`, `portal`, `registro`, `recuperar`) y las carpetas `static`, `assets` y `admin`. El código del servidor, `database/`, el README y los archivos de configuración no se pueden descargar, ni siquiera escribiendo la ruta de otra forma (`/%62ackend/...`).
 - Las consultas usan parámetros (`$1, $2…`), lo que evita la inyección SQL. Ninguna consulta puede tardar más de 15 segundos.
 - Los permisos (quién ve y cambia qué) se revisan en el servidor en cada petición. Un cargo de un área no puede tocar cursos ni fichas de otra.
 
