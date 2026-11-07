@@ -21,13 +21,19 @@ function contar(el, retraso = 0) {
   const [, antes, numero, despues] = partes, nodo = el.firstChild;
   const decimales = (numero.split(/[.,]/)[1] || "").length, separador = numero.includes(",") ? "," : ".";
   const meta = parseFloat(numero.replace(",", "."));
-  const escribir = (valor) => { if (nodo.isConnected) nodo.nodeValue = antes + valor.toFixed(decimales).replace(".", separador) + despues; };
+  // Si React cambia el número mientras cuenta (llegaron datos nuevos), la animación se detiene y queda el valor nuevo
+  let escrito = null, original = nodo.nodeValue;
+  const ajeno = () => !nodo.isConnected || (escrito !== null && nodo.nodeValue !== escrito);
+  const escribir = (valor) => { escrito = antes + valor.toFixed(decimales).replace(".", separador) + despues; nodo.nodeValue = escrito; };
   escribir(0);
   setTimeout(() => {
+    if (ajeno()) return;
     const inicio = performance.now();
     const paso = (ahora) => {
+      if (ajeno()) return;
       const t = Math.min(1, (ahora - inicio) / 1400);
-      escribir(meta * (1 - Math.pow(1 - t, 4)));
+      if (t < 1) escribir(meta * (1 - Math.pow(1 - t, 4)));
+      else nodo.nodeValue = original; // termina exactamente en el texto que pintó React
       if (t < 1) requestAnimationFrame(paso);
     };
     requestAnimationFrame(paso);

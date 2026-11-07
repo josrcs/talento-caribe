@@ -17,7 +17,7 @@ import { enlace } from "../lib/rutas.js";
 import Icono from "./Icono.jsx";
 
 /* Markdown mínimo: **negrita**, _cursiva_, `código` y listas. React escapa el texto, así que es seguro. */
-function enLinea(texto) {
+export function enLinea(texto) {
   const partes = [];
   const re = /\*\*(.+?)\*\*|`([^`]+)`|(^|\s)[_*]([^_*]+)[_*](?=\s|$|[.,)])/g;
   let ultimo = 0, m, k = 0;
