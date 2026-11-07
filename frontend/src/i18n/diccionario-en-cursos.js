@@ -1,6 +1,6 @@
-/* i18n-en-cursos.js - Diccionario español -> inglés del plan de cursos (módulos, temas, actividades,
-   evidencias y guía de clase). Se carga después de i18n-en.js y se suma a window.TC_EN.
-   Las claves son los textos de js/cursos-data.js (y de database/seed.sql, que sale de ese archivo). */
+/* diccionario-en-cursos.js - Diccionario español -> inglés del plan de cursos (módulos, temas, actividades,
+   evidencias y guía de clase). Se importa después de diccionario-en.js y se suma a window.TC_EN.
+   Las claves son los textos de compartido/cursos.json (y de database/seed.sql, que sale de ese archivo). */
 (() => {
   const CURSOS_EN = {
   /* ---------- Interfaz del plan de cursos ---------- */
@@ -564,7 +564,7 @@
   "Documentar avances virtualmente; práctica final para probar condición límite y presentar.": "Document progress online; final practice to test an edge condition and present.",
   "Prototipo, diagrama, panel, pruebas y reflexión de privacidad.": "Prototype, diagram, dashboard, tests and a privacy reflection.",
   };
-  // No reemplaza frases que i18n-en.js ya traduce (p. ej. «Inicio» del menú)
+  // No reemplaza frases que diccionario-en.js ya traduce (p. ej. «Inicio» del menú)
   for (const k in CURSOS_EN) if (!(k in window.TC_EN)) window.TC_EN[k] = CURSOS_EN[k];
 })();
 

@@ -2,7 +2,7 @@
    actualizar-db.js - Pone al día una base creada con una versión anterior
    SIN BORRAR NADA (a diferencia de npm run db:reiniciar).
    npm run db:actualizar
-   - Agrega a cursos las columnas modulos y guia, y las llena desde js/cursos-data.js
+   - Agrega a cursos las columnas modulos y guia, y las llena desde compartido/cursos.json
      (solo en los cursos que todavía no tienen módulos).
    - Crea la tabla fichas con las fichas del catálogo.
    - Agrega ficha_id a inscripciones y modulo/ficha_id a actividades. Las inscripciones
@@ -18,19 +18,11 @@
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
-const fs = require("fs");
-const path = require("path");
-const vm = require("vm");
 const { Client } = require("pg");
 
-const RAIZ = path.join(__dirname, "..", "..");
-const contexto = { window: {}, localStorage: { getItem: () => null } };
-vm.createContext(contexto);
-vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "cursos-data.js"), "utf8"), contexto);
-vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "encuestas-data.js"), "utf8"), contexto);
-const cursos = contexto.window.TALENTO_CARIBE_CURSOS;
-const fichas = contexto.window.TALENTO_CARIBE_FICHAS;
-const respuestasEjemplo = contexto.window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO;
+// Catálogo y encuestas compartidos con la página en React (frontend/src importa los mismos archivos)
+const { cursos, fichas } = require("../../compartido/cursos.json");
+const { respuestasEjemplo } = require("../../compartido/encuestas.json");
 
 if (!process.env.DATABASE_URL) { console.error("✖ Falta DATABASE_URL en backend/.env (copia .env.ejemplo como .env)."); process.exit(1); }
 const ssl = process.env.DATABASE_SSL === "true" ? { rejectUnauthorized: false } : undefined;

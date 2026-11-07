@@ -1,21 +1,14 @@
 /* ==========================================================
    Encuestas: el estudiante envía sus respuestas (una vez por encuesta).
-   Las preguntas salen de js/encuestas-data.js, el mismo archivo que usa
-   la página, así el servidor valida exactamente lo que el estudiante ve.
+   Las preguntas salen de compartido/encuestas.json, el mismo archivo que usa
+   la página en React, así el servidor valida exactamente lo que el estudiante ve.
    Los resultados llegan al panel con GET /api/datos, sin nombres.
    ========================================================== */
-const fs = require("fs");
-const path = require("path");
-const vm = require("vm");
 const router = require("express").Router();
 const pool = require("../db");
 const { requiereSesion, requiereRol } = require("../seguridad");
 
-// El archivo del frontend se ejecuta en un contexto aislado (como hace scripts/generar-seed.js con los cursos)
-const contexto = { window: {} };
-vm.createContext(contexto);
-vm.runInContext(fs.readFileSync(path.join(__dirname, "..", "..", "..", "js", "encuestas-data.js"), "utf8"), contexto);
-const ENCUESTAS = contexto.window.TALENTO_CARIBE_ENCUESTAS;
+const { encuestas: ENCUESTAS } = require("../../../compartido/encuestas.json");
 
 /* Devuelve las respuestas limpias o null si falta alguna obligatoria o tiene un valor que no existe */
 function revisar(encuesta, r) {

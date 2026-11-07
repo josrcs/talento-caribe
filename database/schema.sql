@@ -158,7 +158,7 @@ CREATE TABLE config_ia (
   actualizado_en  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
--- ---------- Respuestas de las encuestas (js/encuestas-data.js): una por estudiante y encuesta ----------
+-- ---------- Respuestas de las encuestas (compartido/encuestas.json): una por estudiante y encuesta ----------
 -- El panel muestra los resultados agrupados y sin nombres; estudiante_id solo evita respuestas repetidas.
 CREATE TABLE respuestas_encuesta (
   id             SERIAL PRIMARY KEY,

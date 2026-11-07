@@ -1,6 +1,7 @@
-/* i18n-en.js - Diccionario español -> inglés de Talento Caribe.
+/* diccionario-en.js - Diccionario español -> inglés de Talento Caribe.
    Claves = texto en español con espacios normalizados. "#" representa cualquier número.
-   TC_EN_PATRONES cubre frases con nombres u otros datos variables. */
+   TC_EN_PATRONES cubre frases con nombres u otros datos variables.
+   Se importa desde src/i18n/idioma.js antes de montar React. */
 window.TC_EN = {
   "Autorizo a Talento Caribe a usar estos datos para gestionar mi preinscripción y contactarme.": "I authorize Talento Caribe to use this data to manage my pre-registration and contact me.",
   "Tu perfil y tu solicitud se guardan de forma segura en la base de datos de Talento Caribe. Solo el equipo de admisiones puede verlos.": "Your profile and request are stored securely in the Talento Caribe database. Only the admissions team can see them.",

@@ -1,22 +1,17 @@
 /* ==========================================================
    generar-seed.js - Genera database/seed.sql
-   Toma el catálogo de js/cursos-data.js (la misma fuente que usa la página)
+   Toma el catálogo de compartido/cursos.json (la misma fuente que usa la página)
    y crea cuentas de prueba con contraseñas cifradas con bcrypt.
    Uso: node scripts/generar-seed.js   (solo si cambias el catálogo o las cuentas)
    ========================================================== */
 const fs = require("fs");
 const path = require("path");
-const vm = require("vm");
 const bcrypt = require("bcryptjs");
 
 const RAIZ = path.join(__dirname, "..", "..");
-const contexto = { window: {}, localStorage: { getItem: () => null } };
-vm.createContext(contexto);
-vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "cursos-data.js"), "utf8"), contexto);
-vm.runInContext(fs.readFileSync(path.join(RAIZ, "js", "encuestas-data.js"), "utf8"), contexto);
-const cursos = contexto.window.TALENTO_CARIBE_CURSOS;
-const fichas = contexto.window.TALENTO_CARIBE_FICHAS;
-const respuestasEjemplo = contexto.window.TALENTO_CARIBE_RESPUESTAS_EJEMPLO;
+// Catálogo y encuestas compartidos con la página en React (frontend/src importa los mismos archivos)
+const { cursos, fichas } = require("../../compartido/cursos.json");
+const { respuestasEjemplo } = require("../../compartido/encuestas.json");
 
 const q = (v) => (v === null || v === undefined ? "NULL" : "'" + String(v).replace(/'/g, "''") + "'");
 const arr = (lista) => "ARRAY[" + lista.map(q).join(", ") + "]::text[]";
@@ -55,14 +50,14 @@ sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, especialidad) V
 sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, pais, tipo_documento, numero_documento, fecha_nacimiento, telefono, ciudad, region, ultimo_estudio) VALUES\n" +
   ESTUDIANTES.map(([n, c, p, td, nd, fn, t, ci, r]) => `  (${q(n)}, ${q(c)}, ${q(h.est)}, 'estudiante', ${q(p)}, ${q(td)}, ${q(nd)}, ${q(fn)}, ${q(t)}, ${q(ci)}, ${q(r)}, 'Secundaria o bachillerato')`).join(",\n") + ";");
 
-sql.push("\n-- Cursos (mismo catálogo que js/cursos-data.js). El docente se enlaza por su nombre.");
+sql.push("\n-- Cursos (mismo catálogo que compartido/cursos.json). El docente se enlaza por su nombre.");
 for (const c of cursos) {
   const modulos = (c.modulos || []).map((m) => ({ titulo: m.titulo, temas: m.temas || [], temasTexto: m.temasTexto || "", actividades: m.actividades || [], evidencia: m.evidencia || "" }));
   sql.push(`INSERT INTO cursos (id, titulo, area, nivel, duracion_semanas, modalidad, fase, docente_id, instructor, edad_minima, descripcion, objetivo, temario, modulos, guia, proyecto) VALUES (${c.id}, ${q(c.titulo)}, ${q(c.area)}, ${q(c.nivel)}, ${c.duracion}, ${q(c.modalidad)}, ${q(c.fase)}, (SELECT id FROM usuarios WHERE nombre = ${q(c.instructor)} AND rol = 'docente'), ${q(c.instructor)}, ${Number(c.edadMinima ?? 14)}, ${q(c.descripcion)}, ${q(c.objetivo)}, ${arr(c.temario || [])}, ${q(JSON.stringify(modulos))}::jsonb, ${q(JSON.stringify(c.guia || {}))}::jsonb, ${q(c.proyecto)});`);
 }
 sql.push("SELECT setval(pg_get_serial_sequence('cursos', 'id'), (SELECT max(id) FROM cursos));");
 
-sql.push("\n-- Fichas (grupos de cada curso, mismo listado que js/cursos-data.js)");
+sql.push("\n-- Fichas (grupos de cada curso, mismo listado que compartido/cursos.json)");
 sql.push("INSERT INTO fichas (numero, curso_id, jornada, fecha_inicio, cupos, estado) VALUES\n" +
   fichas.map((f) => `  (${q(f.numero)}, ${f.curso_id}, ${q(f.jornada)}, ${q(f.inicio)}, ${Number(f.cupos)}, ${q(f.estado)})`).join(",\n") + ";");
 const fic = (numero) => numero ? `(SELECT id FROM fichas WHERE numero = ${q(numero)})` : "NULL";
@@ -99,7 +94,7 @@ sql.push(`INSERT INTO entregas (actividad_id, estudiante_id, respuesta, enlace, 
   (${actId("El algoritmo de tu mañana")}, ${est("andrea.castro@correo.com")}, ${q("1. Me levanto\n2. SI hace calor ENTONCES me baño con agua fría\n3. MIENTRAS desayuno escucho música.")}, NULL, 'entregada', NULL, NULL, now() - interval '1 day', NULL),
   (${actId("¿Cómo funciona la web?")}, ${est("kevin.ariza@correo.com")}, ${q("El navegador es el programa que pide la página al servidor y la dibuja en pantalla.")}, NULL, 'revisada', 4.0, ${q("Clara tu explicación. Agrega qué papel cumple el DNS.")}, now() - interval '1 day', now());`);
 
-sql.push("\n-- Respuestas de encuestas de ejemplo (js/encuestas-data.js)");
+sql.push("\n-- Respuestas de encuestas de ejemplo (compartido/encuestas.json)");
 sql.push("INSERT INTO respuestas_encuesta (encuesta, estudiante_id, respuestas, creado_en) VALUES\n" +
   respuestasEjemplo.map((r, i) => `  (${q(r.encuesta)}, ${est(r.correo)}, ${q(JSON.stringify(r.respuestas))}::jsonb, now() - interval '${i % 9} days')`).join(",\n") + ";");
 
