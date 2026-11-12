@@ -1,0 +1,224 @@
+# Servidor de Talento Caribe (Node + Express + PostgreSQL)
+
+Este servidor expone **la API** conectada a PostgreSQL y, si ya compilaste el frontend en React
+(`npm run build` dentro de `frontend/`), también sirve **la página web**.
+Después de seguir estos pasos abres `http://localhost:3000` y listo.
+Para programar la parte visual usa además `npm run dev` en `frontend/` (ver el [README principal](../README.md)).
+
+## Requisitos (una sola vez)
+
+1. **Node.js** 20.19 o superior → https://nodejs.org (versión LTS). Comprueba con `node -v`. (El servidor funciona desde Node 18; Vite, que compila React, pide 20.19 o más).
+2. **PostgreSQL** → https://www.postgresql.org/download/windows/
+   Durante la instalación **anota la contraseña** del usuario `postgres`. Deja el puerto 5432.
+
+## Pasos
+
+Abre una terminal (en VS Code: *Terminal → New Terminal*) dentro de la carpeta `backend`:
+
+```bash
+cd backend
+npm install
+```
+
+Copia el archivo de configuración y pon tu contraseña:
+
+```bash
+copy .env.ejemplo .env
+```
+
+Abre `backend/.env` y cambia `TU_CONTRASEÑA` por la clave de `postgres`:
+
+```
+DATABASE_URL=postgresql://postgres:miClave123@localhost:5432/talento_caribe
+```
+
+Crea la base de datos, las tablas y los 12 cursos (no necesitas `psql`):
+
+```bash
+npm run db:init
+```
+
+Compila la página en React (una vez, y cada vez que cambies algo en `frontend/`):
+
+```bash
+cd ../frontend
+npm install
+npm run build
+cd ../backend
+```
+
+Enciende el servidor:
+
+```bash
+npm start
+```
+
+Verás:
+
+```
+🌴 Talento Caribe en http://localhost:3000
+   API:    http://localhost:3000/api/salud
+   Base de datos: ✅ conectada
+```
+
+Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl + C`.
+
+## Comandos
+
+| Comando | Qué hace |
+|---|---|
+| `npm start` | Enciende el servidor |
+| `npm run dev` | Igual, pero se reinicia solo cuando guardas cambios en el servidor |
+| `npm run db:init` | Crea la base, las tablas y los datos iniciales (si ya existen, no toca nada) |
+| `npm run db:actualizar` | Agrega lo que falte de versiones nuevas (módulos, guía, fichas) **sin borrar** cuentas, actividades ni entregas |
+| `npm run db:reiniciar` | **Borra** todas las tablas y las crea de nuevo (pierdes los datos guardados) |
+| `npm run cuenta -- lista` | Muestra las cuentas con su rol y si están activas |
+| `npm run cuenta -- clave <correo>` | Pone una contraseña nueva y segura a esa cuenta (la muestra una sola vez) y cierra sus sesiones. Con `clave <correo> "MiClave2026"` usa la que escribas |
+| `npm run cuenta -- desactivar <correo>` | La cuenta ya no puede ingresar (`activar` la habilita de nuevo) |
+
+## Asistente con IA (Google Gemini, gratis)
+
+1. Entra a https://aistudio.google.com/apikey con tu cuenta de Google (es gratis y **no pide tarjeta**).
+2. Pulsa **Create API key** (Crear clave de API) y cópiala completa (según la cuenta empieza por `AQ.` o por `AIza`).
+3. Pégala en `backend/.env` y reinicia el servidor (`Ctrl + C` y `npm start`):
+
+```
+GEMINI_API_KEY=pega-aquí-tu-clave
+```
+
+Al encender verás `Asistente IA: ✅ Google Gemini (gemini-3.5-flash)`. Sin la clave el chat responde con reglas locales.
+
+- **Cuota gratuita:** Google limita cuántos mensajes se pueden enviar por minuto y por día (los números exactos aparecen en AI Studio y cambian con el tiempo). Si el modelo principal agota su cuota, el servidor prueba con el de respaldo (`gemini-3.5-flash-lite`); si también se agota, el chat sigue contestando con las respuestas locales y avisa que se alcanzó el límite gratuito. `IA_LIMITE_DIARIO` (200 por defecto) reparte la cuota para que no se gaste en pocas horas.
+- **Otros modelos:** `IA_MODELO=` y `IA_MODELO_RESPALDO=` en `.env`. Los nombres cambian con el tiempo: revisa https://ai.google.dev/gemini-api/docs/models. Si un modelo deja de existir, el servidor usa el de respaldo y lo avisa en la terminal.
+- **Privacidad:** en el plan gratuito Google puede usar las conversaciones para mejorar sus productos. El asistente ya pide no compartir contraseñas ni documentos; no lo uses con datos personales reales.
+
+## Correos (opcional)
+
+Para que lleguen los correos de bienvenida, recuperar contraseña y avisos de inscripción se usa **Brevo**, que los envía por una API web. Es la opción que funciona en **Render gratis**, porque desde septiembre de 2025 Render bloquea los puertos SMTP (465 y 587) en sus servicios gratuitos.
+
+1. Crea una cuenta gratis en https://www.brevo.com (no pide tarjeta; 300 correos al día).
+2. En **Senders, Domains & Dedicated IPs → Senders**, agrega el correo que enviará los mensajes (puede ser tu Gmail) y confírmalo desde el enlace que te llega.
+3. En **SMTP & API → API Keys**, pulsa **Generate a new API key** y cópiala (empieza por `xkeysib-`).
+4. Pon en `.env` (o en **Environment** de Render):
+
+```
+BREVO_API_KEY=xkeysib-...
+CORREO_REMITENTE=Talento Caribe <el-correo-que-verificaste@gmail.com>
+```
+
+Al encender verás `Correo: ✅ Brevo (API web)`. Si Brevo rechaza un correo, la terminal (o los Logs de Render) muestra el motivo; el más común es `Sender not verified`: confirma el remitente en Brevo.
+
+**Alternativa por SMTP** (solo en tu computador o en un servidor de pago): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USUARIO` y `SMTP_CLAVE` en `.env` (ver `.env.ejemplo`). Con Gmail hace falta una *contraseña de aplicación*, que Google no ofrece en todas las cuentas. Sin ninguna de las dos configuraciones, cada correo aparece en esta terminal (sirve para probar).
+
+## ¿Ya tenías la base creada de antes?
+
+Si el portal muestra errores y la terminal dice `no existe la columna «modulos»`, tu base es de una versión anterior. Ponla al día **sin perder datos**:
+
+```bash
+npm run db:actualizar
+```
+
+`db:actualizar` también agrega las columnas de la autorización de datos personales (`usuarios.consentimiento_version`, `usuarios.consentimiento_en` y `mensajes_contacto.politica_version`). Se puede ejecutar las veces que quieras.
+
+Si la base es todavía más antigua (sin usuarios, actividades ni entregas) y `npm run db:init` te avisa que la base es antigua:
+
+1. En `backend/.env` agrega una línea con una frase secreta larga (firma las sesiones):
+   ```
+   JWT_SECRETO=escribe-aqui-una-frase-larga-y-dificil-de-adivinar
+   ```
+2. Instala las librerías nuevas y reinicia la base (**borra los datos de prueba anteriores**):
+   ```bash
+   npm install
+   npm run db:reiniciar
+   npm start
+   ```
+
+## Rutas de la API
+
+🔒 = necesita sesión (cabecera `Authorization: Bearer <token>`, la pone el frontend solo).
+
+| Método | Ruta | Quién | Qué hace |
+|---|---|---|---|
+| GET | `/api/salud` | todos | Estado del servidor, la base de datos, el asistente IA y el correo |
+| GET | `/api/cursos` · `/api/cursos/:id` | todos | Catálogo |
+| POST | `/api/contacto` | todos (máx. 5 / 15 min) | Mensaje del formulario de contacto |
+| POST | `/api/chat` | todos (máx. 20 mensajes / 10 min por conexión y `IA_LIMITE_DIARIO` al día en total) | Asistente con IA: conoce la marca, el catálogo y las fichas; usa el tono de `config_ia` |
+| POST | `/api/auth/recuperar` | todos (máx. 5 / 15 min) | Envía al correo un enlace para crear una contraseña nueva (misma respuesta exista o no la cuenta) |
+| POST | `/api/auth/restablecer` | todos (máx. 10 / 15 min) | Cambia la contraseña con el enlace (un solo uso, vence en 1 hora) y cierra las sesiones abiertas |
+| POST | `/api/encuestas/:id/respuestas` | 🔒 estudiante | Guarda las respuestas de una encuesta (una vez por encuesta) |
+| POST | `/api/encuestas/:id/respuestas-publicas` | todos (máx. 5 / 10 min) | Encuesta pública y anónima: guarda las respuestas sin ningún dato de quien responde |
+| POST | `/api/auth/registro` | todos (máx. 5 / hora) | Crea cuenta de estudiante (clave cifrada con bcrypt) y devuelve el token |
+| POST | `/api/auth/login` | todos (ver «Seguridad») | Inicio de sesión de estudiantes, docentes y administrativos |
+| PUT | `/api/auth/clave` | 🔒 | Cambiar la contraseña con la actual; cierra las sesiones de los demás equipos y devuelve un token nuevo |
+| POST | `/api/auth/cerrar-sesiones` | 🔒 | Cierra la sesión en todos los equipos |
+| GET · PUT | `/api/auth/yo` · `/api/auth/perfil` | 🔒 | Ver / completar el perfil |
+| GET | `/api/datos` | todos | Lo que el usuario puede ver según su rol y cargo |
+| POST | `/api/inscripciones` | 🔒 estudiante | Solicitar cupo en un curso |
+| PATCH | `/api/inscripciones/:id` | 🔒 admisiones y gerente | Aprobar o rechazar |
+| GET | `/api/estudiantes/:correo` | 🔒 admisiones y gerente | Ficha completa del estudiante |
+| POST · PUT · DELETE | `/api/actividades/:id?` | 🔒 docente del curso (el gerente puede editar y borrar las de cualquier docente) | Crear, editar y borrar actividades |
+| PUT | `/api/actividades/:id/entrega` | 🔒 estudiante aprobado | Entregar (o corregir antes de la nota) |
+| PATCH | `/api/entregas/:id` | 🔒 docente del curso o gerente | Calificar (1.0 a 5.0) con retroalimentación, o corregir la nota |
+| POST · PUT | `/api/cursos/:id?` | 🔒 cargos académicos | Crear y editar cursos |
+| PATCH | `/api/mensajes/:id/leido` | 🔒 admisiones / comunicaciones / gerente | Marcar mensaje como leído |
+| POST · PUT · DELETE | `/api/gastos/:id?` | 🔒 finanzas y gerente | Registrar, corregir y eliminar gastos (pesos enteros de 1 a 1.000.000.000) |
+| GET · POST · DELETE | `/api/cuentas/equipo/:id?` | 🔒 gerente | Ver, crear (con contraseña temporal que se muestra una vez) y eliminar cuentas administrativas. No deja borrar la propia ni la última que puede entrar como Gerente |
+| GET | `/api/cuentas/estudiantes` | 🔒 coordinación de admisiones y gerente | Estudiantes con su último ingreso y días sin uso |
+| POST | `/api/cuentas/estudiantes/:id/bloquear` · `/bloquear-inactivas` | 🔒 coordinación de admisiones y gerente | Bloquear una cuenta o todas las que no ingresan hace N días (mínimo 30). Cierra sus sesiones y avisa por correo |
+| POST | `/api/cuentas/estudiantes/:id/desbloquear` | 🔒 coordinación de admisiones y gerente | Desbloquear en cualquier momento; la inactividad se vuelve a contar desde ese día |
+| PUT | `/api/config-ia` | 🔒 gerente | Tono y contexto del asistente |
+| GET | `/api/seguridad/eventos?tipo=` | 🔒 gerencia, dirección general y tecnología | Registro de seguridad: últimos 200 eventos, resumen de 24 horas y conexiones con muchos fallos |
+
+Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejemplo
+`SELECT nombre, correo, rol FROM usuarios;` o `SELECT * FROM vista_resumen_cursos;`.
+
+## Problemas comunes
+
+| Mensaje | Solución |
+|---|---|
+| `La contraseña del usuario postgres no es correcta` | Revisa `DATABASE_URL` en `backend/.env`. Si la clave tiene `@`, `#` o `/`, escríbela codificada (`@` → `%40`, `#` → `%23`, `/` → `%2F`). |
+| `PostgreSQL no está encendido` | Windows → busca **Servicios** → `postgresql-x64-16` (o tu versión) → *Iniciar*. |
+| `faltan las tablas` | Ejecuta `npm run db:init`. |
+| `la base es de una versión anterior` | Sigue la sección «¿Ya tenías la base creada de antes?». |
+| `Cannot find module 'bcryptjs'` | Ejecuta `npm install` dentro de `backend`. |
+| Al entrar te devuelve al login | La sesión dura 8 horas; vuelve a iniciar sesión. También pasa si la contraseña cambió o se cerraron las sesiones desde otro equipo. Si pasa cada vez que reinicias el servidor, falta `JWT_SECRETO` en `.env`. |
+| `Demasiados intentos fallidos` | Es el bloqueo contra ataques: espera 15 minutos o recupera la contraseña. Mientras pruebas en tu computador también se quita al reiniciar el servidor. |
+| `JWT_SECRETO falta o es débil` (el servidor no arranca) | En producción se exige un secreto de 32 caracteres o más que no sea el del ejemplo. Genera uno con el comando que muestra el mensaje. |
+| `no existe la columna «sesiones_desde»` | Ejecuta `npm run db:actualizar` (no borra datos). |
+| `no existe la columna «modulos»` | Ejecuta `npm run db:actualizar` (no borra datos). |
+| El chat dice «la IA todavía no está configurada» | Falta `GEMINI_API_KEY` en `.env`, o reinicia el servidor después de agregarla. Si la terminal dice «la GEMINI_API_KEY no es válida», cópiala de nuevo desde AI Studio. |
+| El chat dice «alcanzó su límite gratuito» | Se acabó la cuota gratis de Gemini por ahora (por minuto o por día). Vuelve a funcionar sola; mientras tanto el chat usa las respuestas locales. |
+| La terminal dice que un modelo «respondió 503 … high demand» | Google está saturado (pasa en horas pico del plan gratuito). El servidor usa solo el modelo de respaldo; si los dos están saturados, el chat contesta con las respuestas locales y avisa que está muy ocupado. No hay que hacer nada. |
+| La terminal dice que un modelo «respondió 404» | Google retiró o renombró ese modelo. Pon uno vigente en `IA_MODELO` (lista en https://ai.google.dev/gemini-api/docs/models). |
+| `EADDRINUSE :::3000` | Ya hay un servidor encendido en otra terminal. Ciérralo o cambia `PORT` en `.env`. |
+| `'npm' no se reconoce` | Reinstala Node.js y abre una terminal nueva. |
+| PowerShell: `la ejecución de scripts está deshabilitada` | Usa la terminal **Command Prompt** (cmd) en VS Code, o ejecuta una vez `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned`. |
+
+## Seguridad
+
+**Datos y secretos**
+- `backend/.env` tiene tus claves: **nunca** lo subas a GitHub (ya está en `.gitignore`). En producción el servidor no arranca si `JWT_SECRETO` falta, es corto o es el del ejemplo: con un secreto conocido cualquiera podría fabricar una sesión de administrador.
+- El servidor publica **solo** lo que está en una lista blanca de `frontend/dist` (el React compilado): las páginas (`index`, `cursos`, `portal`, `registro`, `recuperar`) y las carpetas `static`, `assets` y `admin`. El código del servidor, `database/`, el README y los archivos de configuración no se pueden descargar, ni siquiera escribiendo la ruta de otra forma (`/%62ackend/...`).
+- Las consultas usan parámetros (`$1, $2…`), lo que evita la inyección SQL. Ninguna consulta puede tardar más de 15 segundos.
+- Los permisos (quién ve y cambia qué) se revisan en el servidor en cada petición. Un cargo de un área no puede tocar cursos ni fichas de otra.
+
+**Contraseñas y sesiones**
+- Se guardan cifradas con bcrypt: ni tú puedes leerlas en pgAdmin.
+- Deben tener 8 a 72 caracteres, letras y números, y no pueden ser de las más comunes ni contener el correo.
+- La sesión es un token JWT firmado (solo HS256) que dura 8 horas. Cada petición revisa en la base que la cuenta siga activa y que el token tenga la **versión de sesión** vigente: cambiar o recuperar la contraseña, o usar «Cerrar sesión en todos los equipos» (botón **Mi cuenta**), anula al instante los tokens de los demás equipos.
+- Los enlaces para recuperar la contraseña sirven una vez, vencen en 1 hora y en la base solo se guarda su huella SHA-256.
+
+**Contra ataques automáticos**
+- Inicio de sesión: una conexión con 10 intentos fallidos en 15 minutos queda bloqueada 15 minutos; una cuenta con 8 fallos también (venga de donde venga el ataque); y nadie puede hacer más de 30 intentos cada 15 minutos. La respuesta es la misma, y tarda lo mismo, exista o no el correo.
+- Límites por conexión en registro (5 por hora), contacto (5 cada 15 min), recuperar contraseña y asistente IA, más un límite general de 300 peticiones por minuto a la API. El asistente además tiene un tope diario (`IA_LIMITE_DIARIO`) para que la factura de la IA no se dispare.
+- Los nombres, asuntos y títulos no aceptan saltos de línea ni caracteres de control (evita inyectar cabeceras en los correos). El correo de confirmación del contacto tiene un asunto fijo.
+
+**En el navegador**
+- Cabeceras HTTP: `Content-Security-Policy` (solo se ejecutan scripts del propio sitio, así un texto malicioso guardado en la base no puede robar sesiones), `X-Frame-Options: DENY` (nadie puede meter la página en un iframe), `X-Content-Type-Options`, `Referrer-Policy`, `Permissions-Policy` y, en producción, HSTS. Las respuestas de la API no se guardan en caché.
+- Todo el texto que viene de la base se escapa antes de mostrarse.
+
+**Registro de seguridad.** Ingresos, intentos fallidos, bloqueos, cuentas nuevas y cambios de contraseña quedan en la tabla `eventos_seguridad` (90 días, sin contraseñas). Gerencia, dirección general y dirección de tecnología los ven en el panel, sección **Seguridad**, con las conexiones sospechosas destacadas.
+
+**Antes de publicar**
+- Las cuentas de prueba tienen contraseñas públicas (están en el README). Después de la presentación, cámbialas o desactívalas con `npm run cuenta`; la cuenta `admin@` puede elegir cualquier cargo, incluido Gerente.
+- Los límites se cuentan en la memoria del servidor: se reinician si el servidor se reinicia (suficiente para un solo servidor como el de Render).

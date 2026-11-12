@@ -1,0 +1,49 @@
+# Despliegue del backend (API + PostgreSQL) en Render como "Blueprint".
+# Render → New → Blueprint → elige este repositorio. Te pedirá la clave de la IA, la dirección
+# de la página (CORS_ORIGENES y SITIO_URL) y los datos del correo (puedes dejarlos vacíos al principio).
+# La página (frontend) se publica aparte en GitHub Pages; ver "Publicar el proyecto" en README.md.
+databases:
+  - name: talento-caribe-db
+    databaseName: talento_caribe
+    plan: free
+
+services:
+  - type: web
+    name: talento-caribe-api
+    runtime: node
+    plan: free
+    rootDir: backend
+    buildCommand: npm install
+    # db:init crea las tablas y los datos de prueba la primera vez; db:actualizar aplica los cambios de
+    # versiones nuevas (columnas y tablas) sin borrar nada. Así cada despliegue deja la base al día.
+    startCommand: npm run db:init && npm run db:actualizar && npm start
+    healthCheckPath: /api/salud
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: talento-caribe-db
+          property: connectionString
+      # Producción: el servidor exige un JWT_SECRETO fuerte y activa HTTPS estricto (HSTS)
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRETO
+        generateValue: true
+      # Clave gratuita de Google Gemini (https://aistudio.google.com/apikey)
+      - key: GEMINI_API_KEY
+        sync: false
+      # Máximo de mensajes al asistente IA por día en toda la plataforma (cuida la cuota gratuita)
+      - key: IA_LIMITE_DIARIO
+        value: "200"
+      - key: CORS_ORIGENES
+        sync: false
+      # Correos (ver backend/.env.ejemplo). SITIO_URL es la dirección de la página en GitHub Pages.
+      - key: SITIO_URL
+        sync: false
+      # Render gratis bloquea los puertos SMTP: los correos salen por la API web de Brevo (gratis, 300 al día).
+      # Clave en https://app.brevo.com → SMTP & API → API Keys. CORREO_REMITENTE debe estar verificado en Brevo.
+      - key: BREVO_API_KEY
+        sync: false
+      - key: CORREO_REMITENTE
+        sync: false
+      - key: CORREO_EQUIPO
+        sync: false
