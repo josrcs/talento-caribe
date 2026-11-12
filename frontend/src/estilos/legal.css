@@ -1,0 +1,16 @@
+/* legal.css - Política de datos (privacidad.html) y encuesta pública (encuesta.html) */
+.legal { max-width: 52rem; margin-inline: auto; padding-block: 3rem 4rem; line-height: 1.7; }
+.legal h1 { margin-bottom: .4rem; }
+.legal h2 { margin: 2rem 0 .5rem; font-size: 1.25rem; }
+.legal ul { padding-left: 1.3rem; display: grid; gap: .35rem; list-style: disc; }
+.legal .legal-meta { opacity: .75; font-size: .95rem; margin-bottom: 1.5rem; }
+.legal .legal-caja { border: 1px solid var(--vidrio-borde); border-radius: 14px; padding: 1rem 1.2rem; background: var(--vidrio, transparent); margin-block: 1rem; }
+.legal a, .campo-check label a { text-decoration: underline; }
+.legal-idioma { margin-bottom: 1.5rem; }
+.encuesta-form { display: grid; gap: 1.4rem; margin-top: 1.5rem; }
+.encuesta-form .pregunta { border: 1px solid var(--vidrio-borde); border-radius: 14px; padding: 1rem 1.2rem; background: var(--vidrio, transparent); min-width: 0; }
+.encuesta-form .pregunta legend, .encuesta-form .pregunta > label { font-weight: 600; margin-bottom: .6rem; display: block; padding: 0; }
+.encuesta-form .opciones { display: flex; flex-wrap: wrap; gap: .5rem 1.2rem; }
+.encuesta-form .opciones label { display: inline-flex; align-items: center; gap: .4rem; cursor: pointer; }
+.encuesta-form .opciones input { accent-color: var(--accion); }
+.encuesta-form textarea { width: 100%; min-height: 5rem; resize: vertical; }
