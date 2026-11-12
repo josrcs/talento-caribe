@@ -1,0 +1,7 @@
+/* Estilos de la página, en el mismo orden de siempre (el orden importa: los archivos de más abajo ganan). */
+@import "../tema.css";
+@import "../style.css";
+@import "../admin.css";
+@import "../efectos.css";
+@import "../plataforma.css";
+@import "../modulos.css";
