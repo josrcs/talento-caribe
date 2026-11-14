@@ -12,7 +12,14 @@
    ========================================================== */
 const nodemailer = require("nodemailer");
 
-const { SMTP_HOST, SMTP_PORT, SMTP_USUARIO, SMTP_CLAVE, CORREO_REMITENTE, CORREO_EQUIPO, BREVO_API_KEY } = process.env;
+const { SMTP_HOST, SMTP_PORT, SMTP_USUARIO, SMTP_CLAVE, CORREO_REMITENTE, CORREO_EQUIPO } = process.env;
+/* La clave de Brevo se limpia de espacios y comillas (errores comunes al pegarla en .env o en Render).
+   Brevo da dos tipos de clave: la "API key" (xkeysib-...) sirve aquí; la "SMTP key" (xsmtpsib-...)
+   solo sirve como contraseña SMTP y la API responde 401 "Key not found". */
+const BREVO_API_KEY = String(process.env.BREVO_API_KEY || "").trim().replace(/^["']|["']$/g, "");
+if (BREVO_API_KEY.startsWith("xsmtpsib-")) {
+  console.warn("⚠️  BREVO_API_KEY es una «SMTP key» (xsmtpsib-...). Crea una «API key» (xkeysib-...) en Brevo → SMTP & API → API Keys.");
+}
 const smtpConfigurado = Boolean(SMTP_HOST && SMTP_USUARIO && SMTP_CLAVE);
 const configurado = () => Boolean(BREVO_API_KEY || smtpConfigurado);
 // Para el mensaje de arranque del servidor: por dónde salen los correos
@@ -96,6 +103,7 @@ async function enviarConBrevo({ para, asunto, texto, html, responderA }) {
     if (res.ok) return { enviado: true };
     const datos = await res.json().catch(() => ({}));
     console.error(`✖ Brevo no envió el correo a ${para} (HTTP ${res.status}):`, datos.message || datos.code || "sin detalle");
+    if (res.status === 401) console.error("  → Revisa BREVO_API_KEY (debe ser una API key xkeysib-... activa) y, si Brevo dice «unrecognised IP address», desactiva la restricción de IP en Brevo → Security → Authorised IPs. Prueba con: npm run correo:probar");
     return { error: datos.message || `HTTP ${res.status}` };
   } catch (error) {
     console.error(`✖ No se pudo conectar con Brevo para enviar a ${para}:`, error.message);

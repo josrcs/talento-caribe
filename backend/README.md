@@ -75,6 +75,7 @@ Abre **http://localhost:3000** en el navegador. Para apagar el servidor: `Ctrl +
 | `npm run cuenta -- lista` | Muestra las cuentas con su rol y si están activas |
 | `npm run cuenta -- clave <correo>` | Pone una contraseña nueva y segura a esa cuenta (la muestra una sola vez) y cierra sus sesiones. Con `clave <correo> "MiClave2026"` usa la que escribas |
 | `npm run cuenta -- desactivar <correo>` | La cuenta ya no puede ingresar (`activar` la habilita de nuevo) |
+| `npm run correo:probar -- <correo>` | Revisa la configuración de Brevo y envía un correo de prueba a esa dirección |
 
 ## Asistente con IA (Google Gemini, gratis)
 
@@ -98,7 +99,8 @@ Para que lleguen los correos de bienvenida, recuperar contraseña y avisos de in
 
 1. Crea una cuenta gratis en https://www.brevo.com (no pide tarjeta; 300 correos al día).
 2. En **Senders, Domains & Dedicated IPs → Senders**, agrega el correo que enviará los mensajes (puede ser tu Gmail) y confírmalo desde el enlace que te llega.
-3. En **SMTP & API → API Keys**, pulsa **Generate a new API key** y cópiala (empieza por `xkeysib-`).
+3. En **SMTP & API → API Keys** (https://app.brevo.com/settings/keys/api), pulsa **Generate a new API key** con **acceso completo** (o al menos permiso de *Transactional emails*) y cópiala: empieza por `xkeysib-`. La «SMTP key» (`xsmtpsib-`) no sirve aquí.
+   Si Brevo protege la cuenta por IP, en **Security → Authorised IPs** (https://app.brevo.com/security/authorised_ips) desactiva el bloqueo: tu IP de casa y la de Render cambian solas.
 4. Pon en `.env` (o en **Environment** de Render):
 
 ```
@@ -106,7 +108,16 @@ BREVO_API_KEY=xkeysib-...
 CORREO_REMITENTE=Talento Caribe <el-correo-que-verificaste@gmail.com>
 ```
 
-Al encender verás `Correo: ✅ Brevo (API web)`. Si Brevo rechaza un correo, la terminal (o los Logs de Render) muestra el motivo; el más común es `Sender not verified`: confirma el remitente en Brevo.
+Comprueba todo con `npm run correo:probar -- tu-correo@gmail.com`: revisa la clave, el remitente y la IP, envía un correo de prueba y, si algo falla, dice qué corregir.
+
+Al encender verás `Correo: ✅ Brevo (API web)`. Si Brevo rechaza un correo, la terminal (o los Logs de Render) muestra el motivo; los más comunes:
+
+| Brevo dice | Solución |
+|---|---|
+| `Sender not verified` | Confirma el remitente en Brevo → Senders. |
+| `api key is not authorized for resource "transactional.email"` | La clave se creó con permisos limitados: crea otra con acceso completo. |
+| `unrecognised IP address` | Brevo → Security → Authorised IPs: desactiva el bloqueo o autoriza esa IP. |
+| `Key not found` | La clave fue borrada o está mal copiada (sin espacios ni comillas). |
 
 **Alternativa por SMTP** (solo en tu computador o en un servidor de pago): `SMTP_HOST`, `SMTP_PORT`, `SMTP_USUARIO` y `SMTP_CLAVE` en `.env` (ver `.env.ejemplo`). Con Gmail hace falta una *contraseña de aplicación*, que Google no ofrece en todas las cuentas. Sin ninguna de las dos configuraciones, cada correo aparece en esta terminal (sirve para probar).
 
@@ -176,7 +187,7 @@ Para ver lo que se guarda: pgAdmin → `talento_caribe` → Query Tool, por ejem
 
 | Mensaje | Solución |
 |---|---|
-| `La contraseña del usuario postgres no es correcta` | Revisa `DATABASE_URL` en `backend/.env`. Si la clave tiene `@`, `#` o `/`, escríbela codificada (`@` → `%40`, `#` → `%23`, `/` → `%2F`). |
+| `La contraseña del usuario postgres no es correcta` | Revisa `DATABASE_URL` en `backend/.env` y **guarda el archivo** (en VS Code, un punto ● en la pestaña significa que no está guardado; activa *File → Auto Save*). Si la clave tiene `@`, `#` o `/`, escríbela codificada (`@` → `%40`, `#` → `%23`, `/` → `%2F`). Para probarla a mano en PowerShell: `& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -h localhost`. |
 | `PostgreSQL no está encendido` | Windows → busca **Servicios** → `postgresql-x64-16` (o tu versión) → *Iniciar*. |
 | `faltan las tablas` | Ejecuta `npm run db:init`. |
 | `la base es de una versión anterior` | Sigue la sección «¿Ya tenías la base creada de antes?». |
