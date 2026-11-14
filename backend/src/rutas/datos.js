@@ -43,7 +43,16 @@ router.get("/datos", sesionOpcional, async (req, res, next) => {
         : await q(`SELECT i.id, i.curso_id, COALESCE((SELECT numero FROM fichas WHERE id = i.ficha_id), '') AS ficha, 'Estudiante' AS nombre, 'estudiante-' || i.estudiante_id AS correo, i.edad, i.estado, i.creado_en AS creado FROM inscripciones i ORDER BY i.creado_en`);
       datos.actividades = await q(SQL_ACTIVIDADES + " ORDER BY a.creado_en DESC");
       // El equipo administrativo ve notas y fechas, no el contenido de las respuestas (la gerencia sí, para poder corregir)
-      datos.entregas = puede(u, "supervisarAcademico") ? await q(SQL_ENTREGAS) : (await q(SQL_ENTREGAS)).map((e) => ({ ...e, respuesta: "", enlace: null, comentario: "" }));
+      if (puede(u, "supervisarAcademico")) datos.entregas = await q(SQL_ENTREGAS);
+      else {
+        // Sin permiso de admisiones tampoco llegan el nombre ni el correo de quien entregó: se usa el mismo
+        // identificador anónimo que en las inscripciones, así el panel puede seguir cruzando entregas e inscritos
+        const anonimas = !puede(u, "inscripciones");
+        datos.entregas = (await q(SQL_ENTREGAS.replace("SELECT ", "SELECT e.estudiante_id, "))).map(({ estudiante_id, ...e }) => ({
+          ...e, respuesta: "", enlace: null, comentario: "",
+          ...(anonimas ? { nombre: "Estudiante", correo: "estudiante-" + estudiante_id } : {}),
+        }));
+      }
       if (puede(u, "mensajes")) datos.mensajes = await q("SELECT id, nombre, correo, telefono, interes, asunto, mensaje, leido, creado_en FROM mensajes_contacto ORDER BY creado_en");
       if (puede(u, "finanzas")) datos.gastos = await q("SELECT id, concepto, categoria, valor, creado_en AS creado FROM gastos ORDER BY creado_en");
       datos.ia = (await q("SELECT tono, contexto FROM config_ia WHERE id = 1"))[0] || { tono: "", contexto: "" };
