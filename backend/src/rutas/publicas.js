@@ -14,7 +14,7 @@ router.get("/salud", async (req, res) => {
   } catch (error) {
     // En producción no se muestran detalles internos del error (nombres de servidores, usuarios de la base...)
     res.status(503).json({ servidor: "ok", baseDeDatos: "sin conexión", asistenteIA: iaConfigurada() ? "conectado" : "sin clave",
-      detalle: error.code === "42P01" ? "Faltan tablas: ejecuta npm run db:init" : PRODUCCION ? undefined : error.message });
+      detalle: error.code === "42P01" ? "Faltan tablas: ejecuta npm run db:init" : PRODUCCION ? undefined : pool.explicarError(error) || error.message });
   }
 });
 

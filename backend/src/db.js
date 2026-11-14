@@ -22,4 +22,15 @@ const pool = new Pool({
 // Si la base se cae con el servidor encendido, lo mostramos en vez de cerrar todo.
 pool.on("error", (error) => console.error("Error inesperado en PostgreSQL:", error.message));
 
+/* Explica en palabras simples los errores de conexión más comunes (null si no es de conexión).
+   Los mensajes de PostgreSQL en Windows llegan con tildes dañadas, por eso se usan los códigos. */
+const ERRORES_CONEXION = {
+  "28P01": "la contraseña del usuario de PostgreSQL no es correcta → corrige DATABASE_URL en backend/.env",
+  "3D000": "la base de datos no existe → ejecuta npm run db:init",
+  "42P01": "faltan las tablas → ejecuta npm run db:init",
+  ECONNREFUSED: "PostgreSQL no está encendido → inicia el servicio postgresql-x64-… en Servicios de Windows",
+  ENOTFOUND: "no se encuentra el servidor de DATABASE_URL → revisa la dirección en backend/.env",
+};
+pool.explicarError = (error) => ERRORES_CONEXION[error?.code] || null;
+
 module.exports = pool;
