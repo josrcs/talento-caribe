@@ -13,7 +13,8 @@ services:
     runtime: node
     plan: free
     rootDir: backend
-    buildCommand: npm install
+    # npm ci instala exactamente las versiones de package-lock.json (despliegues iguales cada vez)
+    buildCommand: npm ci --omit=dev
     # db:init crea las tablas y los datos de prueba la primera vez; db:actualizar aplica los cambios de
     # versiones nuevas (columnas y tablas) sin borrar nada. Así cada despliegue deja la base al día.
     startCommand: npm run db:init && npm run db:actualizar && npm start
@@ -28,7 +29,8 @@ services:
         value: production
       - key: JWT_SECRETO
         generateValue: true
-      # Clave gratuita de Google Gemini (https://aistudio.google.com/apikey)
+      # Clave gratuita de Google Gemini (https://aistudio.google.com/apikey). Si la cambias en tu .env,
+      # cámbiala también aquí en Render → Environment: son copias separadas.
       - key: GEMINI_API_KEY
         sync: false
       # Máximo de mensajes al asistente IA por día en toda la plataforma (cuida la cuota gratuita)
