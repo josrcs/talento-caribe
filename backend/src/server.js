@@ -15,7 +15,7 @@
      académico     inscripciones, actividades, entregas y calificaciones
      encuestas     POST /api/encuestas/:id/respuestas  (estudiantes)
      administración cursos, mensajes, gastos y asistente
-   Los correos (bienvenida, recuperar contraseña, avisos) salen por SMTP: ver src/correo.js
+   Los correos (bienvenida, recuperar contraseña, avisos) salen por Brevo o SMTP: ver src/correo.js
    ========================================================== */
 require("dotenv").config();
 const fs = require("fs");
@@ -82,9 +82,10 @@ app.use((error, req, res, next) => {
   if (error.type === "entity.parse.failed") return res.status(400).json({ error: "El cuerpo de la petición no es JSON válido." });
   if (error.type === "entity.too.large") return res.status(413).json({ error: "Los datos enviados son demasiado grandes." });
   console.error(`✖ ${req.method} ${req.path}:`, error.message); // req.path: sin la parte ?..., que podría llevar un token
-  const sinBase = ["ECONNREFUSED", "28P01", "3D000", "42P01"].includes(error.code);
+  const sinBase = pool.explicarError(error);
+  if (sinBase) console.error(`  → ${sinBase}`);
   if (error.code === "23514" || error.code === "22P02") return res.status(400).json({ error: "Algún dato no cumple las reglas de la base de datos." });
-  res.status(sinBase ? 503 : 500).json({ error: sinBase ? "La base de datos no está disponible. Revisa que PostgreSQL esté encendido y ejecuta npm run db:init." : "Error interno del servidor." });
+  res.status(sinBase ? 503 : 500).json({ error: sinBase ? "La base de datos no está disponible en este momento. Inténtalo más tarde." : "Error interno del servidor." });
 });
 
 const servidor = app.listen(PORT, async () => {
@@ -99,7 +100,7 @@ const servidor = app.listen(PORT, async () => {
     await pool.query("SELECT 1 FROM usuarios LIMIT 1");
     console.log("   Base de datos: ✅ conectada\n");
   } catch (error) {
-    const msj = error.code === "42P01" ? "faltan las tablas → ejecuta npm run db:init" : error.message;
+    const msj = pool.explicarError(error) || error.message;
     console.log(`   Base de datos: ⚠️  ${msj}`);
     console.log("   (La página necesita la base de datos: revisa DATABASE_URL en .env.)\n");
   }

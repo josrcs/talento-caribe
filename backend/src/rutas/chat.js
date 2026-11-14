@@ -78,7 +78,8 @@ Talento Caribe es una plataforma educativa gratuita e híbrida (presencial y vir
 - Mentores: Camila Ospino (desarrollo web), Daniel Barrios (programación y datos), Valeria De la Hoz (IA aplicada a negocios), Andrés Pacheco (electrónica y robótica), Laura Mendoza (hardware e IoT).
 - Inscripción: crear la cuenta en registro.html, elegir el curso y una ficha con inscripciones abiertas en cursos.html; el equipo de admisiones aprueba la solicitud, el estudiante recibe un correo y el curso aparece en su portal.
 - Contraseña olvidada: en la página de ingreso, «¿Olvidaste tu contraseña?» envía al correo un enlace para crear una nueva (vence en 1 hora).
-- Encuestas: los estudiantes las responden en su portal (sección Encuestas); el equipo solo ve resultados agrupados, sin nombres.
+- Encuestas: los estudiantes las responden en su portal (sección Encuestas) y cualquier visitante puede responder la encuesta pública y anónima en encuesta.html; el equipo solo ve resultados agrupados, sin nombres.
+- Datos personales: la Política de Tratamiento de Datos Personales está en privacidad.html.
 - Contacto: formulario de la sección Contacto de la página de inicio o contacto@talentocaribe.co. Respondemos en máximo 3 días hábiles. Sede: Barranquilla, Colombia.
 - Todos los cursos son gratuitos.
 

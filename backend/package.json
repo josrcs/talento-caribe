@@ -10,7 +10,8 @@
     "db:init": "node scripts/init-db.js",
     "db:actualizar": "node scripts/actualizar-db.js",
     "db:reiniciar": "node scripts/init-db.js --reiniciar",
-    "cuenta": "node scripts/cuenta.js"
+    "cuenta": "node scripts/cuenta.js",
+    "correo:probar": "node scripts/probar-correo.js"
   },
   "engines": {
     "node": ">=18"
