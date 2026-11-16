@@ -38,10 +38,13 @@ export function construirPerfil(puesto) {
   const tasks = [...base.tasks];
   if (ACADEMICOS.includes(puesto)) { secciones.splice(1, 0, "academico"); tasks.push(["Actividad académica", "Mira qué actividades publican los docentes y cómo van las entregas.", "academico"]); }
   if (SEGURIDAD.includes(puesto)) { secciones.push("seguridad"); tasks.push(["Seguridad", "Revisa ingresos, intentos fallidos y bloqueos de cuentas.", "seguridad"]); }
-  const gestionaEquipo = puesto === "Gerente", gestionaEstudiantes = ["Gerente", "Coordinador(a) de admisiones"].includes(puesto);
-  if (gestionaEquipo || gestionaEstudiantes) {
+  // gestionaDocentes = PERMISOS.cuentasDocentes del servidor (los mismos cargos que editan cursos)
+  const gestionaEquipo = puesto === "Gerente", gestionaEstudiantes = ["Gerente", "Coordinador(a) de admisiones"].includes(puesto), gestionaDocentes = EDITAN_CURSOS.includes(puesto);
+  if (gestionaEquipo || gestionaEstudiantes || gestionaDocentes) {
     secciones.push("cuentas");
-    tasks.push(["Cuentas", gestionaEquipo ? "Crea o elimina cuentas del equipo y bloquea estudiantes inactivos." : "Bloquea las cuentas de estudiantes inactivos y desbloquéalas cuando lo pidan.", "cuentas"]);
+    tasks.push(["Cuentas", gestionaEquipo ? "Crea cuentas del equipo y de docentes, y bloquea estudiantes inactivos."
+      : gestionaDocentes ? "Crea las cuentas de los docentes y desactívalas cuando dejen de dictar."
+      : "Bloquea las cuentas de estudiantes inactivos y desbloquéalas cuando lo pidan.", "cuentas"]);
   }
   secciones.push("asistente");
   tasks.push(["Asistente de gestión", "Pregúntale por cifras, pendientes y funciones de tu cargo.", "asistente"]);
@@ -51,6 +54,6 @@ export function construirPerfil(puesto) {
     finanzas: FINANZAS.includes(puesto),
     editaCursos: EDITAN_CURSOS.includes(puesto),
     supervisa: puesto === "Gerente",
-    gestionaEquipo, gestionaEstudiantes,
+    gestionaEquipo, gestionaEstudiantes, gestionaDocentes,
   };
 }

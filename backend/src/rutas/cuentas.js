@@ -1,6 +1,8 @@
 /* ==========================================================
    Rutas de cuentas
    - Gerente (permiso cuentasEquipo): crea y elimina cuentas administrativas con cargo fijo.
+   - Gerente, Dirección académica y Dirección de tecnología (permiso cuentasDocentes): crean cuentas
+     de docentes y las desactivan o reactivan.
    - Coordinación de admisiones y Gerente (permiso bloquearEstudiantes): bloquean las cuentas de
      estudiantes inactivos y las desbloquean cuando quieran.
    Todo queda en el registro de seguridad (eventos cuenta_creada, cuenta_eliminada, cuenta_bloqueada
@@ -67,6 +69,59 @@ router.delete("/cuentas/equipo/:id", requiereSesion, requierePermiso("cuentasEqu
     res.json({ ok: true });
   } catch (e) { await db.query("ROLLBACK").catch(() => {}); next(e); }
   finally { db.release(); }
+});
+
+/* ---------- Docentes (Gerente, Dirección académica y Dirección de tecnología) ----------
+   Un docente queda a cargo de un curso cuando en el curso se escribe su nombre como instructor
+   (rutas/admin.js lo busca por nombre), por eso no se permiten dos docentes con el mismo nombre.
+   No se eliminan: borrar un docente borraría sus actividades y las entregas de los estudiantes.
+   En su lugar se desactivan (no puede ingresar y sus sesiones se cierran) y se pueden reactivar. */
+router.get("/cuentas/docentes", requiereSesion, requierePermiso("cuentasDocentes"), async (req, res, next) => {
+  try {
+    const { rows } = await pool.query(
+      `SELECT u.id, u.nombre, u.correo, COALESCE(u.especialidad, '') AS especialidad, u.activo, u.creado_en AS creado, u.ultimo_ingreso,
+              (SELECT count(*)::int FROM cursos c WHERE c.docente_id = u.id) AS cursos
+       FROM usuarios u WHERE u.rol = 'docente' ORDER BY u.activo DESC, u.nombre`);
+    res.json(rows);
+  } catch (e) { faltaColumna(res, e) || next(e); }
+});
+
+// Crea el docente con una contraseña temporal segura que se muestra UNA vez a quien la crea
+router.post("/cuentas/docentes", requiereSesion, requierePermiso("cuentasDocentes"), async (req, res, next) => {
+  const b = req.body || {};
+  if (rechazar(res, { nombre: linea(b.nombre, 3, 100), correo: EMAIL.test(b.correo), especialidad: linea(b.especialidad, 2, 80) })) return;
+  const nombre = b.nombre.trim().replace(/\s+/g, " "), correo = b.correo.trim().toLowerCase(), clave = generarClave();
+  try {
+    const repetido = (await pool.query("SELECT 1 FROM usuarios WHERE rol = 'docente' AND lower(nombre) = lower($1)", [nombre])).rows.length;
+    if (repetido) return res.status(409).json({ error: "Ya hay un docente con ese nombre. Agrega un segundo apellido para diferenciarlos." });
+    const { rows } = await pool.query(
+      `INSERT INTO usuarios (nombre, correo, clave_hash, rol, especialidad) VALUES ($1, $2, $3, 'docente', $4)
+       RETURNING id, nombre, correo, especialidad, activo, creado_en AS creado, ultimo_ingreso, 0 AS cursos`,
+      [nombre, correo, await bcrypt.hash(clave, 10), b.especialidad.trim()]);
+    registrarEvento(req, "cuenta_creada", { usuarioId: rows[0].id, correo, detalle: `docente de ${rows[0].especialidad}, por ${quien(req)}` });
+    res.status(201).json({ cuenta: rows[0], clave });
+  } catch (e) {
+    if (e.code === "23505") return res.status(409).json({ error: "Ya existe una cuenta con ese correo." });
+    next(e);
+  }
+});
+
+// Desactivar (no puede ingresar y sus sesiones abiertas se cierran) o volver a activar. Sus cursos, actividades y notas se conservan.
+router.post("/cuentas/docentes/:id/:accion(desactivar|activar)", requiereSesion, requierePermiso("cuentasDocentes"), async (req, res, next) => {
+  const id = entero(req.params.id), activar = req.params.accion === "activar";
+  if (!id) return res.status(400).json({ error: "Cuenta no válida." });
+  try {
+    const { rows } = await pool.query(
+      `UPDATE usuarios SET activo = $2, sesiones_desde = CASE WHEN $2 THEN sesiones_desde ELSE clock_timestamp() END
+       WHERE id = $1 AND rol = 'docente' AND activo <> $2 RETURNING id, correo`, [id, activar]);
+    if (!rows.length) {
+      const u = (await pool.query("SELECT rol FROM usuarios WHERE id = $1", [id])).rows[0];
+      return u?.rol === "docente" ? res.status(409).json({ error: activar ? "Esa cuenta ya está activa." : "Esa cuenta ya está desactivada." })
+        : res.status(404).json({ error: "Esa cuenta de docente no existe." });
+    }
+    registrarEvento(req, activar ? "cuenta_desbloqueada" : "cuenta_bloqueada", { usuarioId: id, correo: rows[0].correo, detalle: `docente, por ${quien(req)}` });
+    res.json({ ok: true });
+  } catch (e) { next(e); }
 });
 
 /* ---------- Estudiantes inactivos (Coordinación de admisiones y Gerente) ---------- */

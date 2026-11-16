@@ -120,7 +120,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Portal del docente: cursos con guía de clase, actividades con plantillas, entregas por calificar y seguimiento
 - [x] Panel por cargo: indicadores, gráficas, actividad académica, cursos y fichas, inscripciones, mensajes, encuestas, finanzas, configuración de la IA, seguridad y cuentas
 - [x] Gerencia con acceso a todas las áreas: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas de los docentes
-- [x] Cuentas: el Gerente crea y elimina cuentas administrativas; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
+- [x] Cuentas: el Gerente crea y elimina cuentas administrativas; el Gerente y las direcciones académica y de tecnología crean cuentas de docentes y las desactivan o reactivan; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
 - [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`, con respuestas locales de respaldo
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
 - [x] Encuesta pública y anónima (`encuesta.html`): cualquier visitante responde sin cuenta y el panel muestra los resultados
