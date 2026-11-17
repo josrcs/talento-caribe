@@ -1,6 +1,7 @@
 /* ==========================================================
    Cuentas.jsx - Administración de cuentas
    Gerente: crea cuentas administrativas (contraseña temporal que se muestra una vez) y las elimina.
+   Gerente, Dirección académica y Dirección de tecnología: crean docentes y los desactivan o reactivan.
    Gerente y Coordinación de admisiones: bloquean estudiantes inactivos y los desbloquean cuando quieran.
    Todo lo valida el servidor (backend/src/rutas/cuentas.js).
    ========================================================== */
@@ -67,6 +68,72 @@ function Equipo() {
                   <td>{!u.yo && <button type="button" className="btn btn-outline btn-sm btn-peligro" onClick={() => eliminar(u)}>Eliminar</button>}</td>
                 </tr>
               )) : <FilaVacia columnas={5}>No hay cuentas administrativas.</FilaVacia>}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+/* Docentes: se crean con contraseña temporal y no se eliminan (se perderían sus actividades y las
+   entregas de los estudiantes); se desactivan y se pueden reactivar. */
+function Docentes() {
+  const [docentes, setDocentes] = useState(null); // lista o { error }
+  const [creada, setCreada] = useState(null);
+  const [ocupado, setOcupado] = useState(false);
+  const cargar = useCallback(async () => {
+    try { setDocentes(await pedir("GET", "/cuentas/docentes")); } catch (error) { setDocentes({ error: error.message }); }
+  }, []);
+  useEffect(() => { cargar(); }, [cargar]);
+  async function crear(e) {
+    e.preventDefault(); const f = e.currentTarget; if (!f.reportValidity()) return;
+    const datos = { nombre: f.elements.nombre.value.trim(), correo: f.elements.correo.value.trim().toLowerCase(), especialidad: f.elements.especialidad.value.trim() };
+    let r = null;
+    if (!(await intentar(async () => { r = await pedir("POST", "/cuentas/docentes", datos); }, setOcupado))) return;
+    f.reset(); setCreada(r); toast("Cuenta de docente creada"); cargar();
+  }
+  async function cambiarEstado(u) {
+    if (u.activo && !(await confirmar({ titulo: "¿Desactivar la cuenta de " + u.nombre + "?", mensaje: "No podrá ingresar y sus sesiones abiertas se cierran. Sus cursos, actividades y notas se conservan, y puedes reactivarla cuando quieras.", aceptar: "Desactivar", peligro: true }))) return;
+    if (await intentar(() => pedir("POST", "/cuentas/docentes/" + u.id + (u.activo ? "/desactivar" : "/activar")))) { toast(u.activo ? "Cuenta desactivada" : "Cuenta activada"); cargar(); }
+  }
+  const copiar = () => navigator.clipboard?.writeText(creada.clave).then(() => toast("Contraseña copiada"), () => toast("No se pudo copiar: selecciónala y cópiala a mano.", "error"));
+  return (
+    <div id="cuentas-docentes">
+      <h2 className="subtitulo">Docentes</h2>
+      <p className="seccion-texto">Crea la cuenta de cada docente. La plataforma genera una contraseña temporal que se muestra una sola vez: compártela en privado y pide que la cambie en «Mi cuenta». Para asignarle un curso, escribe su nombre tal cual en el campo «Instructor» del curso.</p>
+      <form className="form tarjeta" noValidate onSubmit={crear}>
+        <div className="fila-campos">
+          <div className="campo"><label htmlFor="cd-nombre">Nombre completo</label><input id="cd-nombre" name="nombre" required minLength="3" maxLength="100" autoComplete="off" /></div>
+          <div className="campo"><label htmlFor="cd-correo">Correo</label><input id="cd-correo" name="correo" type="email" required maxLength="120" autoComplete="off" placeholder="nombre@talentocaribe.co" /></div>
+          <div className="campo"><label htmlFor="cd-especialidad">Especialidad</label><input id="cd-especialidad" name="especialidad" required minLength="2" maxLength="80" autoComplete="off" placeholder="Ej. Programación y datos" /></div>
+        </div>
+        <button type="submit" className="btn btn-primary" disabled={ocupado}>Crear docente</button>
+      </form>
+      {creada && (
+        <div className="clave-temporal" role="status">
+          <strong>{"Cuenta creada para " + creada.cuenta.nombre}</strong>
+          <p>Contraseña temporal (no se vuelve a mostrar):</p>
+          <div className="clave-temporal-valor"><code data-no-traducir>{creada.clave}</code><button type="button" className="btn btn-outline btn-sm" onClick={copiar}>Copiar</button></div>
+          <small>{`Para entrar: ${creada.cuenta.correo}, cuenta «Docente». Compártela en privado y pide que la cambie en «Mi cuenta».`}</small>
+        </div>
+      )}
+      <div className="tabla-wrap">
+        <table className="tabla">
+          <thead><tr><th scope="col">Docente</th><th scope="col">Especialidad</th><th scope="col">Cursos</th><th scope="col">Último ingreso</th><th scope="col">Estado</th><th scope="col"><span className="sr-only">Acciones</span></th></tr></thead>
+          <tbody>
+            {!docentes ? <FilaVacia columnas={6}>Cargando…</FilaVacia>
+              : docentes.error ? <FilaVacia columnas={6}>{docentes.error}</FilaVacia>
+              : docentes.length ? docentes.map((u) => (
+                <tr key={u.id}>
+                  <td><strong>{u.nombre}</strong><br /><small>{u.correo}</small></td>
+                  <td>{u.especialidad || "—"}</td>
+                  <td>{u.cursos}</td>
+                  <td>{u.ultimo_ingreso ? fechaLarga(u.ultimo_ingreso) : "Nunca"}</td>
+                  <td><span className={"pill " + (u.activo ? "pill-ok" : "pill-no")}>{u.activo ? "Activa" : "Desactivada"}</span></td>
+                  <td>{u.activo ? <button type="button" className="btn btn-outline btn-sm btn-peligro" onClick={() => cambiarEstado(u)}>Desactivar</button>
+                    : <button type="button" className="btn btn-primary btn-sm" onClick={() => cambiarEstado(u)}>Activar</button>}</td>
+                </tr>
+              )) : <FilaVacia columnas={6}>No hay cuentas de docentes.</FilaVacia>}
           </tbody>
         </table>
       </div>
@@ -147,8 +214,11 @@ export default function Cuentas() {
   return (
     <>
       <div className="seccion-cabecera"><div><span className="eyebrow">ADMINISTRACIÓN DE CUENTAS</span><h1 id="t-cuentas">Cuentas</h1>
-        <p className="seccion-texto">{perfil.gestionaEquipo ? "Crea y elimina las cuentas del equipo administrativo, y bloquea o desbloquea las cuentas de estudiantes inactivos." : "Bloquea las cuentas de estudiantes que llevan tiempo sin ingresar y desbloquéalas cuando lo necesiten."}</p></div></div>
+        <p className="seccion-texto">{perfil.gestionaEquipo ? "Crea y elimina las cuentas del equipo administrativo, crea las de los docentes y bloquea o desbloquea las cuentas de estudiantes inactivos."
+          : perfil.gestionaDocentes ? "Crea las cuentas de los docentes y desactívalas cuando dejen de dictar."
+          : "Bloquea las cuentas de estudiantes que llevan tiempo sin ingresar y desbloquéalas cuando lo necesiten."}</p></div></div>
       {perfil.gestionaEquipo && <Equipo />}
+      {perfil.gestionaDocentes && <Docentes />}
       {perfil.gestionaEstudiantes && <Estudiantes />}
     </>
   );

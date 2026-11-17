@@ -67,6 +67,8 @@ const PERMISOS = {
   finanzas: ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"],
   supervisarAcademico: ["Gerente"], // editar o borrar actividades de cualquier docente y corregir notas
   cuentasEquipo: ["Gerente"],       // crear y eliminar cuentas administrativas
+  // crear docentes y desactivarlos: los mismos cargos que asignan el docente de cada curso
+  cuentasDocentes: ["Gerente", "Director(a) académico(a)", "Director(a) de tecnología"],
   bloquearEstudiantes: ["Gerente", "Coordinador(a) de admisiones"], // bloquear estudiantes inactivos y desbloquearlos
   configurarIA: ["Gerente"],
   seguridad: ["Gerente", "Director(a) general", "Director(a) de tecnología"],
