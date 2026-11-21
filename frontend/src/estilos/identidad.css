@@ -43,6 +43,20 @@ h3 { font-stretch: 105%; font-weight: 750; }
 /* ---------- Navegación ---------- */
 .nav-links a:not(.btn) { font-weight: 600; }
 .nav-links a:not(.btn)::after { height: 3px; bottom: .05rem; border-radius: 3px; background: var(--sol); }
+/* Archivo es más ancha: en pantallas medianas (portátiles, proyectores de 1024px) la barra no debe partirse */
+.brand, .nav-links a { white-space: nowrap; }
+@media (min-width: 860px) { .nav-acciones { flex-wrap: nowrap; } }
+@media (min-width: 860px) and (max-width: 1140px) {
+  .nav-links, .nav-links.nav-links { gap: .85rem; }
+  .nav-links a:not(.btn) { font-size: .86rem; }
+  .nav-links .btn { padding-inline: .8rem; font-size: .84rem; }
+  .brand { font-size: 1rem; }
+}
+/* Entre 860 y 1080px solo cabe el emblema: el nombre se oculta a la vista (queda para lectores de pantalla) */
+@media (min-width: 860px) and (max-width: 1080px) {
+  .brand { gap: 0; font-size: 0; }
+  .nav-links, .nav-links.nav-links { gap: .7rem; }
+}
 
 /* ---------- Botones: redondeados, con sombra sólida que se "presiona" ---------- */
 .btn { border-width: 2px; border-radius: 999px; font-weight: 750; transition: background-color var(--transition), color var(--transition), transform .12s ease, box-shadow .12s ease; }
