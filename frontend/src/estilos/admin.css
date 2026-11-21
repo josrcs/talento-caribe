@@ -23,7 +23,7 @@
 body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .panel-link { display: flex; align-items: center; justify-content: space-between; width: 100%; padding: .7rem .9rem; border-radius: var(--radius-md); color: var(--color-slate-400); font-size: .92rem; font-weight: 600; text-align: left; transition: all var(--transition); }
 .panel-link:hover { background: var(--superficie-2); color: var(--texto-fuerte); }
-.panel-link.activo { background: rgba(225, 69, 43, .12); color: var(--texto-fuerte); box-shadow: inset 3px 0 0 var(--accion); }
+.panel-link.activo { background: rgba(28, 111, 209, .12); color: var(--texto-fuerte); box-shadow: inset 3px 0 0 var(--accion); }
 .badge { min-width: 1.4rem; padding: .05rem .5rem; border-radius: 999px; background: #d92d20; color: #fff; font-size: .75rem; font-weight: 800; text-align: center; }
 .panel-main { min-width: 0; padding: 1.5rem 1.25rem 3rem; }
 .panel-seccion h1 { font-size: 1.7rem; letter-spacing: -.03em; margin-bottom: 1rem; }
@@ -67,7 +67,7 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .role-options { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin-bottom: 1.35rem; }
 .role-option { display: grid; justify-items: center; gap: .45rem; padding: .75rem .3rem; border: 1px solid var(--borde); border-radius: var(--radius-md); background: transparent; color: var(--color-slate-400); font-size: .82rem; font-weight: 700; transition: transform var(--transition), border-color var(--transition), background var(--transition), color var(--transition); }
 .role-option:hover { border-color: var(--color-slate-500); color: var(--texto-fuerte); }
-.role-option.is-selected { border-color: var(--accion); background: rgba(225, 69, 43, .08); color: var(--texto-fuerte); }
+.role-option.is-selected { border-color: var(--accion); background: rgba(28, 111, 209, .08); color: var(--texto-fuerte); }
 .role-icon { display: grid; place-items: center; width: 2rem; height: 2rem; border-radius: var(--radius-md); background: rgba(96, 165, 250, .14); color: var(--color-primary-400); font-size: 1.15rem; }
 .login-form { gap: 1.05rem; }
 .login-form .btn { justify-content: center; min-height: 3.15rem; margin-top: .2rem; }
