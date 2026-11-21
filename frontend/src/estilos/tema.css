@@ -3,135 +3,151 @@
    Se carga ANTES de style.css. El atributo data-tema en <html>
    (lo pone js/i18n.js) elige la paleta: "oscuro" o "claro".
 
-   Superficies sólidas, bordes finos y un solo color de acción.
-   El naranja del sol se reserva para detalles (no para fondos).
-   Oscuro: azul tinta. Claro: papel cálido con textos en el azul marino del logo.
+   Identidad: un afiche caribeño, no una plantilla de startup.
+   Tres colores de marca que se usan sin miedo, en bloques planos:
+     sol (#ffc531) · coral (#ff5a3c) · mar (#13a89e)
+   y una tinta cálida casi negra (#1b1712) para bordes y sombras sólidas.
+   Oscuro: noche cálida (no azul). Claro: arena con tinta.
    ========================================================== */
 
-/* ---------- Paleta oscura (valores por defecto) ---------- */
+/* ---------- Colores de marca (iguales en los dos temas) ---------- */
 :root {
-  --fondo: #0b1322;
-  --superficie: #111b2d;
-  --superficie-2: #16223a;
-  --linea: #23324b;
-  --linea-fuerte: #31435f;
-  --accion: #2a72cc;                   /* botón principal: texto blanco 4.8:1 */
-  --accion-hover: #2462ad;
-  --acento: #f2a61f;                   /* sol: subrayados, números de paso */
-  --palma: #2bb58f;
-  --texto-fuerte: #eef2f8;
-  --celeste: #8ab9ef;                  /* enlaces y etiquetas */
-  --celeste-suave: #b7d3f4;
-  --verde-texto: #6fd6b4;
-  --azul-texto: #7aaef0;
-  --turquesa: #6fd0c0;
-  --tinte: 255, 255, 255;              /* velos y bordes translúcidos */
-  --sombra: 0, 4, 14;                  /* sombras */
-  /* Superficies que otras hojas usan con transparencia: todas en el mismo azul tinta */
-  --o-2-6-23: 8, 14, 26; --o-17-24-39: 17, 27, 45; --o-15-23-42: 17, 27, 45; --o-8-16-32: 13, 21, 36;
-  --o-5-11-22: 11, 19, 34; --o-30-41-59: 24, 36, 58; --o-20-34-60: 20, 32, 54; --o-11-18-34: 13, 21, 36;
-  --o-24-33-66: 24, 36, 58; --o-13-19-37: 13, 21, 36; --o-14-26-48: 17, 27, 45; --o-12-24-43: 17, 27, 45; --o-10-20-38: 15, 24, 41;
+  --sol: #ffc531;
+  --coral: #ff5a3c;
+  --mar: #13a89e;
+  --tinta: #1b1712;                    /* texto sobre sol, coral y mar (6:1 o más) */
 }
 
-/* ---------- Paleta clara: papel y mar ---------- */
+/* ---------- Paleta oscura (valores por defecto): noche cálida ---------- */
+:root {
+  --fondo: #15130f;
+  --superficie: #1e1b16;
+  --superficie-2: #28241d;
+  --linea: #383228;
+  --linea-fuerte: #544b3e;
+  --accion: #e1452b;                   /* coral achiote: texto blanco 4.5:1 */
+  --accion-hover: #c23a22;
+  --acento: #ffc531;                   /* sol */
+  --palma: #2fbf8f;
+  --texto-fuerte: #f7efe0;             /* crema */
+  --celeste: #5fd4c6;                  /* enlaces: el mar de noche */
+  --celeste-suave: #9fe3da;
+  --verde-texto: #6fdcb0;
+  --azul-texto: #7cc6f2;
+  --turquesa: #5fd4c6;
+  --tinte: 255, 244, 225;              /* velos y bordes translúcidos */
+  --sombra: 0, 0, 0;                   /* sombras */
+  --sombra-dura: #000;                 /* sombra sólida desplazada de tarjetas y botones */
+  --borde-tarjeta: #4a4236;
+  --sol-texto: #ffc531; --coral-texto: #ff7a60; --mar-texto: #3fd0c2;
+  /* Superficies que otras hojas usan con transparencia: todas en la misma noche cálida */
+  --o-2-6-23: 17, 15, 12; --o-17-24-39: 30, 27, 22; --o-15-23-42: 30, 27, 22; --o-8-16-32: 24, 21, 17;
+  --o-5-11-22: 21, 19, 15; --o-30-41-59: 40, 36, 29; --o-20-34-60: 34, 31, 25; --o-11-18-34: 24, 21, 17;
+  --o-24-33-66: 40, 36, 29; --o-13-19-37: 24, 21, 17; --o-14-26-48: 30, 27, 22; --o-12-24-43: 30, 27, 22; --o-10-20-38: 27, 24, 19;
+}
+
+/* ---------- Paleta clara: arena y tinta ---------- */
 :root[data-tema="claro"] {
   color-scheme: light;
-  --fondo: #f6f5f1;
-  --superficie: #ffffff;
-  --superficie-2: #efede6;
-  --linea: #e1ddd2;
-  --linea-fuerte: #cdc7b8;
-  --accion: #1260b8;
-  --accion-hover: #0e4f99;
-  --acento: #9c5c00;                   /* 4.5:1 o más sobre papel, blanco y gris */
-  --palma: #0d8a6c;
-  --texto-fuerte: #0e2240;             /* azul marino del logo */
-  --celeste: #0b5aa6;                  /* contraste AA (4.5:1) sobre blanco y sobre el papel */
-  --celeste-suave: #0a5296;
+  --fondo: #f4ead6;
+  --superficie: #fffaf0;
+  --superficie-2: #ebdfc6;
+  --linea: #dccdb0;
+  --linea-fuerte: #b5a281;
+  --accion: #c8371e;                   /* coral achiote oscuro: texto blanco 5:1 */
+  --accion-hover: #a52c16;
+  --acento: #8a5300;                   /* sol en versión texto: 4.5:1 sobre arena */
+  --palma: #0b7d62;
+  --texto-fuerte: #1b1712;             /* tinta */
+  --celeste: #0a6b66;                  /* enlaces: mar profundo, AA sobre arena y blanco */
+  --celeste-suave: #085c58;
   --verde-texto: #0b7a5e;
-  --azul-texto: #1260b8;
-  --turquesa: #0f7d68;
-  --tinte: 14, 34, 64;
-  --sombra: 14, 34, 64;
-  --o-2-6-23: 255, 255, 255; --o-17-24-39: 255, 255, 255; --o-15-23-42: 255, 255, 255; --o-8-16-32: 255, 255, 255;
-  --o-5-11-22: 255, 255, 255; --o-30-41-59: 241, 239, 232; --o-20-34-60: 255, 255, 255; --o-11-18-34: 255, 255, 255;
-  --o-24-33-66: 255, 255, 255; --o-13-19-37: 255, 255, 255; --o-14-26-48: 255, 255, 255; --o-12-24-43: 255, 255, 255; --o-10-20-38: 255, 255, 255;
+  --azul-texto: #1d5f99;
+  --turquesa: #0a6b66;
+  --tinte: 27, 23, 18;
+  --sombra: 27, 23, 18;
+  --sombra-dura: #1b1712;
+  --borde-tarjeta: #1b1712;
+  --sol-texto: #8a5300; --coral-texto: #b8321b; --mar-texto: #0a6b66;
+  --o-2-6-23: 255, 250, 240; --o-17-24-39: 255, 250, 240; --o-15-23-42: 255, 250, 240; --o-8-16-32: 255, 250, 240;
+  --o-5-11-22: 255, 250, 240; --o-30-41-59: 235, 223, 198; --o-20-34-60: 255, 250, 240; --o-11-18-34: 255, 250, 240;
+  --o-24-33-66: 255, 250, 240; --o-13-19-37: 255, 250, 240; --o-14-26-48: 255, 250, 240; --o-12-24-43: 255, 250, 240; --o-10-20-38: 255, 250, 240;
 
-  --color-primary-400: #0b5aa6;
-  --color-primary-500: #1260b8;
-  --color-primary-600: #0e4f99;
-  --color-accent-400: #0f7d68;
-  --color-dark-900: #f6f5f1;
-  --color-dark-800: #ffffff;
-  --color-slate-200: #1b2f4d;
-  --color-slate-300: #2a3d58;
-  --color-slate-400: #4a5a70;
-  --color-slate-500: #586678;
-  --color-slate-700: #d6d1c4;
+  --color-primary-400: #0a6b66;
+  --color-primary-500: #c8371e;
+  --color-primary-600: #a52c16;
+  --color-accent-400: #0a6b66;
+  --color-dark-900: #f4ead6;
+  --color-dark-800: #fffaf0;
+  --color-slate-200: #241f18;
+  --color-slate-300: #3a3226;
+  --color-slate-400: #5a4f40;
+  --color-slate-500: #6b5f4d;
+  --color-slate-700: #d6c8ab;
   --color-red-400: #b42318;
   --color-green-400: #056a4c;
-  --color-yellow-400: #98560a;
-  --borde: #e1ddd2;
-  --shadow-lg: 0 12px 32px rgba(14, 34, 64, .1);
+  --color-yellow-400: #8a5300;
+  --borde: #dccdb0;
+  --shadow-lg: 0 12px 32px rgba(27, 23, 18, .12);
   --shadow-primary: none;
 
   /* Superficies (los nombres "vidrio" se conservan porque los usan todas las hojas) */
-  --vidrio: linear-gradient(#fff, #fff);
-  --vidrio-fuerte: linear-gradient(#fff, #fff);
-  --vidrio-borde: #e1ddd2;
-  --vidrio-borde-hover: #b9c9de;
+  --vidrio: linear-gradient(#fffaf0, #fffaf0);
+  --vidrio-fuerte: linear-gradient(#fffaf0, #fffaf0);
+  --vidrio-borde: #dccdb0;
+  --vidrio-borde-hover: #b5a281;
   --vidrio-blur: none;
-  --vidrio-sombra: 0 1px 2px rgba(14, 34, 64, .05);
+  --vidrio-sombra: 0 1px 2px rgba(27, 23, 18, .06);
   --vidrio-luz: linear-gradient(transparent, transparent);
-  --vidrio-filo: linear-gradient(#e1ddd2, #e1ddd2);
+  --vidrio-filo: linear-gradient(#dccdb0, #dccdb0);
 
   /* Animación de entrada (portal y panel) */
-  --intro-fondo: #f6f5f1; --intro-cielo-alto: #f6f5f1; --intro-cielo-bajo: #fde6bd; --intro-mar-alto: #cbe8f5; --intro-mar-bajo: #eef7fb;
-  --intro-texto: #0e2240; --intro-acento: #0e8fb3; --intro-linea: 18, 104, 200; --intro-sol: 248, 172, 36; --intro-grano: .05;
+  --intro-fondo: #f4ead6; --intro-cielo-alto: #f4ead6; --intro-cielo-bajo: #fde6bd; --intro-mar-alto: #cbe8f5; --intro-mar-bajo: #eef7fb;
+  --intro-texto: #1b1712; --intro-acento: #0e8fb3; --intro-linea: 18, 104, 200; --intro-sol: 248, 172, 36; --intro-grano: .05;
 }
 
 /* ---------- Ajustes puntuales del modo claro ---------- */
 [data-tema="claro"] body { background: var(--fondo); color: var(--texto-fuerte); }
-[data-tema="claro"] input, [data-tema="claro"] select, [data-tema="claro"] textarea { background-color: #fff; border-color: #d3cec2; color: var(--texto-fuerte); }
-[data-tema="claro"] input:focus, [data-tema="claro"] select:focus, [data-tema="claro"] textarea:focus { background-color: #fff; border-color: #1260b8; box-shadow: 0 0 0 3px rgba(18, 96, 184, .15); }
-[data-tema="claro"] select option { background: #fff; color: #0e2240; }
+[data-tema="claro"] input, [data-tema="claro"] select, [data-tema="claro"] textarea { background-color: #fffaf0; border-color: #b5a281; color: var(--texto-fuerte); }
+[data-tema="claro"] input:focus, [data-tema="claro"] select:focus, [data-tema="claro"] textarea:focus { background-color: #fff; border-color: var(--tinta); box-shadow: 3px 3px 0 var(--sol); }
+[data-tema="claro"] select option { background: #fff; color: #1b1712; }
 [data-tema="claro"] .cargo-buscar input, [data-tema="claro"] .ia-form textarea { background: none; }
-[data-tema="claro"] .btn-outline, [data-tema="claro"] .chip { background: #fff; border-color: #cdc7b8; color: var(--texto-fuerte); }
-[data-tema="claro"] .btn-outline:hover, [data-tema="claro"] .chip:hover { background: #fff; border-color: #0e2240; color: #0e2240; }
-[data-tema="claro"] .modal::backdrop { background: rgba(14, 34, 64, .4); }
-[data-tema="claro"] .modal { background: #fff; box-shadow: 0 24px 60px rgba(14, 34, 64, .2); }
-[data-tema="claro"] .modal-cerrar { background: #fff; border-color: #e1ddd2; color: var(--texto-fuerte); }
-[data-tema="claro"] .site-header { background: rgba(246, 245, 241, .94); }
-[data-tema="claro"] .site-header.con-scroll { background: rgba(255, 255, 255, .97); box-shadow: 0 1px 0 #e1ddd2; }
+[data-tema="claro"] .btn-outline, [data-tema="claro"] .chip { background: #fffaf0; border-color: var(--tinta); color: var(--texto-fuerte); }
+[data-tema="claro"] .btn-outline:hover, [data-tema="claro"] .chip:hover { background: #fff; border-color: var(--tinta); color: var(--tinta); }
+[data-tema="claro"] .modal::backdrop { background: rgba(27, 23, 18, .45); }
+[data-tema="claro"] .modal { background: #fffaf0; border: 2px solid var(--tinta); box-shadow: 8px 8px 0 var(--tinta); }
+[data-tema="claro"] .modal-cerrar { background: #fffaf0; border-color: #dccdb0; color: var(--texto-fuerte); }
+[data-tema="claro"] .site-header { background: rgba(244, 234, 214, .95); }
+[data-tema="claro"] .site-header.con-scroll { background: rgba(255, 250, 240, .97); }
 [data-tema="claro"] .nav-toggle-bar, [data-tema="claro"] .nav-toggle-bar::before, [data-tema="claro"] .nav-toggle-bar::after { background: var(--texto-fuerte); }
 [data-tema="claro"] .nav-toggle[aria-expanded="true"] .nav-toggle-bar { background: transparent; }
 [data-tema="claro"] .kpi dd, [data-tema="claro"] .tarjeta-dato dd { background: none; color: var(--texto-fuerte); }
 [data-tema="claro"] .ia-bienvenida-logo { background-image: url("../assets/img/logo-emblema-color.png"); }
-[data-tema="claro"] .chat-cabecera img { background: #fff; border-color: #e1ddd2; }
-[data-tema="claro"] .intro-saltar { border-color: rgba(14, 34, 64, .15); }
-[data-tema="claro"] .intro-saltar kbd { background: rgba(14, 34, 64, .07); }
+[data-tema="claro"] .chat-cabecera img { background: #fff; border-color: #dccdb0; }
+[data-tema="claro"] .intro-saltar { border-color: rgba(27, 23, 18, .15); }
+[data-tema="claro"] .intro-saltar kbd { background: rgba(27, 23, 18, .07); }
 [data-tema="claro"] .intro-estrellas { display: none; }
 [data-tema="claro"] .intro-horizonte { background: linear-gradient(90deg, transparent 4%, rgba(18, 104, 200, .45) 30%, rgba(248, 172, 36, .9) 50%, rgba(18, 104, 200, .45) 70%, transparent 96%); box-shadow: 0 0 18px 1px rgba(248, 172, 36, .35); }
 
 /* Plataforma */
 
 [data-tema="claro"] .ruta-parada.is-completa .ruta-punto { background: radial-gradient(closest-side, #0f9a80 78%, transparent 80% 100%), conic-gradient(#0f9a80 100%, transparent 0); color: #fff; }
-[data-tema="claro"] .app-link.activo { background: rgba(18, 96, 184, .08); }
-[data-tema="claro"] .app .app-nav { background: #fff; }
+[data-tema="claro"] .app-link.activo { background: rgba(255, 197, 49, .28); }
+[data-tema="claro"] .app .app-nav { background: #fffaf0; }
 [data-tema="claro"] .app-nav-tip { color: var(--acento); }
 [data-tema="claro"] .acceso-aviso [data-icono] { color: var(--acento); }
 [data-tema="claro"] .sabias h3 { color: var(--acento); }
 [data-tema="claro"] .plantillas { background: rgba(248, 172, 36, .08); border-color: rgba(217, 138, 6, .35); }
 [data-tema="claro"] .logro.is-ganado .logro-icono { background: #f2a61f; color: #2a1a00; }
-[data-tema="claro"] .ia-burbuja { background: #f6f5f1; border-color: #e1ddd2; box-shadow: none; }
-[data-tema="claro"] .ia-msg-yo .ia-burbuja { background: #1260b8; }
-[data-tema="claro"] .ia-burbuja code { background: rgba(18, 104, 200, .08); }
-[data-tema="claro"] .ia-form { background: #fff; }
-[data-tema="claro"] .tc-chat-panel { background: #fff; border-color: #e1ddd2; box-shadow: 0 20px 50px rgba(14, 34, 64, .16); }
-[data-tema="claro"] .guia-globo { background: #fff; }
-[data-tema="claro"] .instrucciones { background: #f6f5f1; }
-[data-tema="claro"] .tabla thead th { background: rgba(18, 104, 200, .06); }
-[data-tema="claro"] .barra-relleno { background: #1260b8; }
+[data-tema="claro"] .ia-burbuja { background: #f4ead6; border-color: #dccdb0; box-shadow: none; }
+[data-tema="claro"] .ia-msg-yo .ia-burbuja { background: var(--accion); }
+[data-tema="claro"] .ia-burbuja code { background: rgba(19, 168, 158, .12); }
+[data-tema="claro"] .ia-form { background: #fffaf0; }
+[data-tema="claro"] .tc-chat-panel { background: #fffaf0; border-color: var(--tinta); box-shadow: 6px 6px 0 var(--tinta); }
+[data-tema="claro"] .guia-globo { background: #fffaf0; }
+[data-tema="claro"] .instrucciones { background: #f4ead6; }
+[data-tema="claro"] .tabla thead th { background: rgba(27, 23, 18, .06); }
+[data-tema="claro"] .barra-relleno { background: var(--mar); }
 [data-tema="claro"] .pill-pendiente { background: rgba(245, 158, 11, .16); }
 
 /* ---------- Controles de tema e idioma (en todas las páginas) ---------- */
@@ -149,4 +165,4 @@
    i18n.js solo mientras dura el cambio, para no pisar la transición entre páginas (efectos.css). */
 .vt-tema::view-transition-old(root), .vt-tema::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
 .vt-tema::view-transition-new(root) { z-index: 1; }
-@media (max-width: 859px) { [data-tema="claro"] .nav-links { background: rgba(250, 252, 254, .98); box-shadow: 0 18px 40px rgba(10, 45, 94, .12); } }
+@media (max-width: 859px) { [data-tema="claro"] .nav-links { background: rgba(255, 250, 240, .98); box-shadow: 0 18px 40px rgba(27, 23, 18, .12); } }

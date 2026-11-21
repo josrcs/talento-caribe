@@ -1,0 +1,229 @@
+/* ==========================================================
+   identidad.css - La personalidad de Talento Caribe
+   Se carga de última en todas las páginas: aquí vive lo que hace que
+   el sitio se parezca al Caribe y no a una plantilla.
+
+   Referencias: los afiches de picó y los letreros pintados a mano de
+   Barranquilla. Letra ancha y pesada, colores planos que se tocan sin
+   degradados, bordes gruesos y sombras sólidas (no difuminadas).
+   - Colores de marca: --sol, --coral, --mar y --tinta (tema.css).
+   - Títulos: Archivo ancho (font-stretch) y muy pesado.
+   - Tarjetas y botones: borde de 2px y sombra sólida desplazada.
+   - Etiquetas de sección: un "sticker" de color, ligeramente torcido.
+   - Franja de tres colores (sol · coral · mar) en la barra y el pie.
+   ========================================================== */
+
+:root {
+  --franja: linear-gradient(90deg, var(--sol) 0 33.33%, var(--coral) 33.33% 66.66%, var(--mar) 66.66% 100%);
+  --sombra-tarjeta: 5px 5px 0 var(--sombra-dura);
+  --sombra-boton: 3px 3px 0 var(--sombra-dura);
+}
+
+/* ---------- Tipografía ---------- */
+body { font-stretch: 100%; }
+h1, h2, h3, .brand, .footer-titulo { font-family: var(--fuente-titulos); }
+h1, h2 { font-stretch: 112%; font-weight: 800; letter-spacing: -.025em; }
+h3 { font-stretch: 105%; font-weight: 750; }
+.site-header ~ main :is(h1, h2) { font-family: var(--fuente-titulos); font-weight: 850; font-stretch: 115%; letter-spacing: -.03em; }
+.brand { font-stretch: 112%; font-weight: 850; letter-spacing: -.02em; }
+
+/* ---------- Franja de tres colores ---------- */
+.site-header { border-bottom: 0; }
+.site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 4px; background: var(--franja); }
+.site-header.con-scroll { box-shadow: 0 6px 18px rgba(var(--sombra), .18); }
+.site-footer { position: relative; border-top: 0; }
+.site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: var(--franja); }
+.footer-titulo { font-stretch: 115%; font-size: .85rem; letter-spacing: .02em; text-transform: none; }
+
+/* ---------- Navegación ---------- */
+.nav-links a:not(.btn)::after { height: 3px; bottom: .05rem; background: var(--coral); border-radius: 0; }
+.nav-links a:not(.btn) { font-weight: 600; }
+
+/* ---------- Botones: bloque con sombra sólida que se "presiona" ---------- */
+.btn { border-width: 2px; border-radius: var(--radius-md); font-weight: 750; letter-spacing: .005em; transition: background-color var(--transition), color var(--transition), transform .12s ease, box-shadow .12s ease; }
+.btn-primary { border-color: var(--sombra-dura); box-shadow: var(--sombra-boton); }
+.btn-outline { border-color: var(--texto-fuerte); }
+.site-header ~ main .btn-outline, .site-footer .btn-outline { box-shadow: var(--sombra-boton); background: var(--superficie); }
+.btn-primary:hover, .site-header ~ main .btn-outline:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--sombra-dura); }
+.btn-primary:active, .site-header ~ main .btn-outline:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--sombra-dura); }
+.btn[disabled] { box-shadow: none; transform: none; }
+.btn-flecha::after { font-weight: 800; }
+/* La barra tiene poco alto: ahí los botones van sin sombra */
+.nav-links .btn { box-shadow: none; }
+.nav-links .btn:hover, .nav-links .btn:active { transform: none; box-shadow: none; }
+.btn-texto-plano { text-decoration-thickness: 2px; text-decoration-color: var(--coral); }
+
+/* ---------- Etiqueta de sección: sticker ---------- */
+.eyebrow {
+  display: inline-block; margin-bottom: 1rem; padding: .28rem .7rem .3rem;
+  border: 2px solid var(--tinta); border-radius: 3px;
+  background: var(--sol); color: var(--tinta); box-shadow: 3px 3px 0 var(--tinta);
+  font-size: .8rem; font-weight: 800; font-stretch: 110%; letter-spacing: .01em; text-transform: none;
+  rotate: -2deg; transform-origin: left bottom;
+}
+/* Cada sección cambia de color de sticker: sol, mar, coral... */
+main > section:nth-of-type(3n+1) .eyebrow { background: var(--mar); rotate: 1.5deg; }
+main > section:nth-of-type(3n+2) .eyebrow { background: var(--coral); rotate: -1.5deg; }
+[data-tema="oscuro"] .eyebrow, :root:not([data-tema]) .eyebrow { box-shadow: 3px 3px 0 #000; }
+
+/* ---------- Secciones ---------- */
+.section-alt { border-block: 0; }
+.section-intro { font-size: 1.08rem; }
+
+/* ---------- Tarjetas: borde grueso y sombra sólida ---------- */
+.pilar, .curso-card, .chat, .mentor, .pasos li, .semana, .ruta-area, .orientador-form, .section-alt .form, .contacto-grid .form {
+  border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-lg); box-shadow: var(--sombra-tarjeta);
+}
+.curso-card { transition: transform .15s ease, box-shadow .15s ease; }
+.curso-card:hover { border-color: var(--borde-tarjeta); transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--sombra-dura); }
+.curso-card-pie { border-top: 2px dashed var(--linea); }
+.tag { border-radius: 3px; font-weight: 700; background: rgba(19, 168, 158, .14); color: var(--mar-texto); }
+.tag-lanzamiento { background: var(--mar); color: var(--tinta); }
+.tag-pronto { background: var(--sol); color: var(--tinta); }
+
+/* Pilares (misión, visión, valores): banda de color a la izquierda en vez de una raya fina */
+.pilar { border-left-width: 2px; border-radius: var(--radius-lg); padding-left: 1.4rem; background: var(--superficie); position: relative; overflow: hidden; }
+.pilar::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 8px; background: var(--sol); }
+.pilares .pilar:nth-child(2)::before { background: var(--coral); }
+.pilares .pilar:nth-child(3)::before { background: var(--mar); }
+.pilar h3 { font-stretch: 115%; font-weight: 850; }
+
+/* ---------- Hero ---------- */
+.hero { position: relative; overflow: hidden; border-bottom: 0; }
+.hero-texto h1 { max-width: 15ch; font-size: clamp(2.4rem, 5vw, 4rem); line-height: .98; font-stretch: 118%; font-weight: 900; letter-spacing: -.035em; }
+.hero-lead { font-size: clamp(1.08rem, 1.6vw, 1.22rem); }
+.hero-acciones .btn { min-height: 3.2rem; padding-inline: 1.5rem; font-size: 1.02rem; }
+.hero-garantias { gap: .5rem; }
+.hero-garantias li { padding: .3rem .7rem .3rem .55rem; border: 2px solid var(--linea); border-radius: 999px; color: var(--texto-fuerte); font-size: .86rem; font-weight: 600; }
+.hero-garantias li::before { border-color: var(--palma); border-width: 0 0 3px 3px; }
+
+/* Sol rayado detrás del módulo de muestra: el amanecer del logo, en versión afiche */
+.modulo-muestra { position: relative; isolation: isolate; }
+.modulo-muestra::before {
+  content: ""; position: absolute; z-index: -1; width: 26rem; aspect-ratio: 1; right: -8rem; top: -4.5rem; border-radius: 50%;
+  background:
+    repeating-linear-gradient(180deg, var(--fondo) 0 7px, transparent 7px 26px) bottom / 100% 52% no-repeat,
+    radial-gradient(closest-side, var(--sol) 99%, transparent 100%);
+}
+.muestra-cabecera { border: 2px solid var(--borde-tarjeta); border-bottom: 0; background: var(--mar); color: var(--tinta); }
+.muestra-curso { color: var(--tinta); font-stretch: 110%; font-weight: 800; }
+.muestra-modulo { color: var(--tinta); font-weight: 600; }
+.muestra-cuerpo { border: 2px solid var(--borde-tarjeta); box-shadow: 8px 8px 0 var(--sombra-dura); }
+.site-header ~ main .muestra-titulo { font-family: var(--fuente-titulos); font-stretch: 115%; font-weight: 850; letter-spacing: -.02em; }
+.muestra-barra { height: 10px; border-radius: 0; border: 2px solid var(--borde-tarjeta); background: var(--superficie-2); }
+.muestra-barra span { background: repeating-linear-gradient(-45deg, var(--palma) 0 6px, #27a77c 6px 12px); }
+.muestra-ejercicio { border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-md); }
+.muestra-etiqueta { border-bottom: 2px solid var(--borde-tarjeta); }
+.modulo-muestra figcaption { font-style: italic; }
+
+/* ---------- Cifras: números de afiche, cada uno de un color ---------- */
+.cifras { background: var(--superficie); border-block: 2px solid var(--borde-tarjeta); }
+.cifra strong { font-family: var(--fuente-titulos); font-size: clamp(2.6rem, 6vw, 4rem); font-stretch: 125%; font-weight: 900; line-height: 1; letter-spacing: -.04em; }
+.cifra:nth-child(1) strong { color: var(--sol-texto); }
+.cifra:nth-child(2) strong { color: var(--coral-texto); }
+.cifra:nth-child(3) strong { color: var(--mar-texto); }
+.cifra span { color: var(--texto-fuerte); font-weight: 600; }
+@media (min-width: 760px) { .cifra + .cifra { border-left: 2px dashed var(--linea-fuerte); } }
+
+/* ---------- Orientador ---------- */
+.orientador-form legend span { border: 2px solid var(--borde-tarjeta); background: var(--sol); color: var(--tinta); font-weight: 850; }
+.or-opcion > span { border-width: 2px; border-color: var(--linea); }
+.or-opcion:hover > span { border-color: var(--texto-fuerte); }
+.or-opcion input:checked + span { border-color: var(--borde-tarjeta); background: rgba(255, 197, 49, .18); box-shadow: 3px 3px 0 var(--sombra-dura); }
+.or-opcion input:checked + span::before { border-color: var(--accion); }
+.recomendacion-etiqueta { color: var(--mar-texto); text-transform: none; letter-spacing: 0; font-size: .85rem; }
+.recomendacion h3 { font-stretch: 115%; font-weight: 850; font-size: 1.45rem; }
+.recomendacion-proyecto { border-left: 6px solid var(--sol); }
+
+/* ---------- Rutas: cabecera de color pleno ---------- */
+.ruta-area { overflow: hidden; }
+.ruta-cabecera { border-top: 0; border-bottom: 2px solid var(--borde-tarjeta); background: var(--mar); }
+.ruta-hardware .ruta-cabecera { background: var(--sol); }
+.ruta-cabecera h3 { color: var(--tinta); font-size: 1.6rem; font-stretch: 120%; font-weight: 900; letter-spacing: -.02em; }
+.ruta-cabecera p { color: var(--tinta); font-weight: 500; }
+.ruta-lista a::before { color: var(--coral-texto); font-stretch: 120%; font-weight: 900; font-size: .95rem; }
+.ruta-lista li + li a { border-top: 2px dashed var(--linea); }
+
+/* ---------- Pasos: número dentro de un círculo de sol ---------- */
+.pasos li::before {
+  display: inline-grid; place-items: center; width: 2.8rem; height: 2.8rem; margin-bottom: 1rem;
+  border: 2px solid var(--tinta); border-radius: 50%; background: var(--sol); color: var(--tinta);
+  font-family: var(--fuente-titulos); font-size: 1.05rem; font-stretch: 125%; font-weight: 900;
+}
+.pasos li:nth-child(2)::before { background: var(--coral); }
+.pasos li:nth-child(3)::before { background: var(--mar); }
+.pasos li:nth-child(4)::before { background: var(--texto-fuerte); color: var(--fondo); border-color: var(--texto-fuerte); }
+.paso-tiempo { border-top: 2px dashed var(--linea); }
+
+/* ---------- Ritmo de cada módulo ---------- */
+.semana h3 span { color: var(--coral-texto); text-transform: none; letter-spacing: 0; font-size: .9rem; }
+.semana-barra { height: 14px; gap: 4px; }
+.semana-barra span { border-radius: 0; }
+.semana-barra .practica { background: var(--mar); }
+.semana-pasos li { border-left-width: 4px; }
+.semana-pasos li.practica { border-left-color: var(--mar); }
+.semana-leyenda { background: var(--mar); border-radius: 0; }
+
+/* ---------- Mentores: retrato de color en cuadro ---------- */
+.mentor { background: var(--superficie); }
+#mentores .mentor { background: var(--superficie); }
+.avatar { border-radius: 4px; border: 2px solid var(--tinta); background: var(--sol); color: var(--tinta); font-stretch: 120%; font-weight: 900; rotate: -3deg; }
+.mentor:nth-child(3n+2) .avatar { background: var(--coral); color: var(--tinta); rotate: 2deg; }
+.mentor:nth-child(3n) .avatar { background: var(--mar); color: var(--tinta); rotate: -1deg; }
+.mentor h3 { font-stretch: 110%; }
+
+/* ---------- Preguntas frecuentes: un "+" que se vuelve "−" ---------- */
+.preguntas { border-top: 2px solid var(--borde-tarjeta); }
+.preguntas details { border-bottom: 2px dashed var(--linea); }
+.preguntas summary { font-weight: 700; font-stretch: 105%; }
+.preguntas summary::after {
+  content: "+"; width: 1.7rem; height: 1.7rem; margin-top: -.85rem; right: 0; rotate: none;
+  display: grid; place-items: center; border: 2px solid var(--borde-tarjeta); border-radius: 50%;
+  font-size: 1.1rem; font-weight: 800; line-height: 1; color: var(--texto-fuerte); transition: background-color var(--transition), rotate var(--transition);
+}
+.preguntas details[open] summary::after { content: "−"; rotate: none; margin-top: -.85rem; background: var(--sol); color: var(--tinta); }
+.preguntas summary:hover { color: var(--texto-fuerte); text-decoration: underline; text-decoration-color: var(--coral); text-decoration-thickness: 3px; text-underline-offset: .25em; }
+
+/* ---------- Listas con chulito ---------- */
+.lista-check li::before { border-color: var(--mar); border-width: 0 0 3px 3px; }
+
+/* ---------- Chat y asistente ---------- */
+.msg-bot { border-width: 2px; }
+.chip { border-width: 2px; font-weight: 600; }
+.chip:hover { border-color: var(--texto-fuerte); color: var(--texto-fuerte); background: rgba(255, 197, 49, .18); }
+.tc-chat-launch { border: 2px solid var(--tinta); background: var(--sol); color: var(--tinta); font-weight: 800; box-shadow: 3px 3px 0 var(--tinta); transition: transform .12s ease, box-shadow .12s ease; }
+.tc-chat-launch:hover { border-color: var(--tinta); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--tinta); }
+[data-tema="oscuro"] .tc-chat-launch, :root:not([data-tema]) .tc-chat-launch { box-shadow: 3px 3px 0 #000; }
+.tc-chat-panel { border: 2px solid var(--borde-tarjeta); box-shadow: 6px 6px 0 var(--sombra-dura); }
+
+/* ---------- Formularios ---------- */
+input, select, textarea { border-width: 2px; border-radius: var(--radius-md); }
+input:focus, select:focus, textarea:focus { border-color: var(--texto-fuerte); box-shadow: 3px 3px 0 var(--sol); }
+.campo label { font-weight: 700; color: var(--texto-fuerte); }
+
+/* ---------- Cierre: bloque de sol ---------- */
+.cta-final-caja, [data-tema="oscuro"] .cta-final-caja, :root:not([data-tema]) .cta-final-caja {
+  position: relative; overflow: hidden; border: 2px solid var(--tinta); background: var(--sol); color: var(--tinta); box-shadow: 8px 8px 0 var(--sombra-dura);
+}
+.cta-final-caja h2 { color: var(--tinta); font-size: clamp(1.8rem, 3.6vw, 2.6rem); }
+.cta-final-caja p { color: #3a3021; }
+.cta-final .btn-primary { background: var(--tinta); border-color: var(--tinta); color: var(--sol); box-shadow: 3px 3px 0 rgba(27, 23, 18, .35); }
+.cta-final .btn-primary:hover { background: #000; color: var(--sol); }
+.cta-final .btn-outline, .site-header ~ main .cta-final .btn-outline { border-color: var(--tinta); background: transparent; color: var(--tinta); box-shadow: none; }
+.cta-final .btn-outline:hover, .site-header ~ main .cta-final .btn-outline:hover { border-color: var(--tinta); background: rgba(27, 23, 18, .08); color: var(--tinta); box-shadow: none; transform: none; }
+
+/* ---------- Encabezado de las páginas internas (cursos, privacidad...) ---------- */
+.page-intro { border-bottom: 2px solid var(--borde-tarjeta); }
+
+/* ---------- Ventanas ---------- */
+.modal { border: 2px solid var(--borde-tarjeta); box-shadow: 8px 8px 0 var(--sombra-dura); }
+.modal-contenido h2 { font-stretch: 112%; font-weight: 850; }
+.toast { border-width: 2px; border-left-width: 6px; box-shadow: 4px 4px 0 var(--sombra-dura); }
+
+/* ---------- Movimiento reducido: sin inclinaciones ni saltos ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:hover, .site-header ~ main .btn-outline:hover, .curso-card:hover { transform: none; }
+}
+@media (max-width: 959px) {
+  .modulo-muestra::before { width: 22rem; right: -6rem; top: -3rem; }
+}
