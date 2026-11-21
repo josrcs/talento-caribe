@@ -1,0 +1,244 @@
+/* ==========================================================
+   identidad.css - La esencia del logo de Talento Caribe
+   Se carga de última en todas las páginas.
+
+   Todo sale del logo: la T azul marino de esquinas redondeadas, la C
+   que encierra un sol con rayos saliendo sobre dos olas (una clara y
+   otra profunda) y la palma verde encima.
+   - Colores: --marino, --sol, --ola, --mar, --palma-logo (tema.css).
+   - Letra: Archivo ancha y gruesa, como "TALENTO" en el logo.
+   - Olas de dos tonos bajo la barra, sobre el pie y en el cierre.
+   - El emblema (sol + rayos + olas + palma) en grande detrás del hero.
+   - Tarjetas redondeadas con borde marino y sombra sólida.
+   ========================================================== */
+
+:root {
+  /* Las dos olas del logo, repetibles a lo ancho */
+  --olas: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 16' preserveAspectRatio='none'%3E%3Cpath d='M0 7 Q30 1 60 7 T120 7 V16 H0Z' fill='%231fb5e3'/%3E%3Cpath d='M0 12 Q30 6 60 12 T120 12 V16 H0Z' fill='%231c6fd1'/%3E%3C/svg%3E");
+  /* El emblema sin la T: palma, sol con tres rayos y olas dentro de la curva de la C */
+  --emblema: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 260 260'%3E%3Cdefs%3E%3CclipPath id='c'%3E%3Ccircle cx='120' cy='150' r='100'/%3E%3C/clipPath%3E%3C/defs%3E%3Cg fill='%230e9a7b'%3E%3Cpath d='M150 62 C160 25 205 8 240 22 C205 26 180 42 150 62Z'/%3E%3Cpath d='M150 62 C185 45 235 55 252 92 C220 72 190 66 150 62Z'/%3E%3Cpath d='M150 62 C140 30 110 14 82 18 C112 30 132 44 150 62Z'/%3E%3C/g%3E%3Cg stroke='%23f7ae1f' stroke-width='11' stroke-linecap='round'%3E%3Cpath d='M114 82 L110 58'/%3E%3Cpath d='M160 92 L176 72'/%3E%3Cpath d='M184 132 L210 125'/%3E%3C/g%3E%3Ccircle cx='120' cy='150' r='54' fill='%23f7ae1f'/%3E%3Cg clip-path='url(%23c)'%3E%3Cpath d='M0 158 Q60 128 120 156 T260 150 V260 H0Z' fill='%231fb5e3'/%3E%3Cpath d='M0 196 Q60 168 120 192 T260 186 V260 H0Z' fill='%231c6fd1'/%3E%3C/g%3E%3C/svg%3E");
+  --sombra-tarjeta: 5px 5px 0 var(--sombra-dura);
+  --sombra-boton: 3px 3px 0 var(--sombra-dura);
+}
+
+/* ---------- Tipografía: la del logo, ancha y gruesa ---------- */
+h1, h2, h3, .brand, .footer-titulo { font-family: var(--fuente-titulos); }
+h1, h2 { font-stretch: 112%; font-weight: 800; letter-spacing: -.02em; }
+h3 { font-stretch: 105%; font-weight: 750; }
+.site-header ~ main :is(h1, h2) { font-family: var(--fuente-titulos); font-weight: 850; font-stretch: 115%; letter-spacing: -.025em; }
+.brand { font-stretch: 112%; font-weight: 850; letter-spacing: -.01em; }
+
+/* ---------- Olas: bajo la barra y sobre el pie ---------- */
+.site-header { border-bottom: 0; }
+.site-header::after { content: ""; position: absolute; left: 0; right: 0; bottom: -8px; height: 8px; background: var(--olas) 0 0 / 90px 100% repeat-x; pointer-events: none; }
+.site-footer { position: relative; margin-top: 28px; border-top: 0; background: var(--marino); color: #c9d6ea; }
+.site-footer::before { content: ""; position: absolute; left: 0; right: 0; top: -27px; height: 28px; background: var(--olas) 0 0 / 220px 100% repeat-x; }
+.site-footer .footer-grid p, .site-footer .copy { color: #b7c6de; }
+.site-footer .footer-grid a { color: #e6eef9; }
+.site-footer .footer-grid a:hover { color: var(--sol); }
+.site-footer .footer-titulo { color: var(--sol); }
+.site-footer .copy { border-top-color: rgba(255, 255, 255, .15); }
+.footer-titulo { font-stretch: 115%; font-size: .85rem; letter-spacing: .06em; }
+
+/* ---------- Navegación ---------- */
+.nav-links a:not(.btn) { font-weight: 600; }
+.nav-links a:not(.btn)::after { height: 3px; bottom: .05rem; border-radius: 3px; background: var(--sol); }
+/* Archivo es más ancha: en pantallas medianas (portátiles, proyectores de 1024px) la barra no debe partirse */
+.brand, .nav-links a { white-space: nowrap; }
+@media (min-width: 860px) { .nav-acciones { flex-wrap: nowrap; } }
+@media (min-width: 860px) and (max-width: 1140px) {
+  .nav-links, .nav-links.nav-links { gap: .85rem; }
+  .nav-links a:not(.btn) { font-size: .86rem; }
+  .nav-links .btn { padding-inline: .8rem; font-size: .84rem; }
+  .brand { font-size: 1rem; }
+}
+/* Entre 860 y 1080px solo cabe el emblema: el nombre se oculta a la vista (queda para lectores de pantalla) */
+@media (min-width: 860px) and (max-width: 1080px) {
+  .brand { gap: 0; font-size: 0; }
+  .nav-links, .nav-links.nav-links { gap: .7rem; }
+}
+
+/* ---------- Botones: redondeados, con sombra sólida que se "presiona" ---------- */
+.btn { border-width: 2px; border-radius: 999px; font-weight: 750; transition: background-color var(--transition), color var(--transition), transform .12s ease, box-shadow .12s ease; }
+.btn-primary { border-color: var(--sombra-dura); box-shadow: var(--sombra-boton); }
+/* En las páginas públicas el botón principal es el sol del logo, con letra marina */
+.site-header ~ main .btn-primary, .nav-links .btn-primary { background: var(--sol); border-color: var(--marino); color: var(--marino); }
+.site-header ~ main .btn-primary:hover, .nav-links .btn-primary:hover { background: #ffbe3d; color: var(--marino); }
+.btn-outline { border-color: var(--texto-fuerte); }
+.site-header ~ main .btn-outline { background: var(--superficie); box-shadow: var(--sombra-boton); }
+.btn-primary:hover, .site-header ~ main .btn-outline:hover { transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--sombra-dura); }
+.btn-primary:active, .site-header ~ main .btn-outline:active { transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--sombra-dura); }
+.btn[disabled] { box-shadow: none; transform: none; }
+.nav-links .btn, .nav-links .btn:hover, .nav-links .btn:active { box-shadow: none; transform: none; }
+.btn-texto-plano { text-decoration-thickness: 2px; text-decoration-color: var(--ola); }
+
+/* ---------- Etiqueta de sección: una píldora con el sol al lado ---------- */
+.eyebrow {
+  display: inline-flex; align-items: center; gap: .45rem; margin-bottom: 1rem; padding: .3rem .8rem .3rem .4rem;
+  border: 2px solid var(--marino); border-radius: 999px; background: var(--ola); color: var(--marino);
+  font-size: .8rem; font-weight: 800; font-stretch: 110%; letter-spacing: .02em; text-transform: none;
+}
+.eyebrow::before { content: ""; width: 1rem; height: 1rem; flex: 0 0 auto; border-radius: 50%; background: var(--sol); box-shadow: 0 0 0 2px var(--marino); }
+main > section:nth-of-type(odd) .eyebrow { background: var(--sol); }
+main > section:nth-of-type(odd) .eyebrow::before { background: var(--ola); }
+
+/* ---------- Secciones ---------- */
+.section-alt { border-block: 0; }
+.section-intro { font-size: 1.08rem; }
+
+/* ---------- Tarjetas: redondeadas, borde marino y sombra sólida ---------- */
+.pilar, .curso-card, .chat, .mentor, .pasos li, .semana, .ruta-area, .orientador-form, .section-alt .form, .contacto-grid .form {
+  border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-lg); box-shadow: var(--sombra-tarjeta);
+}
+.curso-card { transition: transform .15s ease, box-shadow .15s ease; }
+.curso-card:hover { border-color: var(--borde-tarjeta); transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--sombra-dura); }
+.curso-card-pie { border-top: 2px dashed var(--linea); }
+.tag { border-radius: 999px; padding-inline: .65rem; font-weight: 700; background: rgba(31, 181, 227, .16); color: var(--ola-texto); }
+.tag-lanzamiento { background: var(--palma-logo); color: #fff; }
+.tag-pronto { background: var(--sol); color: var(--marino); }
+
+/* Pilares (misión, visión, valores): una hoja de palma, un sol y una ola */
+.pilar { position: relative; padding-left: 4.2rem; background: var(--superficie); border-left-width: 2px; }
+.pilar::before { content: ""; position: absolute; left: 1.2rem; top: 1.35rem; width: 2rem; height: 2rem; border-radius: 50%; background: var(--sol); box-shadow: 0 0 0 2px var(--marino); }
+.pilares .pilar:nth-child(2)::before { background: var(--ola); }
+.pilares .pilar:nth-child(3)::before { background: var(--palma-logo); }
+.pilar h3 { font-stretch: 115%; font-weight: 850; }
+
+/* ---------- Hero: el emblema del logo en grande ---------- */
+.hero { position: relative; overflow: hidden; border-bottom: 0; }
+.hero-texto h1 { max-width: 15ch; font-size: clamp(2.4rem, 5vw, 4rem); line-height: 1; font-stretch: 118%; font-weight: 900; letter-spacing: -.03em; }
+.hero-lead { font-size: clamp(1.08rem, 1.6vw, 1.22rem); }
+.hero-acciones .btn { min-height: 3.2rem; padding-inline: 1.6rem; font-size: 1.02rem; }
+.hero-garantias { gap: .5rem; }
+.hero-garantias li { padding: .3rem .75rem .3rem .6rem; border: 2px solid var(--linea); border-radius: 999px; color: var(--texto-fuerte); font-size: .86rem; font-weight: 600; }
+.hero-garantias li::before { border-color: var(--palma); border-width: 0 0 3px 3px; }
+
+.modulo-muestra { position: relative; isolation: isolate; }
+/* El sol del emblema sale por detrás del borde de la tarjeta, como sobre el horizonte */
+.modulo-muestra { --emblema-ancho: 15rem; margin-top: calc(var(--emblema-ancho) * .5); }
+.modulo-muestra::before { content: ""; position: absolute; z-index: -1; width: var(--emblema-ancho); aspect-ratio: 1; right: -1.5rem; top: calc(var(--emblema-ancho) * -.6); background: var(--emblema) center / contain no-repeat; }
+@media (min-width: 960px) { .modulo-muestra { --emblema-ancho: 17rem; margin-top: 5rem; } }
+.muestra-cabecera { border: 2px solid var(--borde-tarjeta); border-bottom: 0; background: var(--marino); color: #fff; }
+.muestra-curso { color: #fff; font-stretch: 110%; font-weight: 800; }
+.muestra-modulo { color: var(--sol); font-weight: 700; }
+.muestra-cuerpo { border: 2px solid var(--borde-tarjeta); box-shadow: 8px 8px 0 var(--sombra-dura); }
+.site-header ~ main .muestra-titulo { font-family: var(--fuente-titulos); font-stretch: 115%; font-weight: 850; letter-spacing: -.02em; }
+.muestra-barra { height: 10px; border-radius: 999px; border: 2px solid var(--borde-tarjeta); background: var(--superficie-2); }
+.muestra-barra span { border-radius: 999px; background: linear-gradient(90deg, var(--ola), var(--mar)); }
+.muestra-temas .hecho::before { border-color: var(--palma-logo); background-color: var(--palma-logo); }
+.muestra-temas .actual::before { border-color: var(--sol); background: var(--sol); }
+.muestra-ejercicio { border: 2px solid var(--borde-tarjeta); }
+.muestra-etiqueta { border-bottom: 2px solid var(--borde-tarjeta); }
+.muestra-ejercicio pre { background: #071226; }
+
+/* ---------- Cifras: números grandes con los colores del logo ---------- */
+.cifras { background: var(--superficie); border-block: 0; }
+.cifra strong { font-family: var(--fuente-titulos); font-size: clamp(2.6rem, 6vw, 4rem); font-stretch: 125%; font-weight: 900; line-height: 1; letter-spacing: -.03em; }
+.cifra:nth-child(1) strong { color: var(--sol-texto); }
+.cifra:nth-child(2) strong { color: var(--ola-texto); }
+.cifra:nth-child(3) strong { color: var(--palma-texto); }
+.cifra:nth-child(4) strong { color: var(--mar-texto); }
+.cifra span { color: var(--texto-fuerte); font-weight: 600; }
+@media (min-width: 760px) { .cifra + .cifra { border-left: 2px dashed var(--linea-fuerte); } }
+
+/* ---------- Orientador ---------- */
+.orientador-form legend span { border: 2px solid var(--marino); background: var(--sol); color: var(--marino); font-weight: 850; }
+.or-opcion > span { border-width: 2px; border-color: var(--linea); }
+.or-opcion:hover > span { border-color: var(--texto-fuerte); }
+.or-opcion input:checked + span { border-color: var(--borde-tarjeta); background: rgba(31, 181, 227, .12); box-shadow: 3px 3px 0 var(--sombra-dura); }
+.recomendacion-etiqueta { color: var(--palma-texto); text-transform: none; letter-spacing: 0; font-size: .85rem; }
+.recomendacion h3 { font-stretch: 115%; font-weight: 850; font-size: 1.45rem; }
+.recomendacion-proyecto { border-left: 6px solid var(--sol); }
+
+/* ---------- Rutas: cabecera con el color del logo y una ola abajo ---------- */
+.ruta-area { overflow: hidden; }
+.ruta-cabecera { position: relative; padding-bottom: 1.8rem; border-top: 0; border-bottom: 2px solid var(--borde-tarjeta); background: var(--ola); }
+.ruta-cabecera::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 10px; background: var(--olas) 0 0 / 80px 100% repeat-x; opacity: .9; }
+.ruta-hardware .ruta-cabecera { background: var(--sol); }
+.ruta-cabecera h3 { color: var(--marino); font-size: 1.6rem; font-stretch: 120%; font-weight: 900; letter-spacing: -.02em; }
+.ruta-cabecera p { color: var(--marino); font-weight: 500; }
+.ruta-lista a::before { color: var(--mar-texto); font-stretch: 120%; font-weight: 900; font-size: .95rem; }
+.ruta-lista li + li a { border-top: 2px dashed var(--linea); }
+
+/* ---------- Pasos: número dentro de un círculo, como la C del logo ---------- */
+.pasos li::before {
+  display: inline-grid; place-items: center; width: 2.8rem; height: 2.8rem; margin-bottom: 1rem;
+  border: 2px solid var(--marino); border-radius: 50%; background: var(--sol); color: var(--marino);
+  font-family: var(--fuente-titulos); font-size: 1.05rem; font-stretch: 125%; font-weight: 900;
+}
+.pasos li:nth-child(2)::before { background: var(--ola); }
+.pasos li:nth-child(3)::before { background: var(--mar); color: #fff; }
+.pasos li:nth-child(4)::before { background: var(--marino); color: #fff; border-color: var(--texto-fuerte); }
+.paso-tiempo { border-top: 2px dashed var(--linea); }
+
+/* ---------- Ritmo de cada módulo ---------- */
+.semana h3 span { color: var(--mar-texto); text-transform: none; letter-spacing: 0; font-size: .9rem; }
+.semana-barra { height: 14px; gap: 4px; }
+.semana-barra span { border-radius: 999px; }
+.semana-barra .practica, .semana-leyenda { background: var(--ola); }
+.semana-leyenda { border-radius: 999px; }
+.semana-pasos li { border-left-width: 4px; }
+.semana-pasos li.practica { border-left-color: var(--ola); }
+
+/* ---------- Mentores ---------- */
+.mentor, #mentores .mentor { background: var(--superficie); }
+.avatar { border: 2px solid var(--marino); background: var(--sol); color: var(--marino); font-stretch: 120%; font-weight: 900; }
+.mentor:nth-child(3n+2) .avatar { background: var(--ola); color: var(--marino); }
+.mentor:nth-child(3n) .avatar { background: var(--mar); color: #fff; }
+.mentor h3 { font-stretch: 110%; }
+
+/* ---------- Preguntas frecuentes: un "+" que se vuelve sol ---------- */
+.preguntas { border-top: 2px solid var(--borde-tarjeta); }
+.preguntas details { border-bottom: 2px dashed var(--linea); }
+.preguntas summary { font-weight: 700; font-stretch: 105%; }
+.preguntas summary::after {
+  content: "+"; width: 1.7rem; height: 1.7rem; margin-top: -.85rem; right: 0; rotate: none;
+  display: grid; place-items: center; border: 2px solid var(--borde-tarjeta); border-radius: 50%;
+  font-size: 1.1rem; font-weight: 800; line-height: 1; color: var(--texto-fuerte); transition: background-color var(--transition);
+}
+.preguntas details[open] summary::after { content: "−"; rotate: none; margin-top: -.85rem; background: var(--sol); border-color: var(--marino); color: var(--marino); }
+.preguntas summary:hover { color: var(--texto-fuerte); text-decoration: underline; text-decoration-color: var(--ola); text-decoration-thickness: 3px; text-underline-offset: .25em; }
+
+/* ---------- Listas con chulito ---------- */
+.lista-check li::before { border-color: var(--palma); border-width: 0 0 3px 3px; }
+
+/* ---------- Chat y asistente ---------- */
+.msg-bot { border-width: 2px; }
+.chip { border-width: 2px; font-weight: 600; }
+.chip:hover { border-color: var(--texto-fuerte); color: var(--texto-fuerte); background: rgba(31, 181, 227, .14); }
+.tc-chat-launch { border: 2px solid var(--marino); background: var(--sol); color: var(--marino); font-weight: 800; box-shadow: 3px 3px 0 var(--sombra-dura); transition: transform .12s ease, box-shadow .12s ease; }
+.tc-chat-launch:hover { border-color: var(--marino); transform: translate(-1px, -1px); box-shadow: 4px 4px 0 var(--sombra-dura); }
+.tc-chat-panel { border: 2px solid var(--borde-tarjeta); box-shadow: 6px 6px 0 var(--sombra-dura); }
+
+/* ---------- Formularios ---------- */
+input, select, textarea { border-width: 2px; }
+input:focus, select:focus, textarea:focus { border-color: var(--texto-fuerte); box-shadow: 0 0 0 3px rgba(247, 174, 31, .55); }
+.campo label { font-weight: 700; color: var(--texto-fuerte); }
+
+/* ---------- Cierre: el atardecer del logo, marino con olas ---------- */
+.cta-final-caja, [data-tema="oscuro"] .cta-final-caja, :root:not([data-tema]) .cta-final-caja {
+  position: relative; overflow: hidden; padding-bottom: calc(clamp(1.75rem, 4vw, 2.75rem) + 26px);
+  border: 2px solid var(--borde-tarjeta); background: var(--marino); color: #fff; box-shadow: 8px 8px 0 var(--sombra-dura);
+}
+.cta-final-caja::after { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 26px; background: var(--olas) 0 0 / 180px 100% repeat-x; }
+.cta-final-caja::before { content: ""; position: absolute; right: 2rem; bottom: 14px; width: 7rem; height: 3.5rem; border-radius: 7rem 7rem 0 0; background: var(--sol); }
+.cta-final-caja > * { position: relative; z-index: 1; }
+.cta-final-caja h2 { color: #fff; font-size: clamp(1.8rem, 3.6vw, 2.6rem); }
+.cta-final-caja p { color: #c9d6ea; }
+.cta-final .btn-primary, .site-header ~ main .cta-final .btn-primary { background: var(--sol); border-color: var(--sol); color: var(--marino); box-shadow: 3px 3px 0 #040b18; }
+.cta-final .btn-outline, .site-header ~ main .cta-final .btn-outline { border-color: #fff; background: transparent; color: #fff; box-shadow: none; }
+.cta-final .btn-outline:hover, .site-header ~ main .cta-final .btn-outline:hover { border-color: var(--sol); background: transparent; color: var(--sol); box-shadow: none; transform: none; }
+@media (min-width: 860px) { .cta-final-acciones { margin-right: 9rem; } }
+
+/* ---------- Encabezado de las páginas internas (cursos, privacidad...) ---------- */
+.page-intro { border-bottom: 0; }
+
+/* ---------- Ventanas y avisos ---------- */
+.modal { border: 2px solid var(--borde-tarjeta); box-shadow: 8px 8px 0 var(--sombra-dura); }
+.modal-contenido h2 { font-stretch: 112%; font-weight: 850; }
+.toast { border-width: 2px; border-left-width: 6px; box-shadow: 4px 4px 0 var(--sombra-dura); }
+
+/* ---------- Ajustes ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .btn-primary:hover, .site-header ~ main .btn-outline:hover, .curso-card:hover { transform: none; }
+}

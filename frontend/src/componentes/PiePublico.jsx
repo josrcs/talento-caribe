@@ -8,7 +8,7 @@ export default function PiePublico({ completo = false }) {
     <footer className="site-footer">
       <div className="container footer-grid">
         <div>
-          <a href={enlace("index.html")} className="footer-logo"><Logo tipo="completo-sm" alt="Talento Caribe" width="152" height="130" loading="lazy" /></a>
+          <a href={enlace("index.html")} className="footer-logo"><Logo tipo="completo-sm" fijo alt="Talento Caribe" width="152" height="130" loading="lazy" /></a>
           <p>Tu talento no tiene fronteras.</p>
         </div>
         {completo ? (
