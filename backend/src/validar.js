@@ -59,4 +59,10 @@ function edad(nacimiento) {
   if (hoy.getMonth() < n.getMonth() || (hoy.getMonth() === n.getMonth() && hoy.getDate() < n.getDate())) años--;
   return años;
 }
-module.exports = { POLITICA_VERSION, edad, EMAIL, URL_OK, texto, linea, opcional, limpio, entero, fecha, claveSegura, MENSAJE_CLAVE, generarClave, rechazar };
+/* Piloto 2027: por ahora la plataforma solo recibe estudiantes en Colombia */
+const PAISES_PERMITIDOS = ["Colombia"];
+const MENSAJE_PAIS = "Por ahora el piloto de Talento Caribe es solo para personas en Colombia (clases presenciales en Barranquilla). Pronto llegaremos a más países de Latinoamérica.";
+const paisPermitido = (pais) => PAISES_PERMITIDOS.includes(String(pais || "").trim());
+
+module.exports = {
+  PAISES_PERMITIDOS, MENSAJE_PAIS, paisPermitido, POLITICA_VERSION, edad, EMAIL, URL_OK, texto, linea, opcional, limpio, entero, fecha, claveSegura, MENSAJE_CLAVE, generarClave, rechazar };

@@ -9,6 +9,7 @@
    ========================================================== */
 import { idioma, traducir } from "../i18n/idioma.js";
 import { API_URL } from "./config.js";
+import { rutaConCursos } from "./piloto.js";
 
 /* Lo que el asistente sabe de la página: lo conecta el componente <ChatIA> con useDatos() */
 let conexion = { modelo: null, sesion: null, panel: null };
@@ -61,12 +62,7 @@ const QUIZ = [
 const quizVista = (q) => ({ p: lang(q.p), o: lang(q.o), c: q.c, e: lang(q.e) });
 let quizActual = null;
 
-const RUTAS = {
-  web: { nombre: ["Desarrollo web", "Web development"], ids: [1, 3, 4, 5] },
-  datos: { nombre: ["Programación y datos", "Programming and data"], ids: [1, 2, 6] },
-  hardware: { nombre: ["Electrónica y robótica", "Electronics and robotics"], ids: [8, 9, 11, 12] },
-  ia: { nombre: ["Inteligencia artificial", "Artificial intelligence"], ids: [1, 7, 2] },
-};
+/* Piloto 2027: una sola ruta de 4 cursos (los cursos se buscan por su nombre, ver src/lib/piloto.js) */
 
 /* ---------- Contexto del usuario ---------- */
 function contexto() {
@@ -121,16 +117,9 @@ function revisarQuiz(t) {
     : r(`${L("Casi", "Almost")} 💪 ${L("La respuesta era", "The answer was")} **${"ABC"[q.c]}) ${q.o[q.c]}**. ${q.e}`, siguientes);
 }
 
-function recomendar(t) {
-  const C = (id) => D()?.curso(id) || (D()?.cursos() || []).find((c) => c.id === id);
-  let ruta = null;
-  if (tiene(t, "web", "pagina", "html", "css", "diseno", "javascript", "page", "design")) ruta = RUTAS.web;
-  else if (tiene(t, "electr", "arduino", "robot", "circuit", "hardware", "sensor", "iot")) ruta = RUTAS.hardware;
-  else if (tiene(t, " ia", "inteligencia", "prompt", "chatgpt", " ai", "artificial")) ruta = RUTAS.ia;
-  else if (tiene(t, "dato", "data", "python", "sql", "program", "codigo", "code")) ruta = RUTAS.datos;
-  if (!ruta) return r(L("¡Te ayudo a elegir! 🧭 Cuéntame qué te llama más la atención:", "Let me help you choose! 🧭 Tell me what interests you most:"), [L("Crear páginas web", "Build web pages"), L("Programar y datos", "Programming and data"), L("Electrónica y robots", "Electronics and robots"), L("Inteligencia artificial", "Artificial intelligence")]);
-  const pasos = ruta.ids.map(C).filter(Boolean).map((c, i) => `${i + 1}. **${tituloCurso(c)}** · ${c.duracion} ${L("semanas", "weeks")} · ${L(c.modalidad, { Virtual: "Online", Presencial: "In person", "Híbrido": "Hybrid" }[c.modalidad] || c.modalidad)}${c.fase === "Lanzamiento" ? L(" ✅ inscripciones abiertas", " ✅ enrollment open") : L(" (próximamente)", " (coming soon)")}`);
-  return r(`🗺️ **${L("Ruta sugerida", "Suggested path")}: ${lang(ruta.nombre)}**\n${pasos.join("\n")}\n\n${L("Empieza por el primero aunque no tengas experiencia: cada curso termina con un proyecto real.", "Start with the first one even with no experience: every course ends with a real project.")}`,
+function recomendar() {
+  const pasos = rutaConCursos(D()?.cursos() || []).map((p) => p.curso || { titulo: p.titulo, duracion: 2, modalidad: "Presencial", fase: "Lanzamiento" }).map((c, i) => `${i + 1}. **${tituloCurso(c)}** · ${c.duracion} ${L("semanas", "weeks")} · ${L(c.modalidad, { Virtual: "Online", Presencial: "In person", "Híbrido": "Hybrid" }[c.modalidad] || c.modalidad)}${c.fase === "Lanzamiento" ? L(" ✅ preinscripción abierta", " ✅ pre-enrollment open") : L(" (próximamente)", " (coming soon)")}`);
+  return r(`🗺️ **${L("Ruta del piloto 2027 · Barranquilla", "2027 pilot path · Barranquilla")}**\n${pasos.join("\n")}\n\n${L("Empieza por el primero aunque no tengas experiencia: al terminar la ruta tienes tu página web completa. Las fechas se avisan por correo.", "Start with the first one even with no experience: by the end of the path you have your complete website. Dates are announced by email.")}`,
     [L("¿Cómo me inscribo?", "How do I enroll?"), L("¿Son gratis?", "Are they free?")], [{ texto: L("Ver catálogo", "See catalog"), url: "cursos.html" }]);
 }
 
@@ -239,8 +228,8 @@ function general(t, c) {
   if (tiene(t, "document", "cedula", "tarjeta de identidad", "pep", "id card", "passport")) return r(L("Para Colombia aceptamos cédula de ciudadanía, tarjeta de identidad, cédula de extranjería o PEP. Para otros países el formulario muestra las opciones de documento adecuadas.", "For Colombia we accept citizenship ID, identity card, foreigner ID or PEP. For other countries, the form shows the right document options."));
   if (tiene(t, "recomien", "que curso", "por donde empiezo", "empezar", "nunca he", "quiero aprender", "crear paginas", "programar y datos", "electronica y robots", "inteligencia artificial", "recommend", "where do i start", "where should i start", "which course", "build web pages", "programming and data", "electronics and robots", "artificial intelligence", "i want to learn")) return recomendar(t);
   if (tiene(t, "que curso ensena", "curso ensena esto", "which course teaches")) return recomendar(t);
-  if (tiene(t, "mentor", "profesor", "docente", "quien dicta", "teacher", "who teaches")) return r(L("👩‍🏫 **Nuestros mentores**\n- Camila Ospino · Desarrollo web\n- Daniel Barrios · Programación y datos\n- Valeria De la Hoz · IA aplicada\n- Andrés Pacheco · Electrónica y robótica\n- Laura Mendoza · Hardware e IoT", "👩‍🏫 **Our mentors**\n- Camila Ospino · Web development\n- Daniel Barrios · Programming and data\n- Valeria De la Hoz · Applied AI\n- Andrés Pacheco · Electronics and robotics\n- Laura Mendoza · Hardware and IoT"));
-  if (tiene(t, "modalidad", "presencial", "virtual", "horario", "sede", "donde", "online", "in person", "where", "schedule")) return r(L("Tenemos cursos **virtuales**, **presenciales** (en la sede de Barranquilla, con kits y equipos) e **híbridos**. Cada curso muestra su modalidad y duración en el catálogo.", "We have **online**, **in-person** (at our Barranquilla site, with kits and equipment) and **hybrid** courses. Each course shows its format and length in the catalog."));
+  if (tiene(t, "mentor", "profesor", "docente", "quien dicta", "teacher", "who teaches")) return r(L("👩‍🏫 Estamos eligiendo a los **mentores** del piloto 2027. Si sabes de programación y quieres acompañar a los estudiantes, escríbenos desde **Súmate a la comunidad**.", "👩‍🏫 We're choosing the **mentors** for the 2027 pilot. If you know programming and want to support the students, write to us from **Join the community**."), [], [{ texto: L("Súmate", "Join us"), url: "index.html#sumate" }]);
+  if (tiene(t, "modalidad", "presencial", "virtual", "horario", "sede", "donde", "online", "in person", "where", "schedule")) return r(L("📍 El piloto 2027 es **presencial en Barranquilla** y por ahora solo para personas en **Colombia**. Los cursos se hacen en el primer y el segundo trimestre de 2027; te avisamos por correo la fecha, el horario y el lugar de tu grupo.", "📍 The 2027 pilot is **in person in Barranquilla** and, for now, only for people in **Colombia**. Courses run in the first and second quarters of 2027; we email you the date, time and place of your group."));
   if (tiene(t, "contrasena", "clave", "no puedo entrar", "olvide", "password", "can't log in", "forgot")) return r(L("🔐 Si olvidaste tu contraseña, en la página de ingreso toca **¿Olvidaste tu contraseña?**: te enviaremos a tu correo un enlace para crear una nueva (vence en 1 hora). **Nunca compartas tu contraseña** en el chat.", "🔐 If you forgot your password, tap **Forgot your password?** on the sign-in page: we'll email you a link to create a new one (it expires in 1 hour). **Never share your password** in the chat."), [], [{ texto: L("Recuperar contraseña", "Recover password"), url: "recuperar.html" }]);
   if (tiene(t, "otro ejemplo", "another example")) return r(L("Claro: piensa en una **variable** como el marcador de un partido del Junior ⚽. El nombre es *goles_junior* y su valor cambia durante el partido: 0, 1, 2...", "Sure: think of a **variable** as the scoreboard of a Junior football match ⚽. Its name is *junior_goals* and its value changes during the game: 0, 1, 2..."), [L("Hazme un quiz", "Quiz me"), L("Explícame un concepto", "Explain a concept")]);
   return null;

@@ -157,7 +157,9 @@ export function CursosEstudiante() {
               <article className="tarjeta curso-portal curso-portal-ancho" key={c.id}>
                 <div className="curso-portal-top"><span className="tag">{c.area}</span><span className="tag">{c.modalidad}</span>{f && <span className="ficha-chip" title={f.jornada}>{`Ficha ${f.numero}`}</span>}</div>
                 <h2>{c.titulo}</h2>
-                <p className="docente-linea"><span className="avatar avatar-sm">{iniciales(c.instructor)}</span>{" " + c.instructor + (f ? ` · Jornada ${f.jornada.toLowerCase()}` : "")}</p>
+                {c.instructor && c.instructor !== "Por asignar"
+                  ? <p className="docente-linea"><span className="avatar avatar-sm">{iniciales(c.instructor)}</span>{" " + c.instructor + (f ? ` · Jornada ${f.jornada.toLowerCase()}` : "")}</p>
+                  : <p className="docente-linea">{f && f.jornada !== "Por definir" ? `Jornada ${f.jornada.toLowerCase()}` : "Te avisaremos por correo la fecha y el horario de tu grupo."}</p>}
                 <Barra pct={p.porcentaje} etiqueta="Avance del curso" />
                 <div className="curso-portal-datos"><span>{`${p.hechas}/${p.total} actividades · ${D.modulos(c).length} módulos`}</span><span>Promedio: <strong className={colorNota(p.promedio)}>{p.promedio == null ? "—" : p.promedio.toFixed(1)}</strong></span></div>
                 <ListaModulos correo={s.correo} cursoId={c.id} />

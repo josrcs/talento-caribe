@@ -47,7 +47,7 @@ talento-caribe/
 │   └── vite.config.js           Páginas, proxy de /api y política de seguridad (CSP)
 ├── backend/                     API en Node + Express (ver backend/README.md)
 ├── compartido/                  Datos que usan frontend y backend
-│   ├── cursos.json              Catálogo inicial: 12 cursos, 96 módulos y fichas
+│   ├── cursos.json              Ruta del piloto 2027: 4 cursos de 2 semanas (4 clases cada uno) y sus fichas
 │   └── encuestas.json           Encuestas por departamento y respuestas de ejemplo
 ├── database/                    schema.sql (tablas) y seed.sql (datos iniciales)
 ├── .github/workflows/pages.yml  Compila React y lo publica en GitHub Pages
@@ -109,7 +109,11 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 
 - [x] **Frontend en React 19 + Vite**: componentes, hooks, contexto y páginas con la misma apariencia de siempre
 - [x] El frontend trabaja siempre con la API real (sin modo demostración)
-- [x] Catálogo de 12 cursos con búsqueda, filtros por área, nivel, modalidad y número de ficha, detalle y preinscripción guiada por país
+- [x] **Piloto 2027** (Barranquilla, presencial, solo Colombia): ruta de 4 cursos de 2 semanas — HTML y CSS → JavaScript → Python → PostgreSQL — para crear una página web desde cero. Los cursos se hacen en el primer y segundo trimestre de 2027 y las fechas se avisan por correo; después, Latinoamérica
+- [x] Solo personas en Colombia pueden crear la cuenta e inscribirse (lo revisa el servidor: `paisPermitido` en `backend/src/validar.js`)
+- [x] El Gerente puede **eliminar cursos** desde el panel (DELETE /api/cursos/:id, con confirmación). El mentor de cada curso es opcional («Por asignar»)
+- [x] Sección **Súmate a la comunidad** en el inicio: patrocinar, donar, prestar un espacio, ser mentor, estudiar o difundir (llega como mensaje de contacto)
+- [x] Catálogo con búsqueda, filtros por área, nivel, modalidad y número de ficha, detalle y preinscripción
 - [x] Registro estudiantil por país, con documento, contacto, edad y datos de acudiente cuando aplica
 - [x] Registro e inicio de sesión de los tres roles con contraseñas cifradas (bcrypt) y sesión JWT
 - [x] Inscripciones, aprobación por admisiones, actividades, entregas y calificaciones guardadas en PostgreSQL
@@ -260,7 +264,7 @@ La dirección del backend está en `API_PUBLICADA` de `frontend/src/lib/config.j
 
 | Concepto | Qué es | Dónde se define |
 |---|---|---|
-| **Módulo** | Parte de un curso (2 semanas) con sus temas, la actividad del plan y la evidencia que se entrega. Los 96 módulos (8 por curso, 16 semanas) vienen del documento *Plan de cursos y clases desarrolladas*. | `compartido/cursos.json` (propiedad `modulos` de cada curso) y, con el servidor, la tabla `cursos`. Si no existe, se arma desde `temario` (`modulosDe` en `frontend/src/lib/cursos.js`): cada línea es un módulo. En el panel: «Nombre del módulo: tema 1, tema 2». |
+| **Módulo** | Parte de un curso (2 semanas) con sus temas, la actividad del plan y la evidencia que se entrega. En el piloto 2027 cada curso tiene 4 módulos (una clase cada uno, 2 por semana). | `compartido/cursos.json` (propiedad `modulos` de cada curso) y, con el servidor, la tabla `cursos`. Si no existe, se arma desde `temario` (`modulosDe` en `frontend/src/lib/cursos.js`): cada línea es un módulo. En el panel: «Nombre del módulo: tema 1, tema 2». |
 | **Ficha** | Grupo de un curso con número propio, jornada, fecha de inicio, cupos y estado. | `fichas` en `compartido/cursos.json` (datos iniciales); en el panel → Cursos → Fichas. Se guardan en la tabla `fichas`. |
 
 - **Estudiante:** en el catálogo elige la ficha (solo las que tienen *Inscripciones abiertas*). En *Mis cursos* ve su avance en cada módulo.

@@ -1,7 +1,8 @@
 /* ==========================================================
    Registro.jsx - Crear la cuenta de estudiante (registro.html)
-   Paso 1: el país (cambia los tipos de documento). Paso 2: datos personales,
-   acudiente si es menor de 18 años y contraseña.
+   Piloto 2027: solo se reciben personas en Colombia (clases presenciales en Barranquilla),
+   así que el país ya viene elegido y el formulario abre directo en los datos personales,
+   con el acudiente si es menor de 18 años y la contraseña. El servidor también lo revisa.
    POST /api/auth/registro guarda la cuenta en PostgreSQL (contraseña con bcrypt)
    y envía un correo de bienvenida; devuelve el token de la sesión.
    Con ?completar=1 (sesión de estudiante) edita el perfil: PUT /api/auth/perfil.
@@ -19,7 +20,7 @@ import { guardarSesion, leerSesion } from "../../lib/sesion.js";
 import { edadDe, problemaClave } from "../../lib/utils.js";
 import { ESTUDIOS } from "../cursos/guiasPais.js";
 
-const PAISES = ["Colombia", "Venezuela", "Ecuador", "Perú", "México", "Argentina", "Chile", "Otro país"];
+const PAISES = ["Colombia"]; // piloto 2027: solo Colombia (el servidor también lo revisa)
 const TIPOS_DOCUMENTO = {
   Colombia: ["Cédula de ciudadanía", "Tarjeta de identidad", "Cédula de extranjería", "PEP (Permiso Especial de Permanencia)"],
   generico: ["Documento nacional de identidad", "Pasaporte", "Documento de extranjería o residencia", "Otro documento oficial"],
@@ -34,10 +35,8 @@ export default function Registro() {
   const editando = p.get("completar") === "1" && sesion?.rol === "estudiante";
   const destino = cursoId > 0 ? `cursos.html?continuar=${encodeURIComponent(cursoId)}` : "portal.html";
   const s = editando ? sesion : {};
-  const paisGuardado = editando ? (PAISES.includes(s.pais) ? s.pais : "Otro país") : "";
-
-  const [pais, setPais] = useState(paisGuardado);
-  const [paso, setPaso] = useState(editando ? 2 : 1);
+  const [pais, setPais] = useState("Colombia");
+  const [paso, setPaso] = useState(2);
   const [nacimiento, setNacimiento] = useState(s.fecha_nacimiento || "");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
@@ -75,7 +74,7 @@ export default function Registro() {
       if (f.clave.value !== f.confirmar.value) { avisar(f.confirmar, "Las contraseñas no coinciden."); return; }
     }
     const perfil = {
-      nombre: v("nombre"), pais: pais === "Otro país" ? v("pais_otro") : pais, correo: v("correo").toLowerCase(),
+      nombre: v("nombre"), pais, correo: v("correo").toLowerCase(),
       tipo_documento: f.tipo_documento.value, numero_documento: v("numero_documento"), fecha_nacimiento: nacimiento,
       telefono: v("telefono"), direccion: v("direccion"), ciudad: v("ciudad"), region: v("region"), codigo_postal: v("codigo_postal"),
       ultimo_estudio: f.ultimo_estudio.value, documentos_disponibles: new FormData(form).getAll("documentos_disponibles"),
@@ -111,7 +110,8 @@ export default function Registro() {
             <Logo className="login-card-logo" tipo="emblema" width="64" height="48" />
             <span className="eyebrow">Comunidad Talento Caribe</span>
             <h2 id="registro-titulo">{editando ? "Completa tu perfil" : "Crea tu cuenta"}</h2>
-            <p>{editando ? "Antes de enviar tu solicitud de curso, completa los datos que faltan en tu perfil." : "Primero dinos de qué país eres para mostrarte los documentos adecuados."}</p>
+            <p>{editando ? "Antes de enviar tu solicitud de curso, completa los datos que faltan en tu perfil." : "Crea tu cuenta para inscribirte en el piloto 2027 de Barranquilla."}</p>
+            <p className="aviso-piloto" role="note"><strong>Por ahora, solo Colombia.</strong> El piloto 2027 es presencial en Barranquilla, así que solo pueden inscribirse personas en Colombia. Pronto llegaremos a más países de Latinoamérica.</p>
           </div>
           <form id="form-registro" className="form login-form" noValidate onSubmit={enviar}>
             <div className="registro-paso" hidden={paso !== 1}>
@@ -126,11 +126,9 @@ export default function Registro() {
             </div>
             <fieldset className="registro-datos" hidden={paso !== 2} disabled={paso !== 2}>
               <legend>Datos personales y de contacto</legend>
-              <button type="button" className="btn btn-outline btn-sm registro-cambiar-pais" onClick={() => { setPaso(1); setTimeout(() => selectPais.current?.focus()); }}>Cambiar país</button>
               <p className="form-ayuda" aria-live="polite">{colombia
                 ? "Para Colombia puedes inscribirte con cédula de ciudadanía, tarjeta de identidad, cédula de extranjería o PEP. Ten a mano una constancia de estudios si el programa la solicita."
                 : "Selecciona el documento oficial vigente en tu país. Si el curso necesita algún soporte académico adicional, el equipo te lo indicará durante el proceso."}</p>
-              {pais === "Otro país" && <div className="campo"><label htmlFor="r-pais-otro">Escribe tu país</label><input id="r-pais-otro" name="pais_otro" type="text" autoComplete="country-name" maxLength="60" required defaultValue={paisGuardado === "Otro país" && s.pais !== "Otro" ? s.pais : ""} /></div>}
               <div className="campo"><label htmlFor="r-nombre">Nombres y apellidos completos</label><input ref={nombre} id="r-nombre" name="nombre" type="text" autoComplete="name" required minLength="5" maxLength="120" placeholder="Como aparecen en tu documento" defaultValue={s.nombre} /></div>
               <div className="fila-campos">
                 <div className="campo"><label htmlFor="r-tipo-documento">Tipo de documento de identidad</label>

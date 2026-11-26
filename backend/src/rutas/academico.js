@@ -10,7 +10,7 @@ const { requiereSesion, requiereRol, requierePermiso, puede } = require("../segu
 const supervisa = (u) => puede(u, "supervisarAcademico");
 const docenteOSupervisor = (req, res, next) =>
   req.usuario?.rol === "docente" || supervisa(req.usuario) ? next() : res.status(403).json({ error: "Tu cuenta no tiene permiso para esta acción." });
-const { texto, linea, opcional, limpio, entero, fecha, URL_OK, rechazar } = require("../validar");
+const { texto, linea, opcional, limpio, entero, fecha, URL_OK, rechazar, paisPermitido, MENSAJE_PAIS } = require("../validar");
 // Enlace http(s) de máximo 300 caracteres (nunca javascript: ni data:, que ejecutarían código al abrirlos)
 const enlaceOk = (v) => !v || (typeof v === "string" && v.length <= 300 && URL_OK.test(v));
 
@@ -34,7 +34,8 @@ router.post("/inscripciones", requiereSesion, requiereRol("estudiante"), async (
     const ficha = (await pool.query(
       `SELECT id FROM fichas WHERE curso_id = $1 AND estado = 'Inscripciones abiertas' AND ($2 = '' OR numero = $2) ORDER BY fecha_inicio NULLS LAST LIMIT 1`, [cursoId, numeroFicha])).rows[0];
     if (!ficha) return res.status(400).json({ error: numeroFicha ? `La ficha ${numeroFicha} no tiene inscripciones abiertas para este curso.` : "Este curso no tiene fichas con inscripciones abiertas." });
-    const yo = (await pool.query("SELECT fecha_nacimiento, numero_documento FROM usuarios WHERE id = $1", [req.usuario.id])).rows[0];
+    const yo = (await pool.query("SELECT fecha_nacimiento, numero_documento, pais FROM usuarios WHERE id = $1", [req.usuario.id])).rows[0];
+    if (!paisPermitido(yo.pais)) return res.status(400).json({ error: MENSAJE_PAIS });
     if (!yo.fecha_nacimiento || !yo.numero_documento) return res.status(400).json({ error: "Completa tu perfil (documento y fecha de nacimiento) antes de inscribirte." });
     const edad = edadDesde(yo.fecha_nacimiento);
     if (edad < curso.edad_minima) return res.status(400).json({ error: `Este curso está dirigido a personas desde los ${curso.edad_minima} años. Puedes explorar otros programas.` });

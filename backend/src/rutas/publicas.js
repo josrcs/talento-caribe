@@ -38,7 +38,7 @@ router.post("/contacto", limitarContacto, async (req, res, next) => {
   const b = req.body || {};
   if (rechazar(res, {
     nombre: linea(b.nombre, 3, 80), correo: EMAIL.test(b.correo),
-    interes: ["curso", "mentor", "alianza", "otro"].includes(b.interes), asunto: linea(b.asunto, 1, 100),
+    interes: ["curso", "mentor", "alianza", "otro", "patrocinar", "donar", "espacio", "estudiar", "difundir"].includes(b.interes), asunto: linea(b.asunto, 1, 100),
     mensaje: texto(b.mensaje, 10, 1000), telefono: opcional(b.telefono, 20),
     acepto: b.acepto === true, // autorización para usar los datos (se guarda la versión de la política aceptada)
   })) return;

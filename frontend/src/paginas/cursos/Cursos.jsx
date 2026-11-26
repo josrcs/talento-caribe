@@ -9,6 +9,7 @@ import { useEffect, useRef, useState } from "react";
 import { useDatos } from "../../contexto/Datos.jsx";
 import { leerSesion } from "../../lib/sesion.js";
 import { parametros } from "../../lib/rutas.js";
+import { ordenarPorRuta, pasoDeRuta } from "../../lib/piloto.js";
 import EncabezadoPublico from "../../componentes/EncabezadoPublico.jsx";
 import PiePublico from "../../componentes/PiePublico.jsx";
 import AsistenteFlotante from "../../componentes/AsistenteFlotante.jsx";
@@ -18,7 +19,8 @@ import FormInscripcion from "./FormInscripcion.jsx";
 const ENLACES = [
   { href: "index.html#nosotros", texto: "Nosotros" },
   { href: "cursos.html", texto: "Cursos", actual: true },
-  { href: "index.html#mentores", texto: "Mentores" },
+  { href: "index.html#ruta", texto: "La ruta" },
+  { href: "index.html#calendario", texto: "Calendario" },
   { href: "index.html#asistente", texto: "Asistente IA" },
   { href: "index.html#contacto", texto: "Contacto" },
   { href: "#lista-cursos-seccion", texto: "Inscríbete", className: "btn btn-primary" },
@@ -34,11 +36,11 @@ export default function Cursos() {
   const [inscripcion, setInscripcion] = useState(null); // { curso, ficha, sesion }
   const yaAbrio = useRef(false);
 
-  const cursos = modelo.cursos();
+  const cursos = ordenarPorRuta(modelo.cursos());
   const fichaBuscada = filtros.ficha.replace(/\D/g, "");
   const q = filtros.q.trim().toLocaleLowerCase("es");
   const resultado = cursos.filter((c) => {
-    const fichas = modelo.fichasDeCurso(c.id);
+    const fichas = modelo.fichasDeCurso(c.id).filter((f) => f.estado !== "Finalizada");
     return (!q || `${c.titulo} ${c.descripcion} ${c.area} ${fichas.map((f) => f.numero).join(" ")}`.toLocaleLowerCase("es").includes(q)) &&
       (!fichaBuscada || fichas.some((f) => f.numero.startsWith(fichaBuscada))) &&
       (!filtros.area || c.area === filtros.area) && (!filtros.nivel || c.nivel === filtros.nivel) && (!filtros.modalidad || c.modalidad === filtros.modalidad);
@@ -82,8 +84,9 @@ export default function Cursos() {
       <main id="contenido">
         <section className="page-intro">
           <div className="container">
-            <h1 data-revelar="titulo">Catálogo de cursos</h1>
-            <p data-revelar>Todos son gratuitos y puedes empezar sin experiencia previa. Aprende desde cero, a tu ritmo y con acompañamiento.</p>
+            <h1 data-revelar="titulo">Cursos del piloto 2027</h1>
+            <p data-revelar>Una ruta de 4 cursos gratuitos de 2 semanas cada uno, presenciales en Barranquilla. Empieza por el primero aunque no tengas experiencia.</p>
+            <p className="aviso-piloto" data-revelar role="note"><strong>Por ahora, solo Colombia.</strong> Los cursos se harán en el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
           </div>
         </section>
 
@@ -135,12 +138,13 @@ export default function Cursos() {
                 {!resultado.length && <div className="estado"><p>No hay cursos con esos filtros. Prueba quitando alguno.</p></div>}
                 <div id="lista-cursos" className="grid-cursos">
                   {resultado.map((c) => {
-                    const fichas = modelo.fichasDeCurso(c.id);
+                    const fichas = modelo.fichasDeCurso(c.id).filter((f) => f.estado !== "Finalizada");
                     return (
                       <article className="curso-card" data-revelar="rapido" key={c.id}>
-                        <div className="curso-etiquetas"><span className="tag">{c.area}</span><span className="tag">{c.nivel}</span><span className={`tag ${c.fase === "Lanzamiento" ? "tag-lanzamiento" : ""}`}>{c.fase === "Lanzamiento" ? "Inscripciones abiertas" : "Próximamente"}</span></div>
+                        <div className="curso-etiquetas"><span className="tag">{c.area}</span><span className="tag">{c.nivel}</span><span className={`tag ${c.fase === "Lanzamiento" ? "tag-lanzamiento" : ""}`}>{c.fase === "Lanzamiento" ? "Preinscripción abierta" : "Próximamente"}</span></div>
+                        {pasoDeRuta(c) >= 0 && <p className="ruta-paso-etiqueta">{`Curso ${pasoDeRuta(c) + 1} de 4 de la ruta`}</p>}
                         <h2>{c.titulo}</h2><p>{c.descripcion}</p>
-                        <p className="curso-duracion">{`${c.duracion} semanas · ${(c.modulos || []).length} módulos · ${c.modalidad} · ${c.instructor}`}</p>
+                        <p className="curso-duracion">{`${c.duracion} semanas · ${(c.modulos || []).length} clases · ${c.modalidad}`}</p>
                         {fichas.length > 0 && (
                           <p className="curso-fichas"><span>Fichas</span>
                             {fichas.map((f) => <span key={f.numero} className={`ficha-chip ${fichaBuscada && f.numero.startsWith(fichaBuscada) ? "is-encontrada" : ""}`} title={`${f.jornada} · ${f.estado}`}>{f.numero}</span>)}
@@ -157,7 +161,7 @@ export default function Cursos() {
         </section>
       </main>
 
-      <DetalleCurso curso={detalle} fichas={detalle ? modelo.fichasDeCurso(detalle.id) : []} fichaElegida={fichaElegida}
+      <DetalleCurso curso={detalle} fichas={detalle ? modelo.fichasDeCurso(detalle.id).filter((f) => f.estado !== "Finalizada") : []} fichaElegida={fichaElegida}
         alElegirFicha={setFichaElegida} alInscribirse={() => inscribirse()} alCerrar={() => setDetalle(null)} />
       <FormInscripcion key={inscripcion ? inscripcion.curso.id : "nada"} curso={inscripcion?.curso} ficha={inscripcion?.ficha} sesion={inscripcion?.sesion} alCerrar={() => setInscripcion(null)} />
 

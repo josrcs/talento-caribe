@@ -7,7 +7,7 @@ const pool = require("../db");
 const correos = require("../correo");
 const { cifrar, comparar, compararSiempre, firmar, versionSesion, CARGOS, requiereSesion, requiereRol, limitePorIP, contadorFallos, registrarEvento } = require("../seguridad");
 const { perfilPublico } = require("../consultas");
-const { EMAIL, linea, opcional, limpio, fecha, claveSegura, MENSAJE_CLAVE, rechazar, POLITICA_VERSION, edad } = require("../validar");
+const { EMAIL, linea, opcional, limpio, fecha, claveSegura, MENSAJE_CLAVE, rechazar, POLITICA_VERSION, edad, paisPermitido, MENSAJE_PAIS } = require("../validar");
 
 const CAMPOS_EDITABLES = ["nombre", "pais", "tipo_documento", "numero_documento", "fecha_nacimiento", "telefono", "direccion", "ciudad", "region",
   "codigo_postal", "ultimo_estudio", "acudiente_nombre", "acudiente_documento", "acudiente_telefono", "acudiente_correo"];
@@ -36,6 +36,7 @@ router.post("/registro", limitarRegistros, async (req, res, next) => {
   const b = req.body || {};
   if (!claveSegura(b.clave, b.correo)) return res.status(400).json({ error: MENSAJE_CLAVE, campos: ["clave"] });
   if (rechazar(res, { ...validarPerfil(b), correo: EMAIL.test(b.correo) })) return;
+  if (!paisPermitido(b.pais)) return res.status(400).json({ error: MENSAJE_PAIS, campos: ["pais"] });
   // Ley 1581 de 2012: sin autorización no se guardan datos personales. Si es menor de 18 años,
   // la autorización la da su madre, padre o acudiente (y sus datos de contacto son obligatorios).
   if (b.acepta_politica !== true) return res.status(400).json({ error: "Para crear la cuenta debes autorizar el tratamiento de tus datos personales.", campos: ["acepta_politica"] });
@@ -121,6 +122,7 @@ router.get("/yo", requiereSesion, async (req, res, next) => {
 router.put("/perfil", requiereSesion, requiereRol("estudiante"), async (req, res, next) => {
   const b = req.body || {};
   if (rechazar(res, validarPerfil(b))) return;
+  if (!paisPermitido(b.pais)) return res.status(400).json({ error: MENSAJE_PAIS, campos: ["pais"] });
   try {
     const { rows } = await pool.query(
       `UPDATE usuarios SET ${CAMPOS_EDITABLES.map((c, i) => `${c} = $${i + 1}`).join(", ")}, documentos_disponibles = $${CAMPOS_EDITABLES.length + 1}

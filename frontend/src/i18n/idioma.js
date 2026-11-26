@@ -16,6 +16,7 @@
    ========================================================== */
 import "./diccionario-en.js";
 import "./diccionario-en-cursos.js";
+import "./diccionario-en-piloto.js";
 
 const raiz = document.documentElement;
 // Con JavaScript activo, los efectos de revelado pueden ocultar contenido para mostrarlo al hacer scroll (efectos.css)

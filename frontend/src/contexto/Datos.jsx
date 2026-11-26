@@ -53,6 +53,7 @@ export function DatosProvider({ children, cargar = true }) {
       responderEncuesta: (id, respuestas) => y(pedir("POST", `/encuestas/${encodeURIComponent(id)}/respuestas`, { respuestas })),
       guardarIA: (config) => y(pedir("PUT", "/config-ia", config)),
       guardarCurso: (c) => y(c.id && existeCurso(c.id) ? pedir("PUT", "/cursos/" + c.id, c) : pedir("POST", "/cursos", c)),
+      eliminarCurso: (id) => y(pedir("DELETE", "/cursos/" + id)),
       guardarFicha: ({ existente, ...f }) => y(existente ? pedir("PUT", "/fichas/" + f.numero, f) : pedir("POST", "/fichas", f)),
       fichaEstudiante: (correo) => pedir("GET", "/estudiantes/" + encodeURIComponent(correo)),
     };

@@ -17,7 +17,7 @@ export default function PiePublico({ completo = false }) {
               <p className="footer-titulo">Aprende</p>
               <ul>
                 <li><a href="cursos.html">Catálogo de cursos</a></li>
-                <li><a href="#rutas">Rutas de aprendizaje</a></li>
+                <li><a href="#ruta">La ruta del piloto</a></li>
                 <li><a href="#metodo">Cómo se aprende</a></li>
               </ul>
             </nav>
@@ -25,7 +25,7 @@ export default function PiePublico({ completo = false }) {
               <p className="footer-titulo">Talento Caribe</p>
               <ul>
                 <li><a href="#nosotros">Nosotros</a></li>
-                <li><a href="#mentores">Mentores</a></li>
+                <li><a href="#sumate">Súmate a la comunidad</a></li>
                 <li><a href="#preguntas">Preguntas frecuentes</a></li>
               </ul>
             </nav>
