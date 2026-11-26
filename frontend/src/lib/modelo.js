@@ -11,14 +11,9 @@ import { modulosDe } from "./cursos.js";
 import { norm } from "./utils.js";
 import { encuestas as ENCUESTAS } from "../../../compartido/encuestas.json";
 
-/* Un docente por cada mentor. Cada uno dicta los cursos donde aparece como instructor. */
-export const DOCENTES = [
-  { nombre: "Camila Ospino", correo: "docente@talentocaribe.co", especialidad: "Desarrollo web", iniciales: "CO" },
-  { nombre: "Daniel Barrios", correo: "daniel@talentocaribe.co", especialidad: "Programación y datos", iniciales: "DB" },
-  { nombre: "Valeria De la Hoz", correo: "valeria@talentocaribe.co", especialidad: "IA aplicada", iniciales: "VH" },
-  { nombre: "Andrés Pacheco", correo: "andres@talentocaribe.co", especialidad: "Electrónica y robótica", iniciales: "AP" },
-  { nombre: "Laura Mendoza", correo: "laura@talentocaribe.co", especialidad: "Hardware e IoT", iniciales: "LM" },
-];
+/* Sin docentes de prueba: Talento Caribe todavía no tiene mentores y las cuentas de docentes
+   las crea el equipo desde el panel (Cuentas). */
+export const DOCENTES = [];
 
 export const TIPOS = {
   Tarea: { icono: "lapiz", color: "#1ab0d6" },

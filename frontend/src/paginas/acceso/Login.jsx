@@ -11,7 +11,6 @@ import Preferencias from "../../componentes/Preferencias.jsx";
 import AsistenteFlotante from "../../componentes/AsistenteFlotante.jsx";
 import { pedir } from "../../lib/api.js";
 import { PUBLICADA } from "../../lib/config.js";
-import { DOCENTES } from "../../lib/modelo.js";
 import { enlace, parametros } from "../../lib/rutas.js";
 import { guardarSesion } from "../../lib/sesion.js";
 import { EMAIL, espera, sinTildes } from "../../lib/utils.js";
@@ -20,7 +19,8 @@ import { useValidacion } from "../../lib/validacion.jsx";
 /* Cuentas de prueba (las crea database/seed.sql; en la página publicada el servidor les cambia la clave) */
 const CUENTAS = {
   estudiante: { correo: "estudiante@talentocaribe.co", clave: "Estudiante123", destino: "portal.html", boton: "Entrar a mi portal", texto: "Consulta tus cursos, entrega actividades y mira tu progreso." },
-  docente: { correo: DOCENTES[0].correo, clave: "Docente123", destino: "portal.html", boton: "Entrar a mi espacio docente", texto: "Deja actividades a tus cursos y revisa las entregas." },
+  // Sin docentes de prueba: las cuentas de docentes las crea el equipo desde el panel
+  docente: { correo: "", clave: "", destino: "portal.html", boton: "Entrar a mi espacio docente", texto: "Deja actividades a tus cursos y revisa las entregas." },
   administrativo: { correo: "admin@talentocaribe.co", clave: "Admin123", destino: "admin/panel.html", boton: "Entrar al panel", texto: "Elige tu cargo: cada uno ve las herramientas de su área." },
 };
 const ROLES = [["estudiante", "birrete", "Estudiante", "Aprende y entrega"], ["docente", "pizarra", "Docente", "Guía tus cursos"], ["administrativo", "maletin", "Administrativo", "Gestiona el equipo"]];
@@ -35,8 +35,7 @@ const HISTORIA = {
 /* Cargos agrupados para el selector visual (los mismos que valida el servidor) */
 export const CARGOS = [
   { grupo: "Directivos", items: [
-    ["Gerente", "estrella", "Visión global y decisiones"],
-    ["Director(a) general", "brujula", "Seguimiento institucional"],
+    ["Director(a) general", "estrella", "Dirige la fundación · todas las áreas"],
     ["Director(a) académico(a)", "birrete", "Programas de software"],
     ["Director(a) de tecnología", "chip", "Programas de hardware"],
     ["Director(a) de admisiones", "portapapeles", "Ingreso de estudiantes"],
@@ -109,7 +108,7 @@ export default function Login() {
   useEffect(() => { if (admin && puesto) campoCorreo.current?.focus(); }, [admin, puesto]);
 
   function usarPrueba() {
-    if (admin && !puesto) setPuesto("Gerente");
+    if (admin && !puesto) setPuesto("Director(a) general");
     setCorreo(cuenta.correo); setClave(cuenta.clave);
   }
 
@@ -185,20 +184,6 @@ export default function Login() {
                 <p className="acceso-aviso"><span data-icono><Icono nombre="destello" tam={18} /></span><span>¿Eres nuevo? <a href={enlace("registro.html") + (cursoPendiente > 0 ? "?curso=" + cursoPendiente : "")}>Crea tu cuenta gratis</a> en menos de 3 minutos.</span></p>
               )}
 
-              {/* Docentes: elegir su nombre llena el correo */}
-              {rol === "docente" && (
-                <div className="campo">
-                  <span className="campo-titulo">¿Quién eres? <small>Toca tu nombre para llenar tu correo</small></span>
-                  <div className="docente-chips">
-                    {DOCENTES.map((d) => (
-                      <button type="button" key={d.correo} className={"docente-chip" + (correo === d.correo ? " is-selected" : "")} onClick={() => { setCorreo(d.correo); campoClave.current?.focus(); }}>
-                        <span className="avatar avatar-sm" aria-hidden="true">{d.iniciales}</span><span><strong>{d.nombre}</strong><small>{d.especialidad}</small></span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Administrativos: selector visual de cargo */}
               {admin && (
                 <div className="campo cargo-campo">
@@ -239,7 +224,7 @@ export default function Login() {
             </button>
           </form>
           {/* En la página publicada las cuentas de prueba no funcionan (el servidor les cambió la clave): se ocultan */}
-          {!PUBLICADA && (
+          {!PUBLICADA && cuenta.correo && (
             <div className="login-demo">
               <p><span aria-hidden="true">ⓘ</span> <strong>Cuenta de prueba:</strong> <span>{`${cuenta.correo} / ${cuenta.clave}${admin ? " (con cualquier cargo)" : rol === "docente" ? " (todos los docentes usan esta clave)" : ""}`}</span></p>
               <button type="button" className="btn btn-outline btn-sm" onClick={usarPrueba}>Usar cuenta de prueba</button>

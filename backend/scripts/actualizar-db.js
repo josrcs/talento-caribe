@@ -25,6 +25,8 @@
      la página pública no los muestra) y el Gerente puede eliminarlos desde el panel.
    - Ruta de 2 semanas (una sola vez): cada módulo de la ruta pasa a durar 2 semanas, con una clase
      presencial por semana (la duración sale de compartido/cursos.json).
+   - Fundación (una sola vez): las cuentas con cargo «Gerente» pasan a «Director(a) general», que
+     tiene todos los permisos, y se ELIMINAN las cuentas de docentes (con sus actividades y entregas).
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -108,6 +110,17 @@ const ESTRUCTURA = `
   ALTER TABLE mensajes_contacto ADD CONSTRAINT mensajes_contacto_interes_check
     CHECK (interes IN ('curso', 'mentor', 'alianza', 'otro', 'patrocinar', 'donar', 'espacio', 'estudiar', 'difundir'));`;
 
+/* Fundación (una sola vez): no hay Gerente, el Director(a) general hace todo; y se eliminan las
+   cuentas de docentes (el equipo las crea después). Al borrar un docente, la base borra también las
+   actividades que publicó y las entregas de esas actividades (ON DELETE CASCADE). */
+async function fundacionSinGerenteNiDocentes(db) {
+  if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'fundacion-sin-gerente-ni-docentes'")).rowCount) return console.log("ℹ Cargos de la fundación y docentes ya estaban al día");
+  const { rowCount: directores } = await db.query("UPDATE usuarios SET puesto = 'Director(a) general' WHERE puesto = 'Gerente'");
+  const { rowCount: docentes } = await db.query("DELETE FROM usuarios WHERE rol = 'docente'");
+  await db.query("INSERT INTO migraciones (nombre) VALUES ('fundacion-sin-gerente-ni-docentes')");
+  console.log(`✔ ${directores} cuenta(s) de Gerente pasaron a Director(a) general y se eliminaron ${docentes} cuenta(s) de docentes`);
+}
+
 /* Ruta de 2 semanas por módulo, una clase por semana (una sola vez) */
 async function rutaDosSemanas(db) {
   if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'ruta-2-semanas'")).rowCount) return console.log("ℹ Los módulos de la ruta ya duraban 2 semanas");
@@ -173,6 +186,7 @@ async function main() {
 
     await piloto2027(db);
     await rutaDosSemanas(db);
+    await fundacionSinGerenteNiDocentes(db);
 
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);
@@ -202,7 +216,7 @@ async function main() {
 
     await db.query("COMMIT");
     const { rows } = await db.query("SELECT (SELECT count(*)::int FROM usuarios) AS usuarios, (SELECT count(*)::int FROM actividades) AS actividades, (SELECT count(*)::int FROM fichas) AS fichas");
-    console.log(`✔ Listo, sin borrar datos: ${rows[0].usuarios} usuarios, ${rows[0].actividades} actividades y ${rows[0].fichas} fichas`);
+    console.log(`✔ Listo: ${rows[0].usuarios} usuarios, ${rows[0].actividades} actividades y ${rows[0].fichas} fichas`);
   } catch (error) {
     await db.query("ROLLBACK");
     throw error;

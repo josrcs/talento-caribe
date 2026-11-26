@@ -1,6 +1,6 @@
 /* ==========================================================
    Academico.jsx - Actividad académica: lo que publican los docentes por curso.
-   La Gerencia además supervisa: puede editar o retirar actividades de cualquier
+   La Dirección general además supervisa: puede editar o retirar actividades de cualquier
    docente y corregir notas (el servidor lo permite con PERMISOS.supervisarAcademico).
    ========================================================== */
 import { useState } from "react";

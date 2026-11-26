@@ -52,7 +52,7 @@ router.put("/cursos/:id", requiereSesion, requierePermiso("editarCursos"), (req,
   id ? guardarCurso(req, res, next, id) : res.status(400).json({ error: "Curso no válido." });
 });
 
-/* Borrar un curso: solo el Gerente. La base borra con él sus fichas, inscripciones, actividades y entregas (ON DELETE CASCADE). */
+/* Borrar un curso: solo el Director(a) general. La base borra con él sus fichas, inscripciones, actividades y entregas (ON DELETE CASCADE). */
 router.delete("/cursos/:id", requiereSesion, requierePermiso("eliminarCursos"), async (req, res, next) => {
   const id = entero(req.params.id);
   if (!id) return res.status(400).json({ error: "Curso no válido." });

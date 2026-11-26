@@ -6,7 +6,7 @@ const router = require("express").Router();
 const pool = require("../db");
 const correos = require("../correo");
 const { requiereSesion, requiereRol, requierePermiso, puede } = require("../seguridad");
-// Docente (sobre sus cursos) o cargo que supervisa lo académico (Gerente: sobre cualquier curso)
+// Docente (sobre sus cursos) o cargo que supervisa lo académico (Director(a) general: sobre cualquier curso)
 const supervisa = (u) => puede(u, "supervisarAcademico");
 const docenteOSupervisor = (req, res, next) =>
   req.usuario?.rol === "docente" || supervisa(req.usuario) ? next() : res.status(403).json({ error: "Tu cuenta no tiene permiso para esta acción." });

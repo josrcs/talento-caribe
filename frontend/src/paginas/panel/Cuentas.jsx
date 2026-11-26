@@ -1,8 +1,8 @@
 /* ==========================================================
    Cuentas.jsx - Administración de cuentas
-   Gerente: crea cuentas administrativas (contraseña temporal que se muestra una vez) y las elimina.
-   Gerente, Dirección académica y Dirección de tecnología: crean docentes y los desactivan o reactivan.
-   Gerente y Coordinación de admisiones: bloquean estudiantes inactivos y los desbloquean cuando quieran.
+   Director(a) general: crea cuentas administrativas (contraseña temporal que se muestra una vez) y las elimina.
+   Director(a) general, Dirección académica y Dirección de tecnología: crean docentes y los desactivan o reactivan.
+   Director(a) general y Coordinación de admisiones: bloquean estudiantes inactivos y los desbloquean cuando quieran.
    Todo lo valida el servidor (backend/src/rutas/cuentas.js).
    ========================================================== */
 import { useCallback, useEffect, useState } from "react";

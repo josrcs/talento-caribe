@@ -17,13 +17,8 @@ const q = (v) => (v === null || v === undefined ? "NULL" : "'" + String(v).repla
 const arr = (lista) => "ARRAY[" + lista.map(q).join(", ") + "]::text[]";
 const hash = (clave) => bcrypt.hashSync(clave, 10);
 
-const DOCENTES = [
-  ["Camila Ospino", "docente@talentocaribe.co", "Desarrollo web"],
-  ["Daniel Barrios", "daniel@talentocaribe.co", "Programación y datos"],
-  ["Valeria De la Hoz", "valeria@talentocaribe.co", "IA aplicada"],
-  ["Andrés Pacheco", "andres@talentocaribe.co", "Electrónica y robótica"],
-  ["Laura Mendoza", "laura@talentocaribe.co", "Hardware e IoT"],
-];
+// Sin docentes de prueba: Talento Caribe todavía no tiene mentores; el equipo crea esas cuentas desde el panel.
+const DOCENTES = [];
 const ESTUDIANTES = [
   ["Sofía Pérez", "estudiante@talentocaribe.co", "Colombia", "Tarjeta de identidad", "1043000001", "2009-03-14", "+57 300 000 0001", "Barranquilla", "Atlántico"],
   ["Luis Gómez", "luis.gomez@correo.com", "Colombia", "Cédula de ciudadanía", "1043000002", "2005-07-02", "+57 300 000 0002", "Soledad", "Atlántico"],
@@ -39,14 +34,14 @@ sql.push(`-- ============================================================
 -- Talento Caribe - Datos iniciales (generado por backend/scripts/generar-seed.js)
 -- Ejecutar después de schema.sql. Cuentas de prueba:
 --   Estudiante:     estudiante@talentocaribe.co / Estudiante123
---   Docentes:       docente@ daniel@ valeria@ andres@ laura@talentocaribe.co / Docente123
+--   Docentes:       ninguno (el equipo los crea desde el panel)
 --   Administrativo: admin@talentocaribe.co / Admin123 (puede elegir cualquier cargo)
 -- ============================================================
 BEGIN;
 `);
 sql.push("-- Usuarios");
 sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, puesto) VALUES " + `(${q("José Rodríguez")}, ${q("admin@talentocaribe.co")}, ${q(h.adm)}, 'administrativo', NULL);`);
-sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, especialidad) VALUES\n" + DOCENTES.map(([n, c, e]) => `  (${q(n)}, ${q(c)}, ${q(h.doc)}, 'docente', ${q(e)})`).join(",\n") + ";");
+if (DOCENTES.length) sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, especialidad) VALUES\n" + DOCENTES.map(([n, c, e]) => `  (${q(n)}, ${q(c)}, ${q(h.doc)}, 'docente', ${q(e)})`).join(",\n") + ";");
 sql.push("INSERT INTO usuarios (nombre, correo, clave_hash, rol, pais, tipo_documento, numero_documento, fecha_nacimiento, telefono, ciudad, region, ultimo_estudio) VALUES\n" +
   ESTUDIANTES.map(([n, c, p, td, nd, fn, t, ci, r]) => `  (${q(n)}, ${q(c)}, ${q(h.est)}, 'estudiante', ${q(p)}, ${q(td)}, ${q(nd)}, ${q(fn)}, ${q(t)}, ${q(ci)}, ${q(r)}, 'Secundaria o bachillerato')`).join(",\n") + ";");
 
