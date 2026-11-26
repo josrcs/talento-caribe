@@ -18,9 +18,11 @@
    - Encuesta pública: respuestas_encuesta.estudiante_id puede quedar vacío (respuestas anónimas sin cuenta).
    - Piloto 2027 (una sola vez, se anota en la tabla migraciones): las fichas aceptan la jornada
      «Por definir», el contacto acepta los intereses de «Súmate» y se cargan los 4 cursos de la ruta
-     del piloto (HTML y CSS → JavaScript → Python → PostgreSQL, 2 semanas cada uno). Si un curso con
+     del piloto «Programación desde cero» (Lógica de programación → Git y GitHub → HTML y CSS →
+     JavaScript → Bases de datos con SQL; en el piloto cada módulo dura 1 semana). Si un curso con
      el mismo nombre ya existe se actualiza (conserva sus inscripciones); sus fichas viejas quedan
-     «Finalizada». Los demás cursos NO se borran: el Gerente los elimina desde el panel.
+     «Finalizada». Los demás cursos NO se borran: pasan a «Próximamente» (nadie se puede inscribir y
+     la página pública no los muestra) y el Gerente puede eliminarlos desde el panel.
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -130,8 +132,9 @@ async function piloto2027(db) {
       [f.numero, titulo, f.jornada, f.inicio || null, Number(f.cupos), f.estado]);
     fichasNuevas += rowCount;
   }
+  const { rowCount: otros } = await db.query("UPDATE cursos SET fase = 'Próximamente' WHERE NOT (titulo = ANY($1))", [cursos.map((c) => c.titulo)]);
   await db.query("INSERT INTO migraciones (nombre) VALUES ('piloto-2027')");
-  console.log(`✔ Ruta del piloto 2027: ${creados} curso(s) nuevo(s), ${actualizados} actualizado(s) y ${fichasNuevas} ficha(s) nueva(s)`);
+  console.log(`✔ Ruta del piloto 2027: ${creados} módulo(s) nuevo(s), ${actualizados} actualizado(s), ${fichasNuevas} ficha(s) nueva(s) y ${otros} curso(s) fuera de la ruta en «Próximamente»`);
 }
 
 async function main() {

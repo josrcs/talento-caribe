@@ -1,68 +1,135 @@
 {
  "piloto": {
   "nombre": "Piloto 2027",
+  "ruta": "Programación desde cero",
   "ciudad": "Barranquilla",
   "pais": "Colombia",
   "periodo": "Primer y segundo trimestre de 2027",
-  "semanasPorCurso": 2,
-  "ruta": [
+  "semanasPorModulo": 1,
+  "semanasPorModuloFueraDelPiloto": 2,
+  "modulos": [
+   "Lógica de programación",
+   "Git y GitHub",
    "HTML y CSS: tu primera página web",
    "JavaScript para principiantes",
-   "Python desde cero",
-   "PostgreSQL: tu primera base de datos"
+   "Bases de datos con SQL"
   ]
  },
  "cursos": [
   {
    "id": 1,
-   "titulo": "HTML y CSS: tu primera página web",
+   "titulo": "Lógica de programación",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 2,
+   "duracion": 1,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
-   "descripcion": "El punto de partida de la ruta. Aprendes cómo está hecha una página web, escribes su estructura con HTML y le das estilo con CSS hasta que se vea bien en el celular y en el computador. No necesitas saber nada de programación.",
-   "objetivo": "Construir y publicar una página web sencilla, ordenada y que se vea bien en cualquier pantalla.",
-   "proyecto": "Tu página personal o la de un negocio de tu barrio, publicada en internet.",
+   "descripcion": "El punto de partida de la ruta. Antes de escribir código aprendes a pensar como programador: descomponer un problema en pasos, escribir algoritmos y usar variables, decisiones y ciclos. No necesitas saber nada de programación.",
+   "objetivo": "Resolver problemas sencillos paso a paso con algoritmos.",
+   "proyecto": "Un juego de adivinar el número, escrito en pseudocódigo.",
    "temario": [
-    "La web y HTML: Cómo funciona una página web, etiquetas y estructura, títulos, párrafos, enlaces e imágenes",
-    "CSS: color y tipografía: Selectores, colores y fuentes, el modelo de caja",
-    "Diseño que se adapta: Flexbox, diseño responsive, imágenes que se ajustan",
-    "Publica tu página: Formularios básicos, revisión final, publicar con GitHub Pages"
+    "Pensar en pasos: Problema, entradas y salidas, algoritmos y pseudocódigo, diagramas de flujo",
+    "Variables, decisiones y ciclos: Variables y operadores, condicionales, ciclos"
    ],
    "modulos": [
     {
-     "titulo": "La web y HTML",
-     "temas": ["Cómo funciona una página web", "Etiquetas y estructura", "Títulos, párrafos, enlaces e imágenes"],
-     "temasTexto": "Cómo funciona una página web, etiquetas y estructura, títulos, párrafos, enlaces e imágenes",
+     "titulo": "Pensar en pasos",
+     "temas": ["Problema, entradas y salidas", "Algoritmos y pseudocódigo", "Diagramas de flujo"],
+     "temasTexto": "Problema, entradas y salidas, algoritmos y pseudocódigo, diagramas de flujo",
+     "actividades": ["Convertir una rutina diaria en un algoritmo claro, paso a paso."],
+     "evidencia": "Algoritmo escrito paso a paso."
+    },
+    {
+     "titulo": "Variables, decisiones y ciclos",
+     "temas": ["Variables y operadores", "Condicionales", "Ciclos"],
+     "temasTexto": "Variables y operadores, condicionales, ciclos",
+     "actividades": ["Escribir en PSeInt el juego de adivinar el número."],
+     "evidencia": "Archivo de PSeInt con el juego funcionando."
+    }
+   ],
+   "guia": {
+    "modalidad": "Clase presencial en Barranquilla: plantea un problema cotidiano, resuélvelo en el tablero con el grupo y deja que cada estudiante lo pase a PSeInt.",
+    "nota": "",
+    "reto": "Cambia el juego para que avise si el número está cerca o lejos.",
+    "preguntas": ["¿Qué datos necesita tu algoritmo?", "¿Qué decisión toma?", "¿Qué se repite?"]
+   },
+   "edadMinima": 14
+  },
+  {
+   "id": 2,
+   "titulo": "Git y GitHub",
+   "area": "Software",
+   "nivel": "Básico",
+   "duracion": 1,
+   "modalidad": "Presencial",
+   "fase": "Lanzamiento",
+   "instructor": "Por asignar",
+   "descripcion": "Aprendes a guardar el historial de tu código y a trabajar como lo hacen los equipos de verdad. Desde aquí, todo lo que hagas en la ruta queda guardado y publicado en GitHub.",
+   "objetivo": "Guardar el historial de tus proyectos con Git y publicarlos en GitHub.",
+   "proyecto": "Tu primer repositorio en GitHub con los ejercicios de la ruta.",
+   "temario": [
+    "Tu primer repositorio: Qué es el control de versiones, git init, add y commit, ver el historial",
+    "Trabajar con GitHub: Subir con push, ramas, pull requests"
+   ],
+   "modulos": [
+    {
+     "titulo": "Tu primer repositorio",
+     "temas": ["Qué es el control de versiones", "git init, add y commit", "Ver el historial"],
+     "temasTexto": "Qué es el control de versiones, git init, add y commit, ver el historial",
+     "actividades": ["Crear un repositorio y guardar tus ejercicios de lógica con varios commits."],
+     "evidencia": "Repositorio con al menos tres commits."
+    },
+    {
+     "titulo": "Trabajar con GitHub",
+     "temas": ["Subir con push", "Ramas", "Pull requests"],
+     "temasTexto": "Subir con push, ramas, pull requests",
+     "actividades": ["Subir tu repositorio a GitHub y proponer un cambio desde una rama."],
+     "evidencia": "Enlace a tu repositorio en GitHub."
+    }
+   ],
+   "guia": {
+    "modalidad": "Clase presencial en Barranquilla: muestra cada comando en pantalla, deja que lo repitan en su computador y revisen juntos el historial.",
+    "nota": "",
+    "reto": "Crea una rama nueva, cambia un archivo y únela a la rama principal.",
+    "preguntas": ["¿Qué guardó tu commit?", "¿Cómo vuelves a una versión anterior?", "¿Para qué sirve una rama?"]
+   },
+   "edadMinima": 14
+  },
+  {
+   "id": 3,
+   "titulo": "HTML y CSS: tu primera página web",
+   "area": "Software",
+   "nivel": "Básico",
+   "duracion": 1,
+   "modalidad": "Presencial",
+   "fase": "Lanzamiento",
+   "instructor": "Por asignar",
+   "descripcion": "Aprendes cómo está hecha una página web, escribes su estructura con HTML y le das estilo con CSS hasta que se vea bien en el celular y en el computador. Al final la publicas en internet con GitHub Pages.",
+   "objetivo": "Construir y publicar una página web sencilla, ordenada y que se vea bien en cualquier pantalla.",
+   "proyecto": "Tu página personal publicada en internet con GitHub Pages.",
+   "temario": [
+    "Estructura con HTML: Cómo funciona una página web, etiquetas y estructura, enlaces e imágenes",
+    "Diseño con CSS y publicación: Colores, fuentes y modelo de caja, diseño responsive, publicar con GitHub Pages"
+   ],
+   "modulos": [
+    {
+     "titulo": "Estructura con HTML",
+     "temas": ["Cómo funciona una página web", "Etiquetas y estructura", "Enlaces e imágenes"],
+     "temasTexto": "Cómo funciona una página web, etiquetas y estructura, enlaces e imágenes",
      "actividades": ["Escribir la estructura de una página sobre ti con títulos, párrafos, una imagen y enlaces."],
-     "evidencia": "Archivo index.html con la estructura completa de tu página."
+     "evidencia": "Archivo index.html con la estructura de tu página."
     },
     {
-     "titulo": "CSS: color y tipografía",
-     "temas": ["Selectores", "Colores y fuentes", "El modelo de caja"],
-     "temasTexto": "Selectores, colores y fuentes, el modelo de caja",
-     "actividades": ["Darle a tu página una paleta de colores, tipografías y espacios propios."],
-     "evidencia": "Hoja de estilos conectada a tu página."
-    },
-    {
-     "titulo": "Diseño que se adapta",
-     "temas": ["Flexbox", "Diseño responsive", "Imágenes que se ajustan"],
-     "temasTexto": "Flexbox, diseño responsive, imágenes que se ajustan",
-     "actividades": ["Organizar la página en secciones y hacer que se vea bien en el celular y en el computador."],
-     "evidencia": "Página que funciona en celular y computador."
-    },
-    {
-     "titulo": "Publica tu página",
-     "temas": ["Formularios básicos", "Revisión final", "Publicar con GitHub Pages"],
-     "temasTexto": "Formularios básicos, revisión final, publicar con GitHub Pages",
-     "actividades": ["Agregar un formulario de contacto, pulir los detalles y publicar la página en internet."],
+     "titulo": "Diseño con CSS y publicación",
+     "temas": ["Colores, fuentes y modelo de caja", "Diseño responsive", "Publicar con GitHub Pages"],
+     "temasTexto": "Colores, fuentes y modelo de caja, diseño responsive, publicar con GitHub Pages",
+     "actividades": ["Darle estilo a tu página, hacer que se vea bien en el celular y publicarla."],
      "evidencia": "Enlace público de tu página."
     }
    ],
    "guia": {
-    "modalidad": "Clase presencial en Barranquilla: explica con un ejemplo en pantalla, deja que cada estudiante lo repita en su computador y cierra mostrando el avance de dos o tres personas.",
+    "modalidad": "Clase presencial en Barranquilla: explica con un ejemplo en pantalla, deja que cada estudiante lo repita en su página y cierra mostrando el avance de dos o tres personas.",
     "nota": "",
     "reto": "Agrega una sección nueva a tu página y comprueba que se siga viendo bien en un celular.",
     "preguntas": ["¿Qué ve primero la persona que entra a tu página?", "¿Cómo se ve en una pantalla pequeña?", "¿Cómo lo comprobarías?"]
@@ -70,170 +137,82 @@
    "edadMinima": 14
   },
   {
-   "id": 2,
+   "id": 4,
    "titulo": "JavaScript para principiantes",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 2,
+   "duracion": 1,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
-   "descripcion": "Le das vida a tu página: botones que responden, contenido que cambia y formularios que revisan lo que escribe la persona. Aprendes las bases de la programación usando la página que construiste en el curso anterior.",
+   "descripcion": "Le das vida a tu página: botones que responden, contenido que cambia y formularios que revisan lo que escribe la persona. Usas lo que aprendiste en lógica de programación, ahora con código de verdad.",
    "objetivo": "Programar la interacción de una página web con JavaScript.",
-   "proyecto": "Tu página del curso anterior con un menú, un modo oscuro y un formulario que valida los datos.",
+   "proyecto": "Tu página con un menú, un modo oscuro y un formulario que valida los datos.",
    "temario": [
-    "Primeros pasos en JavaScript: Variables y tipos de datos, operadores, la consola del navegador",
-    "Decisiones, ciclos y funciones: Condicionales, ciclos, funciones",
-    "El DOM y los eventos: Seleccionar elementos, cambiar contenido y estilos, clics y eventos",
-    "Formularios y datos: Validar formularios, arreglos y objetos, guardar en el navegador"
+    "Bases de JavaScript: Variables y tipos de datos, condicionales y ciclos, funciones",
+    "JavaScript en tu página: El DOM, eventos y clics, validar formularios"
    ],
    "modulos": [
     {
-     "titulo": "Primeros pasos en JavaScript",
-     "temas": ["Variables y tipos de datos", "Operadores", "La consola del navegador"],
-     "temasTexto": "Variables y tipos de datos, operadores, la consola del navegador",
-     "actividades": ["Resolver retos cortos en la consola: calcular, comparar y mostrar mensajes."],
-     "evidencia": "Archivo con los retos resueltos y comentados."
-    },
-    {
-     "titulo": "Decisiones, ciclos y funciones",
-     "temas": ["Condicionales", "Ciclos", "Funciones"],
-     "temasTexto": "Condicionales, ciclos, funciones",
+     "titulo": "Bases de JavaScript",
+     "temas": ["Variables y tipos de datos", "Condicionales y ciclos", "Funciones"],
+     "temasTexto": "Variables y tipos de datos, condicionales y ciclos, funciones",
      "actividades": ["Crear una calculadora de descuentos para una tienda del barrio."],
      "evidencia": "Calculadora funcionando en el navegador."
     },
     {
-     "titulo": "El DOM y los eventos",
-     "temas": ["Seleccionar elementos", "Cambiar contenido y estilos", "Clics y eventos"],
-     "temasTexto": "Seleccionar elementos, cambiar contenido y estilos, clics y eventos",
-     "actividades": ["Agregar a tu página un menú que se abre en el celular y un botón de modo oscuro."],
-     "evidencia": "Tu página con interacción."
-    },
-    {
-     "titulo": "Formularios y datos",
-     "temas": ["Validar formularios", "Arreglos y objetos", "Guardar en el navegador"],
-     "temasTexto": "Validar formularios, arreglos y objetos, guardar en el navegador",
-     "actividades": ["Validar el formulario de contacto y mostrar una lista que se puede filtrar."],
-     "evidencia": "Enlace público de tu página con JavaScript."
+     "titulo": "JavaScript en tu página",
+     "temas": ["El DOM", "Eventos y clics", "Validar formularios"],
+     "temasTexto": "El DOM, eventos y clics, validar formularios",
+     "actividades": ["Agregar a tu página un menú, un modo oscuro y un formulario que revisa los datos."],
+     "evidencia": "Tu página publicada con JavaScript."
     }
    ],
    "guia": {
     "modalidad": "Clase presencial en Barranquilla: programa en vivo pensando en voz alta, deja que cada estudiante lo repita y revisen juntos los errores de la consola.",
     "nota": "",
     "reto": "Agrega un botón nuevo que cambie algo de la página y explica qué pasa paso a paso.",
-    "preguntas": ["¿Qué pasa cuando la persona hace clic?", "¿Qué pasa si escribe algo que no esperabas?", "¿Cómo lo comprobarías en la consola?"]
+    "preguntas": ["¿Qué pasa cuando la persona hace clic?", "¿Qué pasa si escribe algo que no esperabas?", "¿Cómo lo compruebas en la consola?"]
    },
    "edadMinima": 14
   },
   {
-   "id": 3,
-   "titulo": "Python desde cero",
+   "id": 5,
+   "titulo": "Bases de datos con SQL",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 2,
+   "duracion": 1,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
-   "descripcion": "Pasas al otro lado de la web: el servidor. Aprendes Python, uno de los lenguajes más fáciles de leer, y lo usas para crear el programa que recibe y responde lo que envía tu página.",
-   "objetivo": "Escribir programas en Python y crear un servidor web sencillo que se comunique con tu página.",
-   "proyecto": "Un servidor hecho con Flask que recibe los mensajes del formulario de tu página.",
+   "descripcion": "La última pieza de la ruta: guardar información. Aprendes qué es una base de datos, a crear tablas y a consultarlas con SQL usando PostgreSQL, como lo hacen las aplicaciones de verdad.",
+   "objetivo": "Crear una base de datos sencilla y consultarla con SQL.",
+   "proyecto": "La base de datos de los contactos de tu página, con sus consultas en SQL.",
    "temario": [
-    "Python básico: Variables y tipos de datos, entrada y salida, condicionales",
-    "Listas, ciclos y funciones: Listas y diccionarios, ciclos, funciones",
-    "Tu primer servidor web: Qué es un servidor, Flask, rutas y plantillas",
-    "Conecta tu página: Recibir datos de un formulario, responder en JSON, fetch desde JavaScript"
+    "Tablas y datos: Qué es una base de datos, tablas, filas y columnas, CREATE TABLE e INSERT",
+    "Consultas con SQL: SELECT y WHERE, UPDATE y DELETE, relacionar tablas con JOIN"
    ],
    "modulos": [
     {
-     "titulo": "Python básico",
-     "temas": ["Variables y tipos de datos", "Entrada y salida", "Condicionales"],
-     "temasTexto": "Variables y tipos de datos, entrada y salida, condicionales",
-     "actividades": ["Hacer un programa que pregunte datos y responda según lo que escribe la persona."],
-     "evidencia": "Archivo .py con el programa funcionando."
-    },
-    {
-     "titulo": "Listas, ciclos y funciones",
-     "temas": ["Listas y diccionarios", "Ciclos", "Funciones"],
-     "temasTexto": "Listas y diccionarios, ciclos, funciones",
-     "actividades": ["Programar el inventario de una tienda: agregar, buscar y sumar productos."],
-     "evidencia": "Programa del inventario con sus funciones."
-    },
-    {
-     "titulo": "Tu primer servidor web",
-     "temas": ["Qué es un servidor", "Flask", "Rutas y plantillas"],
-     "temasTexto": "Qué es un servidor, Flask, rutas y plantillas",
-     "actividades": ["Crear con Flask una página que muestre los productos del inventario."],
-     "evidencia": "Servidor Flask que responde en el navegador."
-    },
-    {
-     "titulo": "Conecta tu página",
-     "temas": ["Recibir datos de un formulario", "Responder en JSON", "fetch desde JavaScript"],
-     "temasTexto": "Recibir datos de un formulario, responder en JSON, fetch desde JavaScript",
-     "actividades": ["Hacer que el formulario de tu página envíe los mensajes a tu servidor en Python."],
-     "evidencia": "Tu página enviando datos a tu servidor."
-    }
-   ],
-   "guia": {
-    "modalidad": "Clase presencial en Barranquilla: muestra cada idea con un ejemplo corto, deja que lo cambien y lo ejecuten, y cierra conectándolo con la página que ya tienen.",
-    "nota": "",
-    "reto": "Agrega una ruta nueva a tu servidor y llámala desde tu página.",
-    "preguntas": ["¿Qué recibe tu programa?", "¿Qué devuelve?", "¿Qué pasa si llega un dato vacío?"]
-   },
-   "edadMinima": 14
-  },
-  {
-   "id": 4,
-   "titulo": "PostgreSQL: tu primera base de datos",
-   "area": "Software",
-   "nivel": "Intermedio",
-   "duracion": 2,
-   "modalidad": "Presencial",
-   "fase": "Lanzamiento",
-   "instructor": "Por asignar",
-   "descripcion": "La última pieza: guardar la información para siempre. Aprendes a diseñar una base de datos, a consultarla con SQL y a conectarla con tu servidor en Python. Al terminar tienes una página web completa, hecha por ti desde cero.",
-   "objetivo": "Diseñar una base de datos en PostgreSQL y conectarla con una aplicación web.",
-   "proyecto": "Tu página web completa: la página (HTML, CSS y JavaScript), el servidor (Python) y los datos guardados en PostgreSQL.",
-   "temario": [
-    "Bases de datos y tablas: Qué es una base de datos, tablas, filas y columnas, tipos de datos",
-    "Consultas con SQL: INSERT, SELECT y WHERE, UPDATE y DELETE",
-    "Relaciones entre tablas: Llaves primarias y foráneas, JOIN, diseñar tablas relacionadas",
-    "Proyecto integrador: Conectar Python con PostgreSQL, guardar y mostrar datos, presentación final"
-   ],
-   "modulos": [
-    {
-     "titulo": "Bases de datos y tablas",
-     "temas": ["Qué es una base de datos", "Tablas, filas y columnas", "Tipos de datos"],
-     "temasTexto": "Qué es una base de datos, tablas, filas y columnas, tipos de datos",
-     "actividades": ["Crear en PostgreSQL la tabla de productos de una tienda del barrio."],
-     "evidencia": "Script SQL que crea la tabla."
+     "titulo": "Tablas y datos",
+     "temas": ["Qué es una base de datos", "Tablas, filas y columnas", "CREATE TABLE e INSERT"],
+     "temasTexto": "Qué es una base de datos, tablas, filas y columnas, CREATE TABLE e INSERT",
+     "actividades": ["Crear en PostgreSQL la tabla de contactos de tu página y llenarla."],
+     "evidencia": "Script SQL que crea y llena la tabla."
     },
     {
      "titulo": "Consultas con SQL",
-     "temas": ["INSERT", "SELECT y WHERE", "UPDATE y DELETE"],
-     "temasTexto": "INSERT, SELECT y WHERE, UPDATE y DELETE",
-     "actividades": ["Llenar la tabla y responder preguntas de la tienda con consultas SQL."],
+     "temas": ["SELECT y WHERE", "UPDATE y DELETE", "Relacionar tablas con JOIN"],
+     "temasTexto": "SELECT y WHERE, UPDATE y DELETE, relacionar tablas con JOIN",
+     "actividades": ["Responder preguntas sobre tus datos con consultas SQL y presentar tu proyecto de la ruta."],
      "evidencia": "Archivo con las consultas y sus resultados."
-    },
-    {
-     "titulo": "Relaciones entre tablas",
-     "temas": ["Llaves primarias y foráneas", "JOIN", "Diseñar tablas relacionadas"],
-     "temasTexto": "Llaves primarias y foráneas, JOIN, diseñar tablas relacionadas",
-     "actividades": ["Diseñar las tablas de clientes y pedidos y unirlas con JOIN."],
-     "evidencia": "Diagrama de las tablas y consultas con JOIN."
-    },
-    {
-     "titulo": "Proyecto integrador",
-     "temas": ["Conectar Python con PostgreSQL", "Guardar y mostrar datos", "Presentación final"],
-     "temasTexto": "Conectar Python con PostgreSQL, guardar y mostrar datos, presentación final",
-     "actividades": ["Guardar en PostgreSQL los mensajes que llegan a tu servidor y mostrarlos en tu página."],
-     "evidencia": "Tu página web completa funcionando y presentada al grupo."
     }
    ],
    "guia": {
-    "modalidad": "Clase presencial en Barranquilla: diseña las tablas en el tablero con el grupo, escribe las consultas en vivo y cierra con la presentación de los proyectos.",
+    "modalidad": "Clase presencial en Barranquilla: diseña la tabla en el tablero con el grupo, escribe las consultas en vivo y cierra con la presentación de los proyectos de la ruta.",
     "nota": "",
-    "reto": "Agrega una tabla nueva a tu proyecto y muestra sus datos en tu página.",
-    "preguntas": ["¿Qué información necesita guardar tu página?", "¿Cómo se relacionan tus tablas?", "¿Qué pasa si borras un registro?"]
+    "reto": "Agrega una tabla nueva y únela a la de contactos con JOIN.",
+    "preguntas": ["¿Qué información necesitas guardar?", "¿Cómo encuentras un dato?", "¿Qué pasa si borras un registro?"]
    },
    "edadMinima": 14
   }
@@ -242,6 +221,7 @@
   { "numero": "27101", "curso_id": 1, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
   { "numero": "27102", "curso_id": 2, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
   { "numero": "27103", "curso_id": 3, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
-  { "numero": "27104", "curso_id": 4, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" }
+  { "numero": "27104", "curso_id": 4, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
+  { "numero": "27105", "curso_id": 5, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" }
  ]
 }

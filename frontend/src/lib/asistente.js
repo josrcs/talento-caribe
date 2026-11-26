@@ -118,9 +118,9 @@ function revisarQuiz(t) {
 }
 
 function recomendar() {
-  const pasos = rutaConCursos(D()?.cursos() || []).map((p) => p.curso || { titulo: p.titulo, duracion: 2, modalidad: "Presencial", fase: "Lanzamiento" }).map((c, i) => `${i + 1}. **${tituloCurso(c)}** · ${c.duracion} ${L("semanas", "weeks")} · ${L(c.modalidad, { Virtual: "Online", Presencial: "In person", "Híbrido": "Hybrid" }[c.modalidad] || c.modalidad)}${c.fase === "Lanzamiento" ? L(" ✅ preinscripción abierta", " ✅ pre-enrollment open") : L(" (próximamente)", " (coming soon)")}`);
-  return r(`🗺️ **${L("Ruta del piloto 2027 · Barranquilla", "2027 pilot path · Barranquilla")}**\n${pasos.join("\n")}\n\n${L("Empieza por el primero aunque no tengas experiencia: al terminar la ruta tienes tu página web completa. Las fechas se avisan por correo.", "Start with the first one even with no experience: by the end of the path you have your complete website. Dates are announced by email.")}`,
-    [L("¿Cómo me inscribo?", "How do I enroll?"), L("¿Son gratis?", "Are they free?")], [{ texto: L("Ver catálogo", "See catalog"), url: "cursos.html" }]);
+  const pasos = rutaConCursos(D()?.cursos() || []).map((p) => p.curso || { titulo: p.titulo, duracion: 1, modalidad: "Presencial", fase: "Lanzamiento" }).map((c, i) => `${i + 1}. **${tituloCurso(c)}** · ${c.duracion} ${Number(c.duracion) === 1 ? L("semana", "week") : L("semanas", "weeks")} · ${L(c.modalidad, { Virtual: "Online", Presencial: "In person", "Híbrido": "Hybrid" }[c.modalidad] || c.modalidad)}${c.fase === "Lanzamiento" ? L(" ✅ inscripciones abiertas", " ✅ enrollment open") : L(" (próximamente)", " (coming soon)")}`);
+  return r(`🗺️ **${L("Programación desde cero · piloto 2027 en Barranquilla", "Programming from scratch · 2027 pilot in Barranquilla")}**\n${pasos.join("\n")}\n\n${L("Empiezas por el módulo 1 aunque no tengas experiencia. En el piloto cada módulo dura 1 semana. Al terminar recibes una constancia de participación. Las fechas se avisan por correo.", "You start with module 1 even with no experience. In the pilot each module lasts 1 week. At the end you get a certificate of participation. Dates are announced by email.")}`,
+    [L("¿Cómo me inscribo?", "How do I enroll?"), L("¿Son gratis?", "Are they free?")], [{ texto: L("Ver la ruta", "See the path"), url: "cursos.html" }]);
 }
 
 function estudiante(t, c) {

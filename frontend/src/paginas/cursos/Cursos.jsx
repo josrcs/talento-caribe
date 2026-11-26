@@ -1,15 +1,17 @@
 /* ==========================================================
-   Cursos.jsx - Catálogo de cursos (cursos.html)
-   Filtros (texto, número de ficha, área, nivel, modalidad), tarjetas,
-   detalle del curso con sus fichas y preinscripción.
-   Enlaces que entiende:  ?curso=ID abre ese curso · ?ficha=25896 filtra por ficha
+   Cursos.jsx - La ruta del piloto 2027 (cursos.html)
+   «Programación desde cero»: solo se muestran los 5 módulos de la ruta, en orden
+   (los demás cursos que sigan en la base no aparecen en la página pública).
+   La inscripción es a la ruta: se hace en el primer módulo (Lógica de programación).
+   Enlaces que entiende:  ?curso=ID abre ese módulo · ?ficha=27101 filtra por ficha
+                          ?inscribirme=1 empieza la inscripción a la ruta
                           ?continuar=ID vuelve del registro o del ingreso y sigue con la inscripción
    ========================================================== */
 import { useEffect, useRef, useState } from "react";
 import { useDatos } from "../../contexto/Datos.jsx";
 import { leerSesion } from "../../lib/sesion.js";
 import { parametros } from "../../lib/rutas.js";
-import { ordenarPorRuta, pasoDeRuta } from "../../lib/piloto.js";
+import { PILOTO, pasoDeRuta, semanas, soloRuta } from "../../lib/piloto.js";
 import EncabezadoPublico from "../../componentes/EncabezadoPublico.jsx";
 import PiePublico from "../../componentes/PiePublico.jsx";
 import AsistenteFlotante from "../../componentes/AsistenteFlotante.jsx";
@@ -18,43 +20,40 @@ import FormInscripcion from "./FormInscripcion.jsx";
 
 const ENLACES = [
   { href: "index.html#nosotros", texto: "Nosotros" },
-  { href: "cursos.html", texto: "Cursos", actual: true },
-  { href: "index.html#ruta", texto: "La ruta" },
+  { href: "cursos.html", texto: "La ruta", actual: true },
   { href: "index.html#calendario", texto: "Calendario" },
-  { href: "index.html#asistente", texto: "Asistente IA" },
+  { href: "index.html#sumate", texto: "Súmate" },
   { href: "index.html#contacto", texto: "Contacto" },
-  { href: "#lista-cursos-seccion", texto: "Inscríbete", className: "btn btn-primary" },
 ];
-const FILTROS_VACIOS = { q: "", ficha: "", area: "", nivel: "", modalidad: "" };
+const FILTROS_VACIOS = { q: "", ficha: "" };
 const Esqueleto = () => <div className="curso-card esqueleto" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>;
+const fichaAbierta = (modelo, curso) => modelo.fichasDeCurso(curso.id).find((f) => f.estado === "Inscripciones abiertas")?.numero || "";
 
 export default function Cursos() {
   const { cargando, error, modelo, acciones } = useDatos();
   const [filtros, setFiltros] = useState(() => ({ ...FILTROS_VACIOS, ficha: parametros().get("ficha") || "" }));
-  const [detalle, setDetalle] = useState(null); // curso abierto
-  const [fichaElegida, setFichaElegida] = useState("");
+  const [detalle, setDetalle] = useState(null); // módulo abierto
   const [inscripcion, setInscripcion] = useState(null); // { curso, ficha, sesion }
   const yaAbrio = useRef(false);
 
-  const cursos = ordenarPorRuta(modelo.cursos());
+  const ruta = soloRuta(modelo.cursos());
+  const primero = ruta.find((c) => pasoDeRuta(c) === 0) || null; // la inscripción a la ruta se hace aquí
   const fichaBuscada = filtros.ficha.replace(/\D/g, "");
   const q = filtros.q.trim().toLocaleLowerCase("es");
-  const resultado = cursos.filter((c) => {
+  const resultado = ruta.filter((c) => {
     const fichas = modelo.fichasDeCurso(c.id).filter((f) => f.estado !== "Finalizada");
-    return (!q || `${c.titulo} ${c.descripcion} ${c.area} ${fichas.map((f) => f.numero).join(" ")}`.toLocaleLowerCase("es").includes(q)) &&
-      (!fichaBuscada || fichas.some((f) => f.numero.startsWith(fichaBuscada))) &&
-      (!filtros.area || c.area === filtros.area) && (!filtros.nivel || c.nivel === filtros.nivel) && (!filtros.modalidad || c.modalidad === filtros.modalidad);
+    return (!q || `${c.titulo} ${c.descripcion} ${fichas.map((f) => f.numero).join(" ")}`.toLocaleLowerCase("es").includes(q)) &&
+      (!fichaBuscada || fichas.some((f) => f.numero.startsWith(fichaBuscada)));
   });
   const cambiar = (e) => setFiltros((f) => ({ ...f, [e.target.name]: e.target.value }));
 
   function abrirCurso(id) {
     const curso = modelo.curso(id);
-    if (!curso) return;
-    const abiertas = modelo.fichasDeCurso(curso.id).filter((f) => f.estado === "Inscripciones abiertas");
-    setFichaElegida((abiertas.find((f) => fichaBuscada && f.numero.startsWith(fichaBuscada)) || abiertas[0])?.numero || "");
-    setDetalle(curso);
+    if (curso && pasoDeRuta(curso) >= 0) setDetalle(curso);
   }
-  function inscribirse(curso = detalle, ficha = fichaElegida) {
+  /* Inscribirse a la ruta = pedir cupo en el primer módulo (el equipo de admisiones lo aprueba) */
+  function inscribirse() {
+    const curso = primero, ficha = curso ? fichaAbierta(modelo, curso) : "";
     if (!curso || curso.fase !== "Lanzamiento" || !ficha) return;
     const sesion = leerSesion();
     if (!sesion || sesion.rol !== "estudiante") { location.href = `registro.html?curso=${encodeURIComponent(curso.id)}`; return; }
@@ -64,18 +63,17 @@ export default function Cursos() {
     setDetalle(null);
     setInscripcion({ curso, ficha, sesion });
   }
+  const puedeInscribirse = Boolean(primero && primero.fase === "Lanzamiento" && fichaAbierta(modelo, primero));
 
-  // Cuando llega el catálogo: ?continuar=ID sigue con la inscripción; ?curso=ID abre el detalle
+  // Cuando llega la ruta: ?inscribirme=1 o ?continuar=ID sigue con la inscripción; ?curso=ID abre el módulo
   useEffect(() => {
-    if (cargando || yaAbrio.current || !cursos.length) return;
+    if (cargando || yaAbrio.current || !ruta.length) return;
     yaAbrio.current = true;
-    const continuar = Number(parametros().get("continuar")), enlace = Number(parametros().get("curso"));
-    if (continuar > 0) {
-      const curso = modelo.curso(continuar);
-      const ficha = modelo.fichasDeCurso(continuar).find((f) => f.estado === "Inscripciones abiertas")?.numero;
-      if (curso && ficha && leerSesion()) inscribirse(curso, ficha); else abrirCurso(continuar);
-    } else if (enlace > 0) abrirCurso(enlace);
-  }); // se revisa en cada pintada hasta que el catálogo está listo
+    const p = parametros(), continuar = Number(p.get("continuar")), enlace = Number(p.get("curso"));
+    if (p.get("inscribirme") === "1" || (continuar > 0 && leerSesion())) inscribirse();
+    else if (continuar > 0) abrirCurso(continuar);
+    else if (enlace > 0) abrirCurso(enlace);
+  }); // se revisa en cada pintada hasta que la ruta está lista
 
   return (
     <>
@@ -84,50 +82,35 @@ export default function Cursos() {
       <main id="contenido">
         <section className="page-intro">
           <div className="container">
-            <h1 data-revelar="titulo">Cursos del piloto 2027</h1>
-            <p data-revelar>Una ruta de 4 cursos gratuitos de 2 semanas cada uno, presenciales en Barranquilla. Empieza por el primero aunque no tengas experiencia.</p>
-            <p className="aviso-piloto" data-revelar role="note"><strong>Por ahora, solo Colombia.</strong> Los cursos se harán en el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
+            <h1 data-revelar="titulo">{`La ruta: ${PILOTO.nombre}`}</h1>
+            <p data-revelar>Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. En la fase piloto cada módulo dura 1 semana (normalmente dura 2).</p>
+            <p className="aviso-piloto" data-revelar role="note"><strong>Por ahora, solo Colombia.</strong> Los grupos se harán en el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.</p>
+            <div className="ruta-acciones" data-revelar>
+              <button type="button" className="btn btn-primary btn-flecha" disabled={!puedeInscribirse} onClick={inscribirse}>{puedeInscribirse ? "Inscribirme en la ruta" : "Inscripciones pronto"}</button>
+            </div>
           </div>
         </section>
 
-        <section id="lista-cursos-seccion" className="section" aria-label="Catálogo">
+        <section id="lista-cursos-seccion" className="section" aria-label="Módulos de la ruta">
           <div className="container">
-            <form id="filtros" className="filtros" role="search" aria-label="Filtrar cursos" data-revelar onSubmit={(e) => e.preventDefault()}>
+            <form id="filtros" className="filtros" role="search" aria-label="Buscar en la ruta" data-revelar onSubmit={(e) => e.preventDefault()}>
               <div className="campo">
                 <label htmlFor="f-buscar">Buscar</label>
-                <input id="f-buscar" name="q" type="search" placeholder="Python, Arduino, páginas web..." value={filtros.q} onChange={cambiar} />
+                <input id="f-buscar" name="q" type="search" placeholder="Lógica, Git, HTML, SQL..." value={filtros.q} onChange={cambiar} />
               </div>
               <div className="campo campo-ficha">
                 <label htmlFor="f-ficha">N.º de ficha</label>
-                <input id="f-ficha" name="ficha" type="search" inputMode="numeric" maxLength="6" placeholder="Ej. 25896" autoComplete="off" value={filtros.ficha} onChange={cambiar} />
+                <input id="f-ficha" name="ficha" type="search" inputMode="numeric" maxLength="6" placeholder="Ej. 27101" autoComplete="off" value={filtros.ficha} onChange={cambiar} />
               </div>
-              <div className="campo">
-                <label htmlFor="f-area">Área</label>
-                <select id="f-area" name="area" value={filtros.area} onChange={cambiar}>
-                  <option value="">Todas</option><option value="Software">Software</option><option value="Hardware">Hardware</option>
-                </select>
-              </div>
-              <div className="campo">
-                <label htmlFor="f-nivel">Nivel</label>
-                <select id="f-nivel" name="nivel" value={filtros.nivel} onChange={cambiar}>
-                  <option value="">Todos</option><option value="Básico">Básico</option><option value="Intermedio">Intermedio</option>
-                </select>
-              </div>
-              <div className="campo">
-                <label htmlFor="f-modalidad">Modalidad</label>
-                <select id="f-modalidad" name="modalidad" value={filtros.modalidad} onChange={cambiar}>
-                  <option value="">Todas</option><option value="Virtual">Virtual</option><option value="Presencial">Presencial</option><option value="Híbrido">Híbrido</option>
-                </select>
-              </div>
-              <button type="button" className="btn btn-outline" id="f-limpiar" onClick={() => setFiltros(FILTROS_VACIOS)}>Limpiar filtros</button>
+              <button type="button" className="btn btn-outline" id="f-limpiar" onClick={() => setFiltros(FILTROS_VACIOS)}>Limpiar</button>
             </form>
 
             <p id="resumen-resultados" className="resumen-resultados" role="status" aria-live="polite">
-              {cargando ? "" : `${resultado.length} ${resultado.length === 1 ? "curso encontrado" : "cursos encontrados"}`}
+              {cargando ? "" : `${resultado.length} ${resultado.length === 1 ? "módulo" : "módulos"} de ${PILOTO.ruta.length}`}
             </p>
-            {error && !cursos.length ? (
+            {error && !ruta.length ? (
               <div className="estado estado-error" role="alert">
-                <p>No pudimos cargar el catálogo. Revisa tu conexión e inténtalo de nuevo.</p>
+                <p>No pudimos cargar la ruta. Revisa tu conexión e inténtalo de nuevo.</p>
                 <p className="form-ayuda">{error.message}</p>
                 <button type="button" className="btn btn-outline" onClick={() => acciones.recargar().catch(() => {})}>Reintentar</button>
               </div>
@@ -135,25 +118,17 @@ export default function Cursos() {
               <div className="grid-cursos" aria-busy="true"><Esqueleto /><Esqueleto /><Esqueleto /></div>
             ) : (
               <>
-                {!resultado.length && <div className="estado"><p>No hay cursos con esos filtros. Prueba quitando alguno.</p></div>}
+                {!resultado.length && <div className="estado"><p>No hay módulos con esa búsqueda.</p></div>}
                 <div id="lista-cursos" className="grid-cursos">
-                  {resultado.map((c) => {
-                    const fichas = modelo.fichasDeCurso(c.id).filter((f) => f.estado !== "Finalizada");
-                    return (
-                      <article className="curso-card" data-revelar="rapido" key={c.id}>
-                        <div className="curso-etiquetas"><span className="tag">{c.area}</span><span className="tag">{c.nivel}</span><span className={`tag ${c.fase === "Lanzamiento" ? "tag-lanzamiento" : ""}`}>{c.fase === "Lanzamiento" ? "Preinscripción abierta" : "Próximamente"}</span></div>
-                        {pasoDeRuta(c) >= 0 && <p className="ruta-paso-etiqueta">{`Curso ${pasoDeRuta(c) + 1} de 4 de la ruta`}</p>}
-                        <h2>{c.titulo}</h2><p>{c.descripcion}</p>
-                        <p className="curso-duracion">{`${c.duracion} semanas · ${(c.modulos || []).length} clases · ${c.modalidad}`}</p>
-                        {fichas.length > 0 && (
-                          <p className="curso-fichas"><span>Fichas</span>
-                            {fichas.map((f) => <span key={f.numero} className={`ficha-chip ${fichaBuscada && f.numero.startsWith(fichaBuscada) ? "is-encontrada" : ""}`} title={`${f.jornada} · ${f.estado}`}>{f.numero}</span>)}
-                          </p>
-                        )}
-                        <div className="curso-card-pie"><button type="button" className="btn btn-outline" onClick={() => abrirCurso(c.id)}>Conocer el curso</button></div>
-                      </article>
-                    );
-                  })}
+                  {resultado.map((c) => (
+                    <article className="curso-card" data-revelar="rapido" key={c.id}>
+                      <div className="curso-etiquetas"><span className="tag">{c.nivel}</span><span className="tag">{c.modalidad}</span></div>
+                      <p className="ruta-paso-etiqueta">{`Módulo ${pasoDeRuta(c) + 1} de ${PILOTO.ruta.length}`}</p>
+                      <h2>{c.titulo}</h2><p>{c.descripcion}</p>
+                      <p className="curso-duracion">{`${semanas(c.duracion)} en el piloto · ${(c.modulos || []).length} clases`}</p>
+                      <div className="curso-card-pie"><button type="button" className="btn btn-outline" onClick={() => abrirCurso(c.id)}>Ver el módulo</button></div>
+                    </article>
+                  ))}
                 </div>
               </>
             )}
@@ -161,8 +136,7 @@ export default function Cursos() {
         </section>
       </main>
 
-      <DetalleCurso curso={detalle} fichas={detalle ? modelo.fichasDeCurso(detalle.id).filter((f) => f.estado !== "Finalizada") : []} fichaElegida={fichaElegida}
-        alElegirFicha={setFichaElegida} alInscribirse={() => inscribirse()} alCerrar={() => setDetalle(null)} />
+      <DetalleCurso curso={detalle} puedeInscribirse={puedeInscribirse} alInscribirse={inscribirse} alCerrar={() => setDetalle(null)} />
       <FormInscripcion key={inscripcion ? inscripcion.curso.id : "nada"} curso={inscripcion?.curso} ficha={inscripcion?.ficha} sesion={inscripcion?.sesion} alCerrar={() => setInscripcion(null)} />
 
       <PiePublico />

@@ -283,3 +283,163 @@
   };
   Object.assign(window.TC_EN, PILOTO_EN);
 })();
+
+/* ---------- Ruta «Programación desde cero» (5 módulos, 1 semana en el piloto) ---------- */
+(() => {
+  const RUTA_EN = {
+  "Mentores": "Mentors",
+  "Aprende a programar desde cero, gratis y en Barranquilla.": "Learn to code from scratch, for free, in Barranquilla.",
+  "Talento Caribe abre su primer piloto: la ruta «Programación desde cero», con 5 módulos presenciales. Empiezas con lógica de programación y terminas creando tu página web y tu primera base de datos.":
+    "Talento Caribe opens its first pilot: the “Programming from scratch” path, with 5 in-person modules. You start with programming logic and finish by building your website and your first database.",
+  "Inscríbete a la ruta": "Enroll in the path",
+  "Lógica de programación": "Programming logic",
+  "Módulo # de #": "Module # of #",
+  "Pensar en pasos": "Thinking in steps",
+  "Problema, entradas y salidas": "Problem, inputs and outputs",
+  "Algoritmos y pseudocódigo": "Algorithms and pseudocode",
+  "Diagramas de flujo": "Flowcharts",
+  "Ejercicio de la clase · PSeInt": "Class exercise · PSeInt",
+  "tu primer algoritmo, escrito paso a paso.": "your first algorithm, written step by step.",
+  "módulos en la ruta": "modules in the path",
+  "semana por módulo en el piloto": "week per module in the pilot",
+  "Programación desde cero, en 5 módulos": "Programming from scratch, in 5 modules",
+  "Una sola ruta, pensada para que un joven aprenda a programar sin saber nada. Cada módulo usa lo que aprendiste en el anterior: de pensar en pasos a crear tu página web con su base de datos.":
+    "One path, designed so a young person can learn to code knowing nothing. Each module builds on the previous one: from thinking in steps to building your website with its database.",
+  "Módulo # de # · # semana": "Module # of # · # week",
+  "Ver el módulo →": "See the module →",
+  "Pensar como programador: algoritmos, decisiones y ciclos.": "Think like a programmer: algorithms, decisions and loops.",
+  "Git y GitHub": "Git and GitHub",
+  "Guardar y publicar tu código como los equipos de verdad.": "Save and publish your code like real teams do.",
+  "La estructura y el diseño de tu página web.": "Your website's structure and design.",
+  "Bases de datos con SQL": "Databases with SQL",
+  "Guardar y consultar información con SQL.": "Store and query information with SQL.",
+  "En la fase piloto cada módulo dura 1 semana.": "In the pilot phase each module lasts 1 week.",
+  "Normalmente cada módulo dura 2 semanas; en el piloto lo hacemos en 1 para probar la ruta completa. La ruta del piloto dura en total 5 semanas.":
+    "Normally each module lasts 2 weeks; in the pilot we do it in 1 to test the whole path. The pilot path lasts 5 weeks in total.",
+  "Normalmente cada módulo dura # semanas; en el piloto lo hacemos en # para probar la ruta completa. La ruta del piloto dura en total # semanas.":
+    "Normally each module lasts # weeks; in the pilot we do it in # to test the whole path. The pilot path lasts # weeks in total.",
+  "Ver el detalle de cada módulo": "See each module in detail",
+  "Los grupos del piloto se harán durante el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.":
+    "Pilot groups will run during the first and second quarters of 2027. We'll email you your group's date and time.",
+  "Crea tu cuenta e inscríbete a la ruta.": "Create your account and enroll in the path.",
+  "Abrimos más grupos de la ruta.": "We open more groups of the path.",
+  "En el piloto, cada módulo dura una semana": "In the pilot, each module lasts one week",
+  "Cada módulo tiene dos clases presenciales en la semana. En la primera aprendes y practicas; en la segunda construyes y muestras lo que hiciste.":
+    "Each module has two in-person classes during the week. In the first you learn and practice; in the second you build and show what you made.",
+  "Lo haces tú, con ayuda, y resuelves tus dudas.": "You do it yourself, with help, and clear up your questions.",
+  "Presentas tu avance, recibes sugerencias y entregas lo del módulo.": "You present your progress, get feedback and hand in the module's work.",
+  "De la inscripción a tu constancia de participación": "From enrollment to your proof of participation",
+  "Envía tu solicitud. El equipo revisa tu cupo.": "Send your request. The team reviews your spot.",
+  "Cinco módulos de una semana. Al terminar recibes tu constancia de participación.": "Five one-week modules. At the end you get your proof of participation.",
+  "Buscamos mentores para el piloto": "We're looking for mentors for the pilot",
+  "Todavía no contamos con mentores. Si sabes de programación y quieres acompañar a jóvenes de Barranquilla mientras aprenden desde cero, súmate al piloto 2027.":
+    "We don't have mentors yet. If you know programming and want to support young people in Barranquilla as they learn from scratch, join the 2027 pilot.",
+  "Quiero sumarme como mentor": "I want to join as a mentor",
+  "Aún no tenemos mentores. Si sabes de programación, acompaña a los jóvenes del piloto.": "We don't have mentors yet. If you know programming, support the pilot's young students.",
+  "Aprende a programar desde cero, gratis, en Barranquilla.": "Learn to code from scratch, for free, in Barranquilla.",
+  "Con esa observación como punto de partida, José se propuso crear ese lugar. Diseñó una ruta para aprender a programar desde cero y construyó la plataforma web que la sostiene.":
+    "With that observation as a starting point, José set out to create that place. He designed a path to learn programming from scratch and built the web platform that supports it.",
+  "Hoy Talento Caribe empieza con su piloto 2027: grupos pequeños y presenciales en Barranquilla, durante el primer y el segundo trimestre del año. Con lo que enseñe esa primera experiencia, ajustaremos la ruta y nos extenderemos por Latinoamérica. De ahí el lema: porque el talento no tiene fronteras, la oportunidad de desarrollarlo tampoco debería tenerlas.":
+    "Today Talento Caribe starts with its 2027 pilot: small, in-person groups in Barranquilla during the first and second quarters of the year. With what that first experience teaches us, we'll adjust the path and expand across Latin America. Hence the motto: because talent has no borders, the chance to develop it shouldn't either.",
+  "Formar a jóvenes del Caribe y de Latinoamérica en tecnología mediante una formación gratuita, práctica y cercana, para que puedan estudiar, emprender o conseguir empleo.":
+    "To train young people from the Caribbean and Latin America in technology through free, hands-on, close training, so they can study, start a business or get a job.",
+  "Sí. La ruta no tiene costo: no cobramos matrícula ni mensualidades.": "Yes. The path is free: we don't charge tuition or monthly fees.",
+  "¿Recibo un certificado?": "Do I get a certificate?",
+  "Recibes una constancia de participación. No es un certificado oficial: para certificar un curso en Colombia se necesita el aval de la Secretaría de Educación, y en el piloto todavía no lo tenemos. Te lo decimos desde ahora para que sepas exactamente qué recibes.":
+    "You get a proof of participation. It isn't an official certificate: certifying a course in Colombia requires approval from the Secretariat of Education, which we don't have yet in the pilot. We're telling you now so you know exactly what you get.",
+  "No. La ruta empieza desde cero con lógica de programación. Solo necesitas ganas de aprender.": "No. The path starts from scratch with programming logic. All you need is the will to learn.",
+  "La ruta recibe estudiantes desde los {n} años. Si eres menor de edad, en la inscripción te pedimos los datos de tu acudiente.":
+    "The path accepts students from age {n}. If you're under 18, we'll ask for your guardian's details when you enroll.",
+  "En el piloto cada módulo dura # semana, con # clases. La ruta completa son # módulos: unas # semanas. Después del piloto, cada módulo durará # semanas.":
+    "In the pilot each module lasts # week, with # classes. The full path is # modules: about # weeks. After the pilot, each module will last # weeks.",
+  "Tu página web con su base de datos, que puedes mostrar, y tu constancia de participación.": "Your website with its database, ready to show, and your proof of participation.",
+  "Te explica cada módulo de la ruta.": "It explains each module of the path.",
+  "Tu primer programa empieza aquí.": "Your first program starts here.",
+  "Las inscripciones del piloto 2027 en Barranquilla ya están abiertas. Te avisaremos la fecha de tu grupo.": "Enrollment for the 2027 Barranquilla pilot is open. We'll let you know your group's date.",
+  "La ruta: Programación desde cero": "The path: Programming from scratch",
+  "Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. En la fase piloto cada módulo dura 1 semana (normalmente dura 2).":
+    "Five free, in-person modules in Barranquilla to learn to code knowing nothing. In the pilot phase each module lasts 1 week (normally 2).",
+  "Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. En la fase piloto cada módulo dura # semana (normalmente dura #).":
+    "Five free, in-person modules in Barranquilla to learn to code knowing nothing. In the pilot phase each module lasts # week (normally #).",
+  "Los grupos se harán en el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.":
+    "Groups will run in the first and second quarters of 2027. We'll email you your group's date and time. At the end you get a proof of participation.",
+  "Inscribirme en la ruta": "Enroll in the path",
+  "Inscripciones pronto": "Enrollment coming soon",
+  "Módulos de la ruta": "Path modules",
+  "Buscar en la ruta": "Search the path",
+  "Lógica, Git, HTML, SQL...": "Logic, Git, HTML, SQL...",
+  "Limpiar": "Clear",
+  "# módulos de #": "# modules of #",
+  "No hay módulos con esa búsqueda.": "No modules match that search.",
+  "No pudimos cargar la ruta. Revisa tu conexión e inténtalo de nuevo.": "We couldn't load the path. Check your connection and try again.",
+  "# semana en el piloto · # clases": "# week in the pilot · # classes",
+  "Ver el módulo": "See the module",
+  "Módulo # de # · Programación desde cero": "Module # of # · Programming from scratch",
+  "Duración en el piloto": "Length in the pilot",
+  "# semana": "# week",
+  "Clases del módulo": "Module classes",
+  "# clases presenciales en # semana. Cada clase tiene sus temas y una práctica.": "# in-person classes in # week. Each class has its topics and a practice.",
+  "Proyecto del módulo": "Module project",
+  "La inscripción es a la ruta completa: empiezas por el módulo 1 y sigues en orden. Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de 2027; te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.":
+    "Enrollment is for the whole path: you start with module 1 and continue in order. Classes are in person in Barranquilla between the first and second quarters of 2027; we'll email you your group's date and time. At the end you get a proof of participation.",
+  "La inscripción es a la ruta completa: empiezas por el módulo # y sigues en orden. Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de #; te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.":
+    "Enrollment is for the whole path: you start with module # and continue in order. Classes are in person in Barranquilla between the first and second quarters of #; we'll email you your group's date and time. At the end you get a proof of participation.",
+  "El contenido de este módulo se publicará pronto.": "This module's content will be published soon.",
+  "El punto de partida de la ruta. Antes de escribir código aprendes a pensar como programador: descomponer un problema en pasos, escribir algoritmos y usar variables, decisiones y ciclos. No necesitas saber nada de programación.":
+    "The starting point of the path. Before writing code you learn to think like a programmer: break a problem into steps, write algorithms and use variables, decisions and loops. No programming knowledge needed.",
+  "Resolver problemas sencillos paso a paso con algoritmos.": "Solve simple problems step by step with algorithms.",
+  "Un juego de adivinar el número, escrito en pseudocódigo.": "A number-guessing game written in pseudocode.",
+  "Convertir una rutina diaria en un algoritmo claro, paso a paso.": "Turn a daily routine into a clear, step-by-step algorithm.",
+  "Algoritmo escrito paso a paso.": "An algorithm written step by step.",
+  "Variables, decisiones y ciclos": "Variables, decisions and loops",
+  "Variables y operadores": "Variables and operators",
+  "Escribir en PSeInt el juego de adivinar el número.": "Write the number-guessing game in PSeInt.",
+  "Archivo de PSeInt con el juego funcionando.": "A PSeInt file with the game working.",
+  "Aprendes a guardar el historial de tu código y a trabajar como lo hacen los equipos de verdad. Desde aquí, todo lo que hagas en la ruta queda guardado y publicado en GitHub.":
+    "You learn to keep your code's history and to work like real teams do. From here on, everything you do in the path is saved and published on GitHub.",
+  "Guardar el historial de tus proyectos con Git y publicarlos en GitHub.": "Keep your projects' history with Git and publish them on GitHub.",
+  "Tu primer repositorio en GitHub con los ejercicios de la ruta.": "Your first GitHub repository with the path's exercises.",
+  "Tu primer repositorio": "Your first repository",
+  "Qué es el control de versiones": "What version control is",
+  "git init, add y commit": "git init, add and commit",
+  "Ver el historial": "Viewing the history",
+  "Crear un repositorio y guardar tus ejercicios de lógica con varios commits.": "Create a repository and save your logic exercises with several commits.",
+  "Repositorio con al menos tres commits.": "A repository with at least three commits.",
+  "Trabajar con GitHub": "Working with GitHub",
+  "Subir con push": "Uploading with push",
+  "Ramas": "Branches",
+  "Pull requests": "Pull requests",
+  "Subir tu repositorio a GitHub y proponer un cambio desde una rama.": "Upload your repository to GitHub and propose a change from a branch.",
+  "Enlace a tu repositorio en GitHub.": "Link to your GitHub repository.",
+  "Aprendes cómo está hecha una página web, escribes su estructura con HTML y le das estilo con CSS hasta que se vea bien en el celular y en el computador. Al final la publicas en internet con GitHub Pages.":
+    "You learn how a web page is made, write its structure with HTML and style it with CSS until it looks good on phones and computers. At the end you publish it online with GitHub Pages.",
+  "Tu página personal publicada en internet con GitHub Pages.": "Your personal page published online with GitHub Pages.",
+  "Estructura con HTML": "Structure with HTML",
+  "Enlaces e imágenes": "Links and images",
+  "Archivo index.html con la estructura de tu página.": "An index.html file with your page's structure.",
+  "Diseño con CSS y publicación": "Design with CSS and publishing",
+  "Colores, fuentes y modelo de caja": "Colors, fonts and the box model",
+  "Darle estilo a tu página, hacer que se vea bien en el celular y publicarla.": "Style your page, make it look good on phones and publish it.",
+  "Le das vida a tu página: botones que responden, contenido que cambia y formularios que revisan lo que escribe la persona. Usas lo que aprendiste en lógica de programación, ahora con código de verdad.":
+    "You bring your page to life: buttons that respond, content that changes and forms that check what people type. You use what you learned in programming logic, now with real code.",
+  "Tu página con un menú, un modo oscuro y un formulario que valida los datos.": "Your page with a menu, a dark mode and a form that validates data.",
+  "Bases de JavaScript": "JavaScript basics",
+  "Condicionales y ciclos": "Conditionals and loops",
+  "JavaScript en tu página": "JavaScript on your page",
+  "El DOM": "The DOM",
+  "Eventos y clics": "Events and clicks",
+  "Agregar a tu página un menú, un modo oscuro y un formulario que revisa los datos.": "Add a menu, a dark mode and a form that checks data to your page.",
+  "Tu página publicada con JavaScript.": "Your page published with JavaScript.",
+  "La última pieza de la ruta: guardar información. Aprendes qué es una base de datos, a crear tablas y a consultarlas con SQL usando PostgreSQL, como lo hacen las aplicaciones de verdad.":
+    "The last piece of the path: storing information. You learn what a database is, how to create tables and how to query them with SQL using PostgreSQL, like real applications do.",
+  "Crear una base de datos sencilla y consultarla con SQL.": "Create a simple database and query it with SQL.",
+  "La base de datos de los contactos de tu página, con sus consultas en SQL.": "The database for your page's contacts, with its SQL queries.",
+  "Tablas y datos": "Tables and data",
+  "CREATE TABLE e INSERT": "CREATE TABLE and INSERT",
+  "Crear en PostgreSQL la tabla de contactos de tu página y llenarla.": "Create your page's contacts table in PostgreSQL and fill it.",
+  "Script SQL que crea y llena la tabla.": "A SQL script that creates and fills the table.",
+  "Relacionar tablas con JOIN": "Relating tables with JOIN",
+  "Responder preguntas sobre tus datos con consultas SQL y presentar tu proyecto de la ruta.": "Answer questions about your data with SQL queries and present your path project.",
+  };
+  Object.assign(window.TC_EN, RUTA_EN);
+})();

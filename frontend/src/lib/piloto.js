@@ -1,32 +1,37 @@
 /* ==========================================================
-   piloto.js - Datos del piloto 2027 que usan las páginas públicas
-   La ruta es la misma de compartido/cursos.json (propiedad "piloto").
-   Los cursos se buscan por su nombre (no por su número), así funciona igual
-   en la base de prueba y en la publicada, donde los números son otros.
+   piloto.js - La ruta del piloto 2027 que usan las páginas públicas
+   «Programación desde cero»: 5 módulos en orden. Fuera del piloto cada módulo
+   dura 2 semanas; en el piloto, 1 semana. Es la misma ruta de compartido/cursos.json.
+   Cada módulo es un curso en la base de datos y se busca por su nombre (no por su
+   número): así funciona igual en la base de prueba y en la publicada.
+   Las páginas públicas solo muestran los módulos de la ruta.
    ========================================================== */
 export const PILOTO = {
+  nombre: "Programación desde cero",
   ciudad: "Barranquilla",
   pais: "Colombia",
   periodo: "primer y segundo trimestre de 2027",
-  semanasPorCurso: 2,
+  semanasPorModulo: 1,        // en el piloto
+  semanasPorModuloNormal: 2,  // después del piloto
   ruta: [
-    { titulo: "HTML y CSS: tu primera página web", corto: "HTML y CSS", logro: "La estructura y el diseño de tu página." },
+    { titulo: "Lógica de programación", corto: "Lógica de programación", logro: "Pensar como programador: algoritmos, decisiones y ciclos." },
+    { titulo: "Git y GitHub", corto: "Git y GitHub", logro: "Guardar y publicar tu código como los equipos de verdad." },
+    { titulo: "HTML y CSS: tu primera página web", corto: "HTML y CSS", logro: "La estructura y el diseño de tu página web." },
     { titulo: "JavaScript para principiantes", corto: "JavaScript", logro: "Botones, menús y formularios que responden." },
-    { titulo: "Python desde cero", corto: "Python", logro: "El servidor que recibe lo que envía tu página." },
-    { titulo: "PostgreSQL: tu primera base de datos", corto: "PostgreSQL", logro: "Los datos de tu página, guardados para siempre." },
+    { titulo: "Bases de datos con SQL", corto: "Bases de datos con SQL", logro: "Guardar y consultar información con SQL." },
   ],
 };
 
 const clave = (texto) => String(texto || "").trim().toLocaleLowerCase("es");
 
-/* Posición del curso en la ruta (0, 1, 2, 3) o -1 si no es de la ruta */
+/* Posición del módulo en la ruta (0 a 4) o -1 si no es de la ruta */
 export const pasoDeRuta = (curso) => PILOTO.ruta.findIndex((p) => clave(p.titulo) === clave(curso?.titulo));
 
-/* Ordena los cursos: primero los de la ruta en su orden, después los demás */
-export function ordenarPorRuta(cursos) {
-  const peso = (c) => { const i = pasoDeRuta(c); return i < 0 ? 99 : i; };
-  return [...cursos].sort((a, b) => peso(a) - peso(b) || Number(a.id) - Number(b.id));
-}
+/* Solo los módulos de la ruta, en su orden */
+export const soloRuta = (cursos) => cursos.filter((c) => pasoDeRuta(c) >= 0).sort((a, b) => pasoDeRuta(a) - pasoDeRuta(b));
 
 /* Los pasos de la ruta con su curso del catálogo (si ya llegó de la API) */
 export const rutaConCursos = (cursos) => PILOTO.ruta.map((paso, i) => ({ ...paso, numero: i + 1, curso: cursos.find((c) => pasoDeRuta(c) === i) || null }));
+
+/* "1 semana" o "2 semanas" */
+export const semanas = (n) => `${Number(n) || 0} ${Number(n) === 1 ? "semana" : "semanas"}`;

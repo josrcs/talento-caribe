@@ -6,8 +6,8 @@ export const FORMAS_DE_SUMARSE = [
   { interes: "patrocinar", titulo: "Quiero patrocinar", texto: "Tu empresa o tu marca ayuda a que los cursos sigan siendo gratis.", icono: "🤝" },
   { interes: "donar", titulo: "Quiero donar", texto: "Computadores, materiales o recursos para las clases del piloto.", icono: "💻" },
   { interes: "espacio", titulo: "Quiero prestar un espacio", texto: "Un salón o una sala con internet en Barranquilla para las clases.", icono: "🏫" },
-  { interes: "mentor", titulo: "Quiero ser mentor", texto: "Si sabes de programación, acompaña a los estudiantes del piloto.", icono: "🧭" },
-  { interes: "estudiar", titulo: "Quiero estudiar", texto: "Aprende a crear tu página web desde cero, gratis, en Barranquilla.", icono: "🎓" },
+  { interes: "mentor", titulo: "Quiero sumarme como mentor", texto: "Aún no tenemos mentores. Si sabes de programación, acompaña a los jóvenes del piloto.", icono: "🧭" },
+  { interes: "estudiar", titulo: "Quiero estudiar", texto: "Aprende a programar desde cero, gratis, en Barranquilla.", icono: "🎓" },
   { interes: "difundir", titulo: "Quiero apoyar y difundir", texto: "Comparte Talento Caribe con jóvenes, colegios y tu comunidad.", icono: "📣" },
 ];
 

@@ -28,8 +28,9 @@ router.post("/inscripciones", requiereSesion, requiereRol("estudiante"), async (
   const cursoId = entero(req.body?.curso_id), numeroFicha = String(req.body?.ficha || "").trim();
   if (!cursoId) return res.status(400).json({ error: "Curso no válido." });
   try {
-    const curso = (await pool.query("SELECT id, edad_minima FROM cursos WHERE id = $1", [cursoId])).rows[0];
+    const curso = (await pool.query("SELECT id, edad_minima, fase FROM cursos WHERE id = $1", [cursoId])).rows[0];
     if (!curso) return res.status(404).json({ error: "Curso no encontrado." });
+    if (curso.fase !== "Lanzamiento") return res.status(400).json({ error: "Este curso todavía no tiene inscripciones abiertas." });
     // La ficha elegida (o la primera con inscripciones abiertas) debe ser de este curso
     const ficha = (await pool.query(
       `SELECT id FROM fichas WHERE curso_id = $1 AND estado = 'Inscripciones abiertas' AND ($2 = '' OR numero = $2) ORDER BY fecha_inicio NULLS LAST LIMIT 1`, [cursoId, numeroFicha])).rows[0];

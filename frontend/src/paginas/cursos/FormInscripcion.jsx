@@ -74,7 +74,7 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
           <button type="button" className="modal-cerrar" aria-label="Cerrar formulario" onClick={alCerrar}>&times;</button>
           <span className="eyebrow">Preinscripción gratuita</span>
           <h2 id="mi-titulo">Revisa tu información</h2>
-          <p className="modal-sub">{`Curso: ${curso.titulo} · Ficha ${ficha}`}</p>
+          <p className="modal-sub">{`Ruta: Programación desde cero · empiezas por ${curso.titulo} · Ficha ${ficha}`}</p>
           <p className="aviso-piloto" role="note">Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
           <div className="campo">
             <label htmlFor="i-pais">¿De qué país eres?</label>

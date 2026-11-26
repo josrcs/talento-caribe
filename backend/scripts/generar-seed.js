@@ -67,7 +67,7 @@ sql.push("\n-- Inscripciones de ejemplo en la ruta del piloto 2027");
 // curso, estudiante, estado, hace cuántos días, ficha. No hay actividades ni entregas de ejemplo:
 // los cursos del piloto todavía no tienen mentor asignado.
 const ins = [[1, "estudiante@talentocaribe.co", "aprobada", 6, "27101"], [1, "luis.gomez@correo.com", "aprobada", 5, "27101"], [1, "maria.torres@correo.com", "pendiente", 2, "27101"],
-  [2, "andrea.castro@correo.com", "pendiente", 1, "27102"], [3, "kevin.ariza@correo.com", "pendiente", 3, "27103"], [4, "daniela.ruiz@correo.com", "pendiente", 1, "27104"]];
+  [1, "andrea.castro@correo.com", "pendiente", 1, "27101"], [1, "kevin.ariza@correo.com", "pendiente", 3, "27101"], [1, "daniela.ruiz@correo.com", "pendiente", 1, "27101"]];
 sql.push("INSERT INTO inscripciones (curso_id, ficha_id, estudiante_id, edad, estado, creado_en) VALUES\n" + ins.map(([c, e, s, d, f]) => `  (${c}, ${fic(f)}, ${est(e)}, 17, '${s}', now() - interval '${d} days')`).join(",\n") + ";");
 
 sql.push("\n-- Respuestas de encuestas de ejemplo (compartido/encuestas.json)");
@@ -77,7 +77,7 @@ sql.push("INSERT INTO respuestas_encuesta (encuesta, estudiante_id, respuestas, 
 sql.push(`\n-- Configuración del asistente
 INSERT INTO config_ia (id, tono, contexto) VALUES (1,
   ${q("Cercano, motivador y en español sencillo, con orgullo caribeño. Responde como Talento Caribe y no inventes información.")},
-  ${q("Talento Caribe es una plataforma educativa gratuita para jóvenes. Su piloto 2027 es presencial en Barranquilla y solo para personas en Colombia: una ruta de 4 cursos de 2 semanas cada uno (HTML y CSS, JavaScript, Python y PostgreSQL) para crear una página web desde cero. Los cursos se harán en el primer y segundo trimestre de 2027 y las fechas se avisan por correo. Después el proyecto se extenderá por Latinoamérica.")});
+  ${q("Talento Caribe es una plataforma educativa gratuita para jóvenes. Su piloto 2027 es presencial en Barranquilla y solo para personas en Colombia: la ruta «Programación desde cero», con 5 módulos (Lógica de programación, Git y GitHub, HTML y CSS, JavaScript y Bases de datos con SQL). En el piloto cada módulo dura 1 semana (normalmente 2). Los grupos se harán en el primer y segundo trimestre de 2027 y las fechas se avisan por correo. Al terminar se entrega una constancia de participación, no un certificado oficial. Después el proyecto se extenderá por Latinoamérica.")});
 
 COMMIT;
 `);
