@@ -201,6 +201,17 @@ CREATE TABLE eventos_seguridad (
   creado_en   TIMESTAMPTZ  NOT NULL DEFAULT now()
 );
 
+-- ---------- Monitoría: cada contacto del equipo con un joven de la ruta o su acudiente ----------
+CREATE TABLE seguimiento_contactos (
+  id             SERIAL PRIMARY KEY,
+  estudiante_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+  autor_id       INTEGER     REFERENCES usuarios(id) ON DELETE SET NULL,
+  tipo           VARCHAR(12) NOT NULL CHECK (tipo IN ('WhatsApp', 'Llamada', 'Correo', 'Presencial', 'Otro')),
+  nota           TEXT        NOT NULL CHECK (length(nota) BETWEEN 3 AND 1000),
+  creado_en      TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+CREATE INDEX idx_seguimiento_estudiante ON seguimiento_contactos (estudiante_id, creado_en DESC);
+
 -- ---------- Cambios de datos que ya se aplicaron (npm run db:actualizar los hace una sola vez) ----------
 CREATE TABLE migraciones (
   nombre       VARCHAR(60) PRIMARY KEY,

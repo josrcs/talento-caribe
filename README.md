@@ -124,7 +124,9 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Portal del docente: cursos con guía de clase, actividades con plantillas, entregas por calificar y seguimiento
 - [x] Panel por cargo: indicadores, gráficas, actividad académica, cursos y fichas, inscripciones, mensajes, encuestas, finanzas, configuración de la IA, seguridad y cuentas
 - [x] Talento Caribe es una fundación: no hay Gerente. La **Dirección general** tiene acceso a todas las áreas y hace todo: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas, configura la IA y crea cuentas
-- [x] Cuentas: la Dirección general crea y elimina cuentas administrativas; la Dirección general y las direcciones académica y de tecnología crean cuentas de docentes (no hay docentes de prueba: el equipo las crea) y las desactivan o reactivan; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
+- [x] **Monitoría:** el cargo Monitor(a) (y la Dirección general) ve el seguimiento de cada joven de la ruta — módulo, entregas, promedio, último ingreso y alertas —, le escribe por WhatsApp o correo (a él o a su acudiente) y registra cada contacto (`GET /api/seguimiento`, `POST /api/seguimiento/:id/contactos`)
+- [x] Cargos: solo hay un director (la Dirección general); se quitaron los 5 directores de área
+- [x] Cuentas: la Dirección general crea y elimina cuentas administrativas y crea cuentas de docentes (no hay docentes de prueba: el equipo las crea) y las desactivan o reactivan; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
 - [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`, con respuestas locales de respaldo
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
 - [x] Encuesta pública y anónima (`encuesta.html`): cualquier visitante responde sin cuenta y el panel muestra los resultados

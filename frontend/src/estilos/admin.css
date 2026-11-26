@@ -194,3 +194,32 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .finance-panel, .my-course { background: var(--superficie); border-color: var(--linea); }
 .login-card, .portal-welcome { border-color: var(--linea); }
 
+
+/* ---------- Monitoría: seguimiento de la ruta ---------- */
+.seg-filtros { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .75rem; margin: 1.25rem 0 1rem; }
+.seg-filtros .campo { margin: 0; min-width: min(100%, 18rem); }
+.seg-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 22rem), 1fr)); }
+.seg-joven { display: grid; gap: .9rem; align-content: start; }
+.seg-joven-top { display: grid; grid-template-columns: auto 1fr auto; gap: .75rem; align-items: center; }
+.seg-joven-top h3 { margin: 0; font-size: 1.08rem; line-height: 1.2; }
+.seg-joven-sub { margin: .1rem 0 0; color: var(--color-slate-400); font-size: .82rem; }
+.seg-joven-etiqueta { margin: 0 0 .2rem; color: var(--acento); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.seg-joven-modulo { margin: 0; font-weight: 700; color: var(--texto-fuerte); }
+.seg-joven-modulo small { color: var(--color-slate-400); font-weight: 600; }
+/* Los 5 módulos de la ruta como soles: hecho (palma), actual (sol) y por venir */
+.seg-pasos { display: flex; gap: .35rem; margin: .5rem 0 0; padding: 0; list-style: none; }
+.seg-pasos li { flex: 1; height: .5rem; border-radius: 999px; background: var(--superficie-2); border: 1px solid var(--linea); }
+.seg-pasos li.hecho { background: var(--palma); border-color: var(--palma); }
+.seg-pasos li.actual { background: var(--sol); border-color: var(--sol); }
+.seg-joven-datos { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; margin: 0; }
+.seg-joven-datos div { padding: .55rem .65rem; border-radius: var(--radius-md); background: var(--superficie-2); }
+.seg-joven-datos dt { color: var(--color-slate-400); font-size: .72rem; font-weight: 700; }
+.seg-joven-datos dd { margin: .1rem 0 0; font-weight: 800; color: var(--texto-fuerte); font-size: .95rem; }
+.seg-alertas { display: flex; flex-wrap: wrap; gap: .35rem; margin: 0; padding: 0; list-style: none; }
+.seg-contacto { display: grid; gap: .45rem; padding-top: .75rem; border-top: 2px dashed var(--linea); }
+.seg-contacto .btn .icono { margin-right: .25rem; }
+.seg-historial summary { cursor: pointer; color: var(--color-slate-300); font-size: .88rem; font-weight: 700; }
+.seg-historial ol { display: grid; gap: .6rem; margin: .6rem 0 0; padding: 0; list-style: none; }
+.seg-historial li { padding: .6rem .75rem; border-radius: var(--radius-md); background: var(--superficie-2); }
+.seg-historial li small { color: var(--color-slate-400); }
+.seg-historial li p { margin: .3rem 0 0; font-size: .9rem; }

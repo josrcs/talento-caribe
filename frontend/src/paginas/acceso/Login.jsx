@@ -36,11 +36,7 @@ const HISTORIA = {
 export const CARGOS = [
   { grupo: "Directivos", items: [
     ["Director(a) general", "estrella", "Dirige la fundación · todas las áreas"],
-    ["Director(a) académico(a)", "birrete", "Programas de software"],
-    ["Director(a) de tecnología", "chip", "Programas de hardware"],
-    ["Director(a) de admisiones", "portapapeles", "Ingreso de estudiantes"],
-    ["Director(a) de comunicaciones", "megafono", "Información y aliados"],
-    ["Director(a) administrativo(a)", "billetera", "Operación y finanzas"],
+    ["Monitor(a)", "usuarios", "Acompaña a los jóvenes de la ruta"],
   ] },
   { grupo: "Coordinación", items: [
     ["Coordinador(a) académico(a)", "libro", "Catálogo de software"],

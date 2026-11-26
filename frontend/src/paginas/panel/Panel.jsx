@@ -25,6 +25,7 @@ import Encuestas from "./Encuestas.jsx";
 import ConfigIA from "./ConfigIA.jsx";
 import Seguridad, { contarSospechosas } from "./Seguridad.jsx";
 import Cuentas from "./Cuentas.jsx";
+import Seguimiento from "./Seguimiento.jsx";
 
 const sesion = leerSesion();
 // Solo el equipo administrativo entra al panel
@@ -42,7 +43,7 @@ function Asistente() {
 
 /* Orden del menú: [sección, ícono, texto, componente] */
 const SECCIONES = [
-  ["resumen", "casa", "Inicio", Resumen], ["area", "maletin", "Mi departamento", Area], ["academico", "birrete", "Actividad académica", Academico],
+  ["resumen", "casa", "Inicio", Resumen], ["area", "maletin", "Mi departamento", Area], ["seguimiento", "brujula", "Seguimiento", Seguimiento], ["academico", "birrete", "Actividad académica", Academico],
   ["cursos", "libro", "Cursos", Cursos], ["inscripciones", "portapapeles", "Inscripciones", Inscripciones], ["mensajes", "sobre", "Mensajes", Mensajes],
   ["encuestas", "chat", "Encuestas", Encuestas], ["asistente", "destello", "Asistente IA", Asistente], ["ia", "engranaje", "Configurar IA", ConfigIA],
   ["seguridad", "escudo", "Seguridad", Seguridad], ["cuentas", "usuarios", "Cuentas", Cuentas],
@@ -88,7 +89,7 @@ function PanelApp({ s }) {
   useEffect(() => { if (perfil.permitidas.has("seguridad")) contarSospechosas().then(setSospechosas); }, [perfil]);
   useEffect(() => { if (!cargando) setTimeout(() => iniciarGuia(GUIA, "tc_guia_admin"), 900); }, [cargando]);
 
-  // Catálogo visible para el cargo (las direcciones académica y de tecnología ven solo su área)
+  // Catálogo visible para el cargo (las coordinaciones académica y de tecnología ven solo su área)
   const cursosVisibles = D.cursos().filter((c) => !perfil.courseArea || c.area === perfil.courseArea);
   const contexto = useMemo(() => ({
     s, perfil, abrirSeccion, cursosVisibles,

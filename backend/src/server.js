@@ -54,6 +54,7 @@ app.use("/api", require("./rutas/academico"));
 app.use("/api", require("./rutas/encuestas"));
 app.use("/api", require("./rutas/admin"));
 app.use("/api", require("./rutas/cuentas"));
+app.use("/api", require("./rutas/seguimiento"));
 app.use("/api", (req, res) => res.status(404).json({ error: `No existe la ruta ${req.method} ${req.originalUrl}` }));
 
 /* ---------- Página web (React compilado en frontend/dist) ----------
