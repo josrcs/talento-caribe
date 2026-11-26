@@ -1,7 +1,9 @@
 /* ==========================================================
    piloto.js - La ruta del piloto 2027 que usan las páginas públicas
-   «Programación desde cero»: 5 módulos en orden. Fuera del piloto cada módulo
-   dura 2 semanas; en el piloto, 1 semana. Es la misma ruta de compartido/cursos.json.
+   «Programación desde cero»: 5 módulos en orden. Cada módulo dura 2 semanas, con una
+   clase presencial por semana. Es la misma ruta de compartido/cursos.json.
+   Estado: en planeación. Todavía no hay inscripciones: se reciben solicitudes y el
+   equipo las aprueba (la solicitud se guarda en el primer módulo).
    Cada módulo es un curso en la base de datos y se busca por su nombre (no por su
    número): así funciona igual en la base de prueba y en la publicada.
    Las páginas públicas solo muestran los módulos de la ruta.
@@ -11,8 +13,9 @@ export const PILOTO = {
   ciudad: "Barranquilla",
   pais: "Colombia",
   periodo: "primer y segundo trimestre de 2027",
-  semanasPorModulo: 1,        // en el piloto
-  semanasPorModuloNormal: 2,  // después del piloto
+  estado: "En planeación",
+  semanasPorModulo: 2,
+  clasesPorSemana: 1,
   ruta: [
     { titulo: "Lógica de programación", corto: "Lógica de programación", logro: "Pensar como programador: algoritmos, decisiones y ciclos." },
     { titulo: "Git y GitHub", corto: "Git y GitHub", logro: "Guardar y publicar tu código como los equipos de verdad." },

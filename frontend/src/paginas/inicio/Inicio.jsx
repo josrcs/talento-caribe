@@ -3,8 +3,9 @@
    Hero, cifras, la ruta «Programación desde cero» (5 módulos), calendario,
    cómo se aprende, proceso, mentores (buscamos mentores), Súmate, nosotros,
    preguntas frecuentes, asistente IA y contacto.
-   Piloto: presencial en Barranquilla, solo para personas en Colombia, y cada
-   módulo dura 1 semana (fuera del piloto, 2). Al terminar se entrega una
+   Estado: EN PLANEACIÓN (el piloto se lanza en 2027). Aún no hay inscripciones: se
+   envían solicitudes y el equipo las aprueba. Presencial en Barranquilla, solo para
+   personas en Colombia; cada módulo dura 2 semanas, con una clase por semana. Al terminar se entrega una
    constancia de participación (no un certificado: eso exige el aval de la
    Secretaría de Educación).
    ========================================================== */
@@ -28,7 +29,7 @@ const ENLACES = [
   { href: "#preguntas", texto: "Preguntas" },
   { href: "#contacto", texto: "Contacto" },
 ];
-const INSCRIBIRME = "cursos.html?inscribirme=1";
+const SOLICITAR = "cursos.html?inscribirme=1"; // envía la solicitud de cupo (el equipo la aprueba)
 
 /* Edad mínima: sale de los módulos de la ruta (cada uno la define en el panel) */
 function calcularEdades(cursos) {
@@ -54,22 +55,21 @@ export default function Inicio() {
     return () => vigia.disconnect();
   }, []);
   const modulos = PILOTO.ruta.length;
-  const clases = ruta.length ? ruta.reduce((total, c) => total + (c.modulos || []).length, 0) : modulos * 2;
 
   return (
     <>
       <a className="skip-link" href="#contenido">Saltar al contenido</a>
-      <EncabezadoPublico enlaces={ENLACES} ultimo={<li className="nav-acciones"><a href="admin/login.html" className="btn btn-outline">Ingresar</a><a href={INSCRIBIRME} className="btn btn-primary">Inscríbete</a></li>} />
+      <EncabezadoPublico enlaces={ENLACES} ultimo={<li className="nav-acciones"><a href="admin/login.html" className="btn btn-outline">Ingresar</a><a href={SOLICITAR} className="btn btn-primary">Solicita tu cupo</a></li>} />
       <main id="contenido">
       {/* Hero: qué es el piloto y qué ves por dentro (una clase real del primer módulo) */}
       <section className="hero" aria-labelledby="hero-titulo">
         <div className="container hero-grid">
           <div className="hero-texto">
-            <p className="eyebrow">Piloto 2027 · Barranquilla · Gratis</p>
+            <p className="eyebrow">En planeación · Piloto 2027 · Barranquilla</p>
             <h1 id="hero-titulo">Aprende a programar desde cero, gratis y en Barranquilla.</h1>
-            <p className="hero-lead">Talento Caribe abre su primer piloto: la ruta «Programación desde cero», con 5 módulos presenciales. Empiezas con lógica de programación y terminas creando tu página web y tu primera base de datos.</p>
+            <p className="hero-lead">Talento Caribe prepara su primer piloto para 2027: la ruta «Programación desde cero», con 5 módulos presenciales. Empiezas con lógica de programación y terminas creando tu página web y tu primera base de datos.</p>
             <div className="hero-acciones">
-              <a href={INSCRIBIRME} className="btn btn-primary btn-flecha">Inscríbete a la ruta</a>
+              <a href={SOLICITAR} className="btn btn-primary btn-flecha">Solicita tu cupo</a>
               <a href="#ruta" className="btn btn-outline">Ver la ruta</a>
             </div>
             <ul className="hero-garantias">
@@ -87,7 +87,7 @@ export default function Inicio() {
             <div className="muestra-cuerpo">
               <h2 id="muestra-titulo" className="muestra-titulo">Pensar en pasos</h2>
               <div className="muestra-avance">
-                <span>Clase 1 de 2</span>
+                <span>Semana 1 de 2</span>
                 <span className="muestra-barra" aria-hidden="true"><span></span></span>
               </div>
               <ul className="muestra-temas" aria-label="Temas de la clase">
@@ -110,8 +110,8 @@ export default function Inicio() {
       <section className="cifras" aria-label="El piloto en cifras">
         <div className="container cifras-grid">
           <div className="cifra"><strong data-contar>{modulos}</strong><span>módulos en la ruta</span></div>
-          <div className="cifra"><strong data-contar>{PILOTO.semanasPorModulo}</strong><span>semana por módulo en el piloto</span></div>
-          <div className="cifra"><strong data-contar>{clases}</strong><span>clases prácticas</span></div>
+          <div className="cifra"><strong data-contar>{PILOTO.semanasPorModulo}</strong><span>semanas por módulo</span></div>
+          <div className="cifra"><strong data-contar>{PILOTO.clasesPorSemana}</strong><span>clase presencial por semana</span></div>
           <div className="cifra"><strong>0</strong><span>pesos de matrícula</span></div>
         </div>
       </section>
@@ -125,9 +125,13 @@ export default function Inicio() {
             <p className="section-intro">Una sola ruta, pensada para que un joven aprenda a programar sin saber nada. Cada módulo usa lo que aprendiste en el anterior: de pensar en pasos a crear tu página web con su base de datos.</p>
           </div>
           <RutaPiloto />
-          <p className="aviso-piloto aviso-piloto-grande" role="note" data-revelar><strong>En la fase piloto cada módulo dura 1 semana.</strong> Normalmente cada módulo dura 2 semanas; en el piloto lo hacemos en 1 para probar la ruta completa. La ruta del piloto dura en total 5 semanas.</p>
+          <div className="ruta-resumen" data-revelar>
+            <p><strong>2 semanas</strong> por módulo</p>
+            <p><strong>1 clase</strong> presencial por semana</p>
+            <p><strong>10 semanas</strong> la ruta completa</p>
+          </div>
           <div className="ruta-acciones" data-revelar>
-            <a href={INSCRIBIRME} className="btn btn-primary btn-flecha">Inscríbete a la ruta</a>
+            <a href={SOLICITAR} className="btn btn-primary btn-flecha">Solicita tu cupo</a>
             <a href="cursos.html" className="btn btn-outline">Ver el detalle de cada módulo</a>
           </div>
         </div>
@@ -139,23 +143,23 @@ export default function Inicio() {
           <div className="section-cabecera" data-revelar>
             <span className="eyebrow">Calendario</span>
             <h2 id="calendario-titulo">¿Cuándo empiezan las clases?</h2>
-            <p className="section-intro">Los grupos del piloto se harán durante el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
+            <p className="section-intro">Estamos en planeación. El piloto se lanza en 2027: la ruta dura unas 10 semanas, así que caben dos grupos, uno por trimestre. A quienes queden les avisamos por correo la fecha y el horario.</p>
           </div>
           <ol className="calendario" data-escalonar>
             <li className="calendario-paso is-ahora">
               <span className="calendario-cuando">Hoy</span>
-              <h3>Inscripciones abiertas</h3>
-              <p>Crea tu cuenta e inscríbete a la ruta.</p>
+              <h3>En planeación</h3>
+              <p>Recibimos solicitudes. El equipo las revisa y las aprueba.</p>
             </li>
             <li className="calendario-paso">
               <span className="calendario-cuando">Enero a marzo de 2027</span>
-              <h3>Primer trimestre</h3>
-              <p>Empiezan los primeros grupos en Barranquilla.</p>
+              <h3>Primer grupo</h3>
+              <p>La ruta completa con el primer grupo en Barranquilla.</p>
             </li>
             <li className="calendario-paso">
               <span className="calendario-cuando">Abril a junio de 2027</span>
-              <h3>Segundo trimestre</h3>
-              <p>Abrimos más grupos de la ruta.</p>
+              <h3>Segundo grupo</h3>
+              <p>Otro grupo hace la ruta, con lo que aprendimos del primero.</p>
             </li>
             <li className="calendario-paso is-futuro">
               <span className="calendario-cuando">Después del piloto</span>
@@ -164,36 +168,36 @@ export default function Inicio() {
             </li>
           </ol>
           <div className="aviso-piloto aviso-piloto-grande" role="note" data-revelar>
-            <strong>Por ahora, solo Colombia.</strong> Las clases del piloto son presenciales en Barranquilla, así que solo pueden inscribirse personas en Colombia. Si estás en otro país, súmate a la comunidad y te avisaremos cuando lleguemos.
+            <strong>Por ahora, solo Colombia.</strong> Las clases del piloto son presenciales en Barranquilla, así que solo pueden enviar su solicitud personas en Colombia. Si estás en otro país, súmate a la comunidad y te avisaremos cuando lleguemos.
           </div>
         </div>
       </section>
 
-      {/* Método: cómo es cada módulo en el piloto (1 semana, 2 clases) */}
+      {/* Método: cada módulo dura 2 semanas, con una clase por semana */}
       <section id="metodo" className="section" aria-labelledby="metodo-titulo">
         <div className="container">
           <div className="section-cabecera" data-revelar>
             <span className="eyebrow">Cómo se aprende</span>
-            <h2 id="metodo-titulo">En el piloto, cada módulo dura una semana</h2>
-            <p className="section-intro">Cada módulo tiene dos clases presenciales en la semana. En la primera aprendes y practicas; en la segunda construyes y muestras lo que hiciste.</p>
+            <h2 id="metodo-titulo">Dos semanas por módulo, una clase por semana</h2>
+            <p className="section-intro">Pensado para que puedas venir aunque estudies o trabajes: una clase presencial por semana, de 2 a 3 horas. Entre una clase y otra te dejamos un reto corto para la casa.</p>
           </div>
           <div className="semanas">
             <article className="semana" data-revelar>
-              <h3><span>Clase 1</span> Entender y practicar</h3>
+              <h3><span>Semana 1</span> Entender y practicar</h3>
               <ol className="semana-pasos">
                 <li><strong>Aprender</strong><p>El tema nuevo en palabras sencillas y con un ejemplo en pantalla.</p></li>
                 <li className="practica"><strong>Practicar</strong><p>Lo haces tú, con ayuda, y resuelves tus dudas.</p></li>
               </ol>
             </article>
             <article className="semana" data-revelar>
-              <h3><span>Clase 2</span> Construir y mostrar</h3>
+              <h3><span>Semana 2</span> Construir y mostrar</h3>
               <ol className="semana-pasos">
                 <li className="practica"><strong>Construir</strong><p>Un reto más grande que resuelves por tu cuenta.</p></li>
                 <li><strong>Mostrar</strong><p>Presentas tu avance, recibes sugerencias y entregas lo del módulo.</p></li>
               </ol>
             </article>
           </div>
-          <p className="semanas-nota" data-revelar><span className="semana-leyenda" aria-hidden="true"></span> Más de la mitad del tiempo de clase es práctica: tú con las manos en el código.</p>
+          <p className="semanas-nota" data-revelar><span className="semana-leyenda" aria-hidden="true"></span> Más de la mitad del tiempo de clase es práctica. Y entre semana, un reto de 20 a 30 minutos que puedes hacer hasta desde el celular.</p>
         </div>
       </section>
 
@@ -202,13 +206,13 @@ export default function Inicio() {
         <div className="container">
           <div className="section-cabecera" data-revelar>
             <span className="eyebrow">El proceso</span>
-            <h2 id="pasos-titulo">De la inscripción a tu constancia de participación</h2>
+            <h2 id="pasos-titulo">De tu solicitud a tu constancia de participación</h2>
           </div>
           <ol className="pasos" data-escalonar>
             <li><h3>Crea tu cuenta</h3><p>Regístrate gratis. Si eres menor de edad, te pedimos los datos de un acudiente.</p><span className="paso-tiempo">10 minutos</span></li>
-            <li><h3>Inscríbete a la ruta</h3><p>Envía tu solicitud. El equipo revisa tu cupo.</p><span className="paso-tiempo">5 minutos</span></li>
-            <li><h3>Te avisamos</h3><p>Te escribimos al correo con la fecha, el horario y el lugar de tu grupo en Barranquilla.</p><span className="paso-tiempo">Antes de empezar</span></li>
-            <li><h3>Aprende y construye</h3><p>Cinco módulos de una semana. Al terminar recibes tu constancia de participación.</p><span className="paso-tiempo">5 semanas</span></li>
+            <li><h3>Envía tu solicitud</h3><p>Pide tu cupo en la ruta. Todavía no es una inscripción: el equipo revisa cada solicitud.</p><span className="paso-tiempo">5 minutos</span></li>
+            <li><h3>La aprobamos</h3><p>Si quedas, te escribimos al correo con la fecha, el horario y el lugar de tu grupo en Barranquilla.</p><span className="paso-tiempo">Antes del piloto</span></li>
+            <li><h3>Aprende y construye</h3><p>Cinco módulos de dos semanas. Al terminar recibes tu constancia de participación.</p><span className="paso-tiempo">10 semanas</span></li>
           </ol>
         </div>
       </section>
@@ -275,8 +279,12 @@ export default function Inicio() {
               <p>Recibes una constancia de participación. No es un certificado oficial: para certificar un curso en Colombia se necesita el aval de la Secretaría de Educación, y en el piloto todavía no lo tenemos. Te lo decimos desde ahora para que sepas exactamente qué recibes.</p>
             </details>
             <details>
+              <summary>¿Ya me puedo inscribir?</summary>
+              <p>Todavía no: estamos en planeación. Lo que puedes hacer es enviar tu solicitud de cupo. El equipo revisa cada solicitud y, si quedas, te avisamos por correo.</p>
+            </details>
+            <details>
               <summary>¿Cuándo empiezan las clases?</summary>
-              <p>Durante el primer y el segundo trimestre de 2027. Cuando te inscribas, te avisaremos por correo la fecha y el horario de tu grupo.</p>
+              <p>El piloto se lanza en 2027, entre el primer y el segundo trimestre. Si tu solicitud es aprobada, te avisaremos por correo la fecha y el horario de tu grupo.</p>
             </details>
             <details>
               <summary>¿Dónde son las clases?</summary>
@@ -296,7 +304,7 @@ export default function Inicio() {
             </details>
             <details>
               <summary>¿Cuánto tiempo le tengo que dedicar?</summary>
-              <p>En el piloto cada módulo dura 1 semana, con 2 clases. La ruta completa son 5 módulos: unas 5 semanas. Después del piloto, cada módulo durará 2 semanas.</p>
+              <p>Cada módulo dura 2 semanas, con una clase presencial por semana de 2 a 3 horas, más un reto corto para la casa. La ruta completa son 5 módulos: unas 10 semanas.</p>
             </details>
             <details>
               <summary>¿Qué recibo al terminar?</summary>
@@ -338,10 +346,10 @@ export default function Inicio() {
         <div className="container cta-final-caja" data-revelar>
           <div>
             <h2 id="cta-titulo">Tu primer programa empieza aquí.</h2>
-            <p>Las inscripciones del piloto 2027 en Barranquilla ya están abiertas. Te avisaremos la fecha de tu grupo.</p>
+            <p>Estamos preparando el piloto 2027 en Barranquilla. Envía tu solicitud y te avisaremos si quedas.</p>
           </div>
           <div className="cta-final-acciones">
-            <a href={INSCRIBIRME} className="btn btn-primary">Inscríbete a la ruta</a>
+            <a href={SOLICITAR} className="btn btn-primary">Solicita tu cupo</a>
             <a href="#sumate" className="btn btn-outline">Súmate a la comunidad</a>
           </div>
         </div>

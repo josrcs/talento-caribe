@@ -60,7 +60,7 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
       const usuario = await pedir("PUT", "/auth/perfil", perfil);
       guardarSesion({ ...sesion, ...usuario, token: sesion.token });
       await acciones.inscribir(curso.id, ficha);
-      setEstado("Tu solicitud quedó guardada. Te avisaremos cuando el equipo de admisiones confirme tu cupo.");
+      setEstado("Tu solicitud quedó guardada. Estamos en planeación: el equipo la revisará y te avisaremos por correo si quedas en el piloto 2027.");
     } catch (problema) {
       setEstado(problema.message || "No pudimos enviar la solicitud. Inténtalo de nuevo.");
     } finally { setEnviando(false); }
@@ -72,10 +72,10 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
       {curso && (
         <form id="form-inscripcion" className="modal-contenido form" noValidate onSubmit={enviar}>
           <button type="button" className="modal-cerrar" aria-label="Cerrar formulario" onClick={alCerrar}>&times;</button>
-          <span className="eyebrow">Preinscripción gratuita</span>
+          <span className="eyebrow">Solicitud de cupo · gratis</span>
           <h2 id="mi-titulo">Revisa tu información</h2>
           <p className="modal-sub">{`Ruta: Programación desde cero · empiezas por ${curso.titulo} · Ficha ${ficha}`}</p>
-          <p className="aviso-piloto" role="note">Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
+          <p className="aviso-piloto" role="note">Esto no es una inscripción todavía: es tu solicitud de cupo. El equipo la revisa y, si quedas, te avisamos por correo la fecha, el horario y el lugar de tu grupo en Barranquilla (2027).</p>
           <div className="campo">
             <label htmlFor="i-pais">¿De qué país eres?</label>
             <select id="i-pais" name="pais" required value={pais} onChange={(e) => setPais(e.target.value)}>
@@ -161,7 +161,7 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
                 <p className="nota-requisitos">Tu perfil y tu solicitud se guardan de forma segura en la base de datos de Talento Caribe. Solo el equipo de admisiones puede verlos.</p>
               </div>
               <div className="modal-acciones">
-                <BotonCarga cargando={enviando} id="inscripcion-enviar">Enviar preinscripción</BotonCarga>
+                <BotonCarga cargando={enviando} id="inscripcion-enviar">Enviar mi solicitud</BotonCarga>
                 <button type="button" className="btn btn-outline" onClick={alCerrar}>Cancelar</button>
               </div>
             </>

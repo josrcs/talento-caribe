@@ -2,7 +2,8 @@
    Cursos.jsx - La ruta del piloto 2027 (cursos.html)
    «Programación desde cero»: solo se muestran los 5 módulos de la ruta, en orden
    (los demás cursos que sigan en la base no aparecen en la página pública).
-   La inscripción es a la ruta: se hace en el primer módulo (Lógica de programación).
+   En planeación: todavía no hay inscripciones. Se envía una SOLICITUD de cupo a la ruta
+   (se guarda en el primer módulo) y el equipo la aprueba desde el panel.
    Enlaces que entiende:  ?curso=ID abre ese módulo · ?ficha=27101 filtra por ficha
                           ?inscribirme=1 empieza la inscripción a la ruta
                           ?continuar=ID vuelve del registro o del ingreso y sigue con la inscripción
@@ -83,10 +84,10 @@ export default function Cursos() {
         <section className="page-intro">
           <div className="container">
             <h1 data-revelar="titulo">{`La ruta: ${PILOTO.nombre}`}</h1>
-            <p data-revelar>Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. En la fase piloto cada módulo dura 1 semana (normalmente dura 2).</p>
-            <p className="aviso-piloto" data-revelar role="note"><strong>Por ahora, solo Colombia.</strong> Los grupos se harán en el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.</p>
+            <p data-revelar>Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. Cada módulo dura 2 semanas, con una clase por semana.</p>
+            <p className="aviso-piloto" data-revelar role="note"><strong>Estamos en planeación.</strong> El piloto se lanza en 2027 y todavía no hay inscripciones: puedes enviar tu solicitud de cupo y el equipo la revisa. Por ahora, solo personas en Colombia. Al terminar la ruta recibes una constancia de participación.</p>
             <div className="ruta-acciones" data-revelar>
-              <button type="button" className="btn btn-primary btn-flecha" disabled={!puedeInscribirse} onClick={inscribirse}>{puedeInscribirse ? "Inscribirme en la ruta" : "Inscripciones pronto"}</button>
+              <button type="button" className="btn btn-primary btn-flecha" disabled={!puedeInscribirse} onClick={inscribirse}>{puedeInscribirse ? "Solicitar mi cupo" : "Solicitudes pronto"}</button>
             </div>
           </div>
         </section>
@@ -123,9 +124,9 @@ export default function Cursos() {
                   {resultado.map((c) => (
                     <article className="curso-card" data-revelar="rapido" key={c.id}>
                       <div className="curso-etiquetas"><span className="tag">{c.nivel}</span><span className="tag">{c.modalidad}</span></div>
-                      <p className="ruta-paso-etiqueta">{`Módulo ${pasoDeRuta(c) + 1} de ${PILOTO.ruta.length}`}</p>
+                      <p className="camino-etiqueta">{`Módulo ${pasoDeRuta(c) + 1} de ${PILOTO.ruta.length}`}</p>
                       <h2>{c.titulo}</h2><p>{c.descripcion}</p>
-                      <p className="curso-duracion">{`${semanas(c.duracion)} en el piloto · ${(c.modulos || []).length} clases`}</p>
+                      <p className="curso-duracion">{`${semanas(c.duracion)} · ${(c.modulos || []).length} clases, una por semana`}</p>
                       <div className="curso-card-pie"><button type="button" className="btn btn-outline" onClick={() => abrirCurso(c.id)}>Ver el módulo</button></div>
                     </article>
                   ))}

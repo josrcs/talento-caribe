@@ -5,15 +5,16 @@
   "ciudad": "Barranquilla",
   "pais": "Colombia",
   "periodo": "Primer y segundo trimestre de 2027",
-  "semanasPorModulo": 1,
-  "semanasPorModuloFueraDelPiloto": 2,
+  "semanasPorModulo": 2,
   "modulos": [
    "Lógica de programación",
    "Git y GitHub",
    "HTML y CSS: tu primera página web",
    "JavaScript para principiantes",
    "Bases de datos con SQL"
-  ]
+  ],
+  "estado": "En planeación: se reciben solicitudes y el equipo las aprueba",
+  "clasesPorSemana": 1
  },
  "cursos": [
   {
@@ -21,7 +22,7 @@
    "titulo": "Lógica de programación",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 1,
+   "duracion": 2,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
@@ -35,16 +36,28 @@
    "modulos": [
     {
      "titulo": "Pensar en pasos",
-     "temas": ["Problema, entradas y salidas", "Algoritmos y pseudocódigo", "Diagramas de flujo"],
+     "temas": [
+      "Problema, entradas y salidas",
+      "Algoritmos y pseudocódigo",
+      "Diagramas de flujo"
+     ],
      "temasTexto": "Problema, entradas y salidas, algoritmos y pseudocódigo, diagramas de flujo",
-     "actividades": ["Convertir una rutina diaria en un algoritmo claro, paso a paso."],
+     "actividades": [
+      "Convertir una rutina diaria en un algoritmo claro, paso a paso."
+     ],
      "evidencia": "Algoritmo escrito paso a paso."
     },
     {
      "titulo": "Variables, decisiones y ciclos",
-     "temas": ["Variables y operadores", "Condicionales", "Ciclos"],
+     "temas": [
+      "Variables y operadores",
+      "Condicionales",
+      "Ciclos"
+     ],
      "temasTexto": "Variables y operadores, condicionales, ciclos",
-     "actividades": ["Escribir en PSeInt el juego de adivinar el número."],
+     "actividades": [
+      "Escribir en PSeInt el juego de adivinar el número."
+     ],
      "evidencia": "Archivo de PSeInt con el juego funcionando."
     }
    ],
@@ -52,7 +65,11 @@
     "modalidad": "Clase presencial en Barranquilla: plantea un problema cotidiano, resuélvelo en el tablero con el grupo y deja que cada estudiante lo pase a PSeInt.",
     "nota": "",
     "reto": "Cambia el juego para que avise si el número está cerca o lejos.",
-    "preguntas": ["¿Qué datos necesita tu algoritmo?", "¿Qué decisión toma?", "¿Qué se repite?"]
+    "preguntas": [
+     "¿Qué datos necesita tu algoritmo?",
+     "¿Qué decisión toma?",
+     "¿Qué se repite?"
+    ]
    },
    "edadMinima": 14
   },
@@ -61,7 +78,7 @@
    "titulo": "Git y GitHub",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 1,
+   "duracion": 2,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
@@ -75,16 +92,28 @@
    "modulos": [
     {
      "titulo": "Tu primer repositorio",
-     "temas": ["Qué es el control de versiones", "git init, add y commit", "Ver el historial"],
+     "temas": [
+      "Qué es el control de versiones",
+      "git init, add y commit",
+      "Ver el historial"
+     ],
      "temasTexto": "Qué es el control de versiones, git init, add y commit, ver el historial",
-     "actividades": ["Crear un repositorio y guardar tus ejercicios de lógica con varios commits."],
+     "actividades": [
+      "Crear un repositorio y guardar tus ejercicios de lógica con varios commits."
+     ],
      "evidencia": "Repositorio con al menos tres commits."
     },
     {
      "titulo": "Trabajar con GitHub",
-     "temas": ["Subir con push", "Ramas", "Pull requests"],
+     "temas": [
+      "Subir con push",
+      "Ramas",
+      "Pull requests"
+     ],
      "temasTexto": "Subir con push, ramas, pull requests",
-     "actividades": ["Subir tu repositorio a GitHub y proponer un cambio desde una rama."],
+     "actividades": [
+      "Subir tu repositorio a GitHub y proponer un cambio desde una rama."
+     ],
      "evidencia": "Enlace a tu repositorio en GitHub."
     }
    ],
@@ -92,7 +121,11 @@
     "modalidad": "Clase presencial en Barranquilla: muestra cada comando en pantalla, deja que lo repitan en su computador y revisen juntos el historial.",
     "nota": "",
     "reto": "Crea una rama nueva, cambia un archivo y únela a la rama principal.",
-    "preguntas": ["¿Qué guardó tu commit?", "¿Cómo vuelves a una versión anterior?", "¿Para qué sirve una rama?"]
+    "preguntas": [
+     "¿Qué guardó tu commit?",
+     "¿Cómo vuelves a una versión anterior?",
+     "¿Para qué sirve una rama?"
+    ]
    },
    "edadMinima": 14
   },
@@ -101,7 +134,7 @@
    "titulo": "HTML y CSS: tu primera página web",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 1,
+   "duracion": 2,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
@@ -115,16 +148,28 @@
    "modulos": [
     {
      "titulo": "Estructura con HTML",
-     "temas": ["Cómo funciona una página web", "Etiquetas y estructura", "Enlaces e imágenes"],
+     "temas": [
+      "Cómo funciona una página web",
+      "Etiquetas y estructura",
+      "Enlaces e imágenes"
+     ],
      "temasTexto": "Cómo funciona una página web, etiquetas y estructura, enlaces e imágenes",
-     "actividades": ["Escribir la estructura de una página sobre ti con títulos, párrafos, una imagen y enlaces."],
+     "actividades": [
+      "Escribir la estructura de una página sobre ti con títulos, párrafos, una imagen y enlaces."
+     ],
      "evidencia": "Archivo index.html con la estructura de tu página."
     },
     {
      "titulo": "Diseño con CSS y publicación",
-     "temas": ["Colores, fuentes y modelo de caja", "Diseño responsive", "Publicar con GitHub Pages"],
+     "temas": [
+      "Colores, fuentes y modelo de caja",
+      "Diseño responsive",
+      "Publicar con GitHub Pages"
+     ],
      "temasTexto": "Colores, fuentes y modelo de caja, diseño responsive, publicar con GitHub Pages",
-     "actividades": ["Darle estilo a tu página, hacer que se vea bien en el celular y publicarla."],
+     "actividades": [
+      "Darle estilo a tu página, hacer que se vea bien en el celular y publicarla."
+     ],
      "evidencia": "Enlace público de tu página."
     }
    ],
@@ -132,7 +177,11 @@
     "modalidad": "Clase presencial en Barranquilla: explica con un ejemplo en pantalla, deja que cada estudiante lo repita en su página y cierra mostrando el avance de dos o tres personas.",
     "nota": "",
     "reto": "Agrega una sección nueva a tu página y comprueba que se siga viendo bien en un celular.",
-    "preguntas": ["¿Qué ve primero la persona que entra a tu página?", "¿Cómo se ve en una pantalla pequeña?", "¿Cómo lo comprobarías?"]
+    "preguntas": [
+     "¿Qué ve primero la persona que entra a tu página?",
+     "¿Cómo se ve en una pantalla pequeña?",
+     "¿Cómo lo comprobarías?"
+    ]
    },
    "edadMinima": 14
   },
@@ -141,7 +190,7 @@
    "titulo": "JavaScript para principiantes",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 1,
+   "duracion": 2,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
@@ -155,16 +204,28 @@
    "modulos": [
     {
      "titulo": "Bases de JavaScript",
-     "temas": ["Variables y tipos de datos", "Condicionales y ciclos", "Funciones"],
+     "temas": [
+      "Variables y tipos de datos",
+      "Condicionales y ciclos",
+      "Funciones"
+     ],
      "temasTexto": "Variables y tipos de datos, condicionales y ciclos, funciones",
-     "actividades": ["Crear una calculadora de descuentos para una tienda del barrio."],
+     "actividades": [
+      "Crear una calculadora de descuentos para una tienda del barrio."
+     ],
      "evidencia": "Calculadora funcionando en el navegador."
     },
     {
      "titulo": "JavaScript en tu página",
-     "temas": ["El DOM", "Eventos y clics", "Validar formularios"],
+     "temas": [
+      "El DOM",
+      "Eventos y clics",
+      "Validar formularios"
+     ],
      "temasTexto": "El DOM, eventos y clics, validar formularios",
-     "actividades": ["Agregar a tu página un menú, un modo oscuro y un formulario que revisa los datos."],
+     "actividades": [
+      "Agregar a tu página un menú, un modo oscuro y un formulario que revisa los datos."
+     ],
      "evidencia": "Tu página publicada con JavaScript."
     }
    ],
@@ -172,7 +233,11 @@
     "modalidad": "Clase presencial en Barranquilla: programa en vivo pensando en voz alta, deja que cada estudiante lo repita y revisen juntos los errores de la consola.",
     "nota": "",
     "reto": "Agrega un botón nuevo que cambie algo de la página y explica qué pasa paso a paso.",
-    "preguntas": ["¿Qué pasa cuando la persona hace clic?", "¿Qué pasa si escribe algo que no esperabas?", "¿Cómo lo compruebas en la consola?"]
+    "preguntas": [
+     "¿Qué pasa cuando la persona hace clic?",
+     "¿Qué pasa si escribe algo que no esperabas?",
+     "¿Cómo lo compruebas en la consola?"
+    ]
    },
    "edadMinima": 14
   },
@@ -181,7 +246,7 @@
    "titulo": "Bases de datos con SQL",
    "area": "Software",
    "nivel": "Básico",
-   "duracion": 1,
+   "duracion": 2,
    "modalidad": "Presencial",
    "fase": "Lanzamiento",
    "instructor": "Por asignar",
@@ -195,16 +260,28 @@
    "modulos": [
     {
      "titulo": "Tablas y datos",
-     "temas": ["Qué es una base de datos", "Tablas, filas y columnas", "CREATE TABLE e INSERT"],
+     "temas": [
+      "Qué es una base de datos",
+      "Tablas, filas y columnas",
+      "CREATE TABLE e INSERT"
+     ],
      "temasTexto": "Qué es una base de datos, tablas, filas y columnas, CREATE TABLE e INSERT",
-     "actividades": ["Crear en PostgreSQL la tabla de contactos de tu página y llenarla."],
+     "actividades": [
+      "Crear en PostgreSQL la tabla de contactos de tu página y llenarla."
+     ],
      "evidencia": "Script SQL que crea y llena la tabla."
     },
     {
      "titulo": "Consultas con SQL",
-     "temas": ["SELECT y WHERE", "UPDATE y DELETE", "Relacionar tablas con JOIN"],
+     "temas": [
+      "SELECT y WHERE",
+      "UPDATE y DELETE",
+      "Relacionar tablas con JOIN"
+     ],
      "temasTexto": "SELECT y WHERE, UPDATE y DELETE, relacionar tablas con JOIN",
-     "actividades": ["Responder preguntas sobre tus datos con consultas SQL y presentar tu proyecto de la ruta."],
+     "actividades": [
+      "Responder preguntas sobre tus datos con consultas SQL y presentar tu proyecto de la ruta."
+     ],
      "evidencia": "Archivo con las consultas y sus resultados."
     }
    ],
@@ -212,16 +289,55 @@
     "modalidad": "Clase presencial en Barranquilla: diseña la tabla en el tablero con el grupo, escribe las consultas en vivo y cierra con la presentación de los proyectos de la ruta.",
     "nota": "",
     "reto": "Agrega una tabla nueva y únela a la de contactos con JOIN.",
-    "preguntas": ["¿Qué información necesitas guardar?", "¿Cómo encuentras un dato?", "¿Qué pasa si borras un registro?"]
+    "preguntas": [
+     "¿Qué información necesitas guardar?",
+     "¿Cómo encuentras un dato?",
+     "¿Qué pasa si borras un registro?"
+    ]
    },
    "edadMinima": 14
   }
  ],
  "fichas": [
-  { "numero": "27101", "curso_id": 1, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
-  { "numero": "27102", "curso_id": 2, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
-  { "numero": "27103", "curso_id": 3, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
-  { "numero": "27104", "curso_id": 4, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" },
-  { "numero": "27105", "curso_id": 5, "jornada": "Por definir", "inicio": null, "cupos": 25, "estado": "Inscripciones abiertas" }
+  {
+   "numero": "27101",
+   "curso_id": 1,
+   "jornada": "Por definir",
+   "inicio": null,
+   "cupos": 25,
+   "estado": "Inscripciones abiertas"
+  },
+  {
+   "numero": "27102",
+   "curso_id": 2,
+   "jornada": "Por definir",
+   "inicio": null,
+   "cupos": 25,
+   "estado": "Inscripciones abiertas"
+  },
+  {
+   "numero": "27103",
+   "curso_id": 3,
+   "jornada": "Por definir",
+   "inicio": null,
+   "cupos": 25,
+   "estado": "Inscripciones abiertas"
+  },
+  {
+   "numero": "27104",
+   "curso_id": 4,
+   "jornada": "Por definir",
+   "inicio": null,
+   "cupos": 25,
+   "estado": "Inscripciones abiertas"
+  },
+  {
+   "numero": "27105",
+   "curso_id": 5,
+   "jornada": "Por definir",
+   "inicio": null,
+   "cupos": 25,
+   "estado": "Inscripciones abiertas"
+  }
  ]
 }

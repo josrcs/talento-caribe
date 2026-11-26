@@ -77,7 +77,7 @@ sql.push("INSERT INTO respuestas_encuesta (encuesta, estudiante_id, respuestas, 
 sql.push(`\n-- Configuración del asistente
 INSERT INTO config_ia (id, tono, contexto) VALUES (1,
   ${q("Cercano, motivador y en español sencillo, con orgullo caribeño. Responde como Talento Caribe y no inventes información.")},
-  ${q("Talento Caribe es una plataforma educativa gratuita para jóvenes. Su piloto 2027 es presencial en Barranquilla y solo para personas en Colombia: la ruta «Programación desde cero», con 5 módulos (Lógica de programación, Git y GitHub, HTML y CSS, JavaScript y Bases de datos con SQL). En el piloto cada módulo dura 1 semana (normalmente 2). Los grupos se harán en el primer y segundo trimestre de 2027 y las fechas se avisan por correo. Al terminar se entrega una constancia de participación, no un certificado oficial. Después el proyecto se extenderá por Latinoamérica.")});
+  ${q("Talento Caribe es una plataforma educativa gratuita para jóvenes. Su piloto 2027 es presencial en Barranquilla y solo para personas en Colombia: la ruta «Programación desde cero», con 5 módulos (Lógica de programación, Git y GitHub, HTML y CSS, JavaScript y Bases de datos con SQL). Cada módulo dura 2 semanas, con una clase presencial por semana. Está en planeación: se reciben solicitudes, el equipo las aprueba y los grupos se harán en el primer y segundo trimestre de 2027; las fechas se avisan por correo. Al terminar se entrega una constancia de participación, no un certificado oficial. Después el proyecto se extenderá por Latinoamérica.")});
 
 COMMIT;
 `);
