@@ -53,30 +53,27 @@ const versionSesion = (u) => (u.sesiones_desde ? new Date(u.sesiones_desde).getT
 const verificar = (token) => jwt.verify(token, SECRETO, { algorithms: ["HS256"], issuer: OPCIONES_JWT.issuer });
 
 /* Cargos administrativos y lo que puede hacer cada uno (igual que el panel) */
-const CARGOS = [
-  "Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología", "Director(a) de admisiones",
-  "Director(a) de comunicaciones", "Director(a) administrativo(a)", "Coordinador(a) académico(a)", "Coordinador(a) de tecnología",
-  "Coordinador(a) de admisiones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Administración y finanzas",
-  "Comunicaciones y alianzas", "Otro cargo administrativo",
-];
+const CARGOS = ["Director(a) general", "Monitor(a)", "Coordinador(a) académico(a)", "Coordinador(a) de tecnología", "Coordinador(a) de admisiones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Administración y finanzas", "Comunicaciones y alianzas", "Otro cargo administrativo"];
 // Talento Caribe es una fundación: no hay Gerente. El Director(a) general está en todos los permisos:
 // supervisa y puede corregir el trabajo de cada área, crear cuentas y todo lo demás.
 const PERMISOS = {
-  inscripciones: ["Director(a) general", "Director(a) de admisiones", "Coordinador(a) de admisiones", "Admisiones y registro"],
-  mensajes: ["Director(a) general", "Director(a) de admisiones", "Director(a) de comunicaciones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Comunicaciones y alianzas"],
-  editarCursos: ["Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología"],
+  inscripciones: ["Director(a) general", "Coordinador(a) de admisiones", "Admisiones y registro"],
+  mensajes: ["Director(a) general", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Comunicaciones y alianzas"],
+  editarCursos: ["Director(a) general"],
   eliminarCursos: ["Director(a) general"],      // borrar un curso con sus fichas, inscripciones y actividades
-  finanzas: ["Director(a) general", "Administración y finanzas", "Director(a) administrativo(a)"],
+  finanzas: ["Director(a) general", "Administración y finanzas"],
   supervisarAcademico: ["Director(a) general"], // editar o borrar actividades de cualquier docente y corregir notas
   cuentasEquipo: ["Director(a) general"],       // crear y eliminar cuentas administrativas
-  // crear docentes y desactivarlos: los mismos cargos que asignan el docente de cada curso
-  cuentasDocentes: ["Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología"],
+  // crear docentes y desactivarlos
+  cuentasDocentes: ["Director(a) general"],
   bloquearEstudiantes: ["Director(a) general", "Coordinador(a) de admisiones"], // bloquear estudiantes inactivos y desbloquearlos
   configurarIA: ["Director(a) general"],
-  seguridad: ["Director(a) general", "Director(a) de tecnología"],
+  seguridad: ["Director(a) general"],
+  // Monitoría: ver el avance de los jóvenes de la ruta, sus datos de contacto y registrar cada contacto
+  seguimiento: ["Director(a) general", "Monitor(a)"],
 };
 /* Área de cursos que ve cada cargo académico (los demás ven todo el catálogo) */
-const AREA_CARGO = { "Director(a) académico(a)": "Software", "Coordinador(a) académico(a)": "Software", "Director(a) de tecnología": "Hardware", "Coordinador(a) de tecnología": "Hardware" };
+const AREA_CARGO = { "Coordinador(a) académico(a)": "Software", "Coordinador(a) de tecnología": "Hardware" };
 const puede = (usuario, permiso) => usuario?.rol === "administrativo" && PERMISOS[permiso].includes(usuario.puesto);
 
 /* ---------- Sesiones ---------- */

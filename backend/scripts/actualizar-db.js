@@ -27,6 +27,8 @@
      presencial por semana (la duración sale de compartido/cursos.json).
    - Fundación (una sola vez): las cuentas con cargo «Gerente» pasan a «Director(a) general», que
      tiene todos los permisos, y se ELIMINAN las cuentas de docentes (con sus actividades y entregas).
+   - Monitoría (una sola vez): crea la tabla seguimiento_contactos; las cuentas con cargo de director de
+     área (académico, tecnología, admisiones, comunicaciones, administrativo) pasan a «Otro cargo administrativo».
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -102,6 +104,15 @@ const ESTRUCTURA = `
   ALTER TABLE mensajes_contacto ADD COLUMN IF NOT EXISTS politica_version       VARCHAR(10);
   ALTER TABLE respuestas_encuesta ALTER COLUMN estudiante_id DROP NOT NULL;
   CREATE TABLE IF NOT EXISTS migraciones (nombre VARCHAR(60) PRIMARY KEY, aplicada_en TIMESTAMPTZ NOT NULL DEFAULT now());
+  CREATE TABLE IF NOT EXISTS seguimiento_contactos (
+    id             SERIAL PRIMARY KEY,
+    estudiante_id  INTEGER     NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+    autor_id       INTEGER     REFERENCES usuarios(id) ON DELETE SET NULL,
+    tipo           VARCHAR(12) NOT NULL CHECK (tipo IN ('WhatsApp', 'Llamada', 'Correo', 'Presencial', 'Otro')),
+    nota           TEXT        NOT NULL CHECK (length(nota) BETWEEN 3 AND 1000),
+    creado_en      TIMESTAMPTZ NOT NULL DEFAULT now()
+  );
+  CREATE INDEX IF NOT EXISTS idx_seguimiento_estudiante ON seguimiento_contactos (estudiante_id, creado_en DESC);
   ALTER TABLE fichas ALTER COLUMN jornada TYPE VARCHAR(12);
   ALTER TABLE fichas DROP CONSTRAINT IF EXISTS fichas_jornada_check;
   ALTER TABLE fichas ADD CONSTRAINT fichas_jornada_check CHECK (jornada IN ('Mañana', 'Tarde', 'Noche', 'Sábados', 'Por definir'));
@@ -119,6 +130,17 @@ async function fundacionSinGerenteNiDocentes(db) {
   const { rowCount: docentes } = await db.query("DELETE FROM usuarios WHERE rol = 'docente'");
   await db.query("INSERT INTO migraciones (nombre) VALUES ('fundacion-sin-gerente-ni-docentes')");
   console.log(`✔ ${directores} cuenta(s) de Gerente pasaron a Director(a) general y se eliminaron ${docentes} cuenta(s) de docentes`);
+}
+
+/* Monitoría (una sola vez): ya no existen los 5 directores de área. Si alguna cuenta tenía uno de esos
+   cargos, pasa a «Otro cargo administrativo» (sin permisos especiales): el Director(a) general decide
+   después qué cargo darle. La tabla seguimiento_contactos se crea arriba (ESTRUCTURA). */
+async function monitoria(db) {
+  if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'monitoria'")).rowCount) return console.log("ℹ Cargos de monitoría ya estaban al día");
+  const { rowCount } = await db.query("UPDATE usuarios SET puesto = 'Otro cargo administrativo' WHERE puesto = ANY($1)",
+    [["Director(a) académico(a)", "Director(a) de tecnología", "Director(a) de admisiones", "Director(a) de comunicaciones", "Director(a) administrativo(a)"]]);
+  await db.query("INSERT INTO migraciones (nombre) VALUES ('monitoria')");
+  console.log(`✔ Monitoría lista; ${rowCount} cuenta(s) con cargo de director de área pasaron a «Otro cargo administrativo»`);
 }
 
 /* Ruta de 2 semanas por módulo, una clase por semana (una sola vez) */
@@ -187,6 +209,7 @@ async function main() {
     await piloto2027(db);
     await rutaDosSemanas(db);
     await fundacionSinGerenteNiDocentes(db);
+    await monitoria(db);
 
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);
