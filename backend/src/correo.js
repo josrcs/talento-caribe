@@ -121,8 +121,8 @@ module.exports = {
 
   bienvenida: (u) => enviar({
     para: u.correo, asunto: "Bienvenido a Talento Caribe", titulo: `¡Hola, ${primerNombre(u.nombre)}! Tu cuenta está lista`,
-    parrafos: ["Ya eres parte de Talento Caribe, la plataforma gratuita de cursos de software y hardware.",
-      "Para inscribirte, elige un curso y una ficha con inscripciones abiertas. El equipo de admisiones revisará tu solicitud y te avisaremos por este medio.",
+    parrafos: ["Ya eres parte de Talento Caribe, la ruta gratuita para aprender a programar desde cero en Barranquilla.",
+      "Estamos en planeación del piloto 2027. Desde la página de la ruta puedes enviar tu solicitud de cupo: el equipo la revisará y te avisaremos por este medio si quedas.",
       "Si no creaste esta cuenta, escríbenos desde el formulario de contacto de la página."],
     boton: { texto: "Ver los cursos", url: enlaces.cursos },
   }),
@@ -173,8 +173,8 @@ module.exports = {
 
   solicitudRecibida: (x) => enviar({
     para: x.correo, asunto: `Recibimos tu solicitud para ${x.titulo}`, titulo: "Tu solicitud está en revisión",
-    parrafos: [`Hola, ${primerNombre(x.nombre)}. Recibimos tu solicitud para el curso ${x.titulo}${x.ficha ? ` (ficha ${x.ficha}, jornada ${String(x.jornada).toLowerCase()})` : ""}.`,
-      "El equipo de admisiones la revisará y te escribiremos cuando tenga una respuesta."],
+    parrafos: [`Hola, ${primerNombre(x.nombre)}. Recibimos tu solicitud de cupo en la ruta «Programación desde cero» (empiezas por ${x.titulo}).`,
+      "Estamos en planeación del piloto 2027: el equipo la revisará y, si quedas, te escribiremos con la fecha, el horario y el lugar de tu grupo en Barranquilla."],
     boton: { texto: "Ir a mi espacio", url: enlaces.portal },
   }),
 

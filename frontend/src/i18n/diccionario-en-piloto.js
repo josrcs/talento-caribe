@@ -443,3 +443,90 @@
   };
   Object.assign(window.TC_EN, RUTA_EN);
 })();
+
+/* ---------- En planeación: solicitudes de cupo y módulos de 2 semanas ---------- */
+(() => {
+  const PLANEACION_EN = {
+  "Solicita tu cupo": "Request your spot",
+  "En planeación · Piloto 2027 · Barranquilla": "In planning · 2027 pilot · Barranquilla",
+  "Talento Caribe prepara su primer piloto para 2027: la ruta «Programación desde cero», con 5 módulos presenciales. Empiezas con lógica de programación y terminas creando tu página web y tu primera base de datos.":
+    "Talento Caribe is preparing its first pilot for 2027: the “Programming from scratch” path, with 5 in-person modules. You start with programming logic and finish by building your website and your first database.",
+  "semanas por módulo": "weeks per module",
+  "clase presencial por semana": "in-person class per week",
+  "Módulo # · # semanas": "Module # · # weeks",
+  "La meta": "The goal",
+  "Tu página web completa": "Your complete website",
+  "Con su base de datos, hecha por ti desde cero, y tu constancia de participación.": "With its database, built by you from scratch, and your proof of participation.",
+  "por módulo": "per module",
+  "presencial por semana": "in person per week",
+  "la ruta completa": "the full path",
+  "# semanas": "# weeks",
+  "# clase": "# class",
+  "Estamos en planeación. El piloto se lanza en 2027: la ruta dura unas 10 semanas, así que caben dos grupos, uno por trimestre. A quienes queden les avisamos por correo la fecha y el horario.":
+    "We're in the planning stage. The pilot launches in 2027: the path lasts about 10 weeks, so two groups fit, one per quarter. We'll email the date and time to those who get a spot.",
+  "Estamos en planeación. El piloto se lanza en #: la ruta dura unas # semanas, así que caben dos grupos, uno por trimestre. A quienes queden les avisamos por correo la fecha y el horario.":
+    "We're in the planning stage. The pilot launches in #: the path lasts about # weeks, so two groups fit, one per quarter. We'll email the date and time to those who get a spot.",
+  "En planeación": "In planning",
+  "Recibimos solicitudes. El equipo las revisa y las aprueba.": "We're taking requests. The team reviews and approves them.",
+  "Primer grupo": "First group",
+  "La ruta completa con el primer grupo en Barranquilla.": "The full path with the first group in Barranquilla.",
+  "Segundo grupo": "Second group",
+  "Otro grupo hace la ruta, con lo que aprendimos del primero.": "Another group takes the path, with what we learned from the first.",
+  "Las clases del piloto son presenciales en Barranquilla, así que solo pueden enviar su solicitud personas en Colombia. Si estás en otro país, súmate a la comunidad y te avisaremos cuando lleguemos.":
+    "Pilot classes are in person in Barranquilla, so only people in Colombia can send a request. If you're in another country, join the community and we'll let you know when we get there.",
+  "Dos semanas por módulo, una clase por semana": "Two weeks per module, one class per week",
+  "Pensado para que puedas venir aunque estudies o trabajes: una clase presencial por semana, de 2 a 3 horas. Entre una clase y otra te dejamos un reto corto para la casa.":
+    "Designed so you can come even if you study or work: one in-person class per week, 2 to 3 hours long. Between classes we give you a short challenge for home.",
+  "Pensado para que puedas venir aunque estudies o trabajes: una clase presencial por semana, de # a # horas. Entre una clase y otra te dejamos un reto corto para la casa.":
+    "Designed so you can come even if you study or work: one in-person class per week, # to # hours long. Between classes we give you a short challenge for home.",
+  "Más de la mitad del tiempo de clase es práctica. Y entre semana, un reto de 20 a 30 minutos que puedes hacer hasta desde el celular.":
+    "More than half of class time is hands-on. And during the week, a 20 to 30 minute challenge you can even do on your phone.",
+  "Más de la mitad del tiempo de clase es práctica. Y entre semana, un reto de # a # minutos que puedes hacer hasta desde el celular.":
+    "More than half of class time is hands-on. And during the week, a # to # minute challenge you can even do on your phone.",
+  "De tu solicitud a tu constancia de participación": "From your request to your proof of participation",
+  "Envía tu solicitud": "Send your request",
+  "Pide tu cupo en la ruta. Todavía no es una inscripción: el equipo revisa cada solicitud.": "Ask for a spot in the path. It isn't an enrollment yet: the team reviews every request.",
+  "La aprobamos": "We approve it",
+  "Si quedas, te escribimos al correo con la fecha, el horario y el lugar de tu grupo en Barranquilla.": "If you get a spot, we email you the date, time and place of your group in Barranquilla.",
+  "Antes del piloto": "Before the pilot",
+  "Cinco módulos de dos semanas. Al terminar recibes tu constancia de participación.": "Five two-week modules. At the end you get your proof of participation.",
+  "¿Ya me puedo inscribir?": "Can I enroll already?",
+  "Todavía no: estamos en planeación. Lo que puedes hacer es enviar tu solicitud de cupo. El equipo revisa cada solicitud y, si quedas, te avisamos por correo.":
+    "Not yet: we're in the planning stage. What you can do is send your request for a spot. The team reviews every request and, if you get one, we'll email you.",
+  "El piloto se lanza en 2027, entre el primer y el segundo trimestre. Si tu solicitud es aprobada, te avisaremos por correo la fecha y el horario de tu grupo.":
+    "The pilot launches in 2027, between the first and second quarters. If your request is approved, we'll email you your group's date and time.",
+  "El piloto se lanza en #, entre el primer y el segundo trimestre. Si tu solicitud es aprobada, te avisaremos por correo la fecha y el horario de tu grupo.":
+    "The pilot launches in #, between the first and second quarters. If your request is approved, we'll email you your group's date and time.",
+  "Cada módulo dura 2 semanas, con una clase presencial por semana de 2 a 3 horas, más un reto corto para la casa. La ruta completa son 5 módulos: unas 10 semanas.":
+    "Each module lasts 2 weeks, with one 2 to 3 hour in-person class per week, plus a short challenge for home. The full path is 5 modules: about 10 weeks.",
+  "Cada módulo dura # semanas, con una clase presencial por semana de # a # horas, más un reto corto para la casa. La ruta completa son # módulos: unas # semanas.":
+    "Each module lasts # weeks, with one # to # hour in-person class per week, plus a short challenge for home. The full path is # modules: about # weeks.",
+  "Estamos preparando el piloto 2027 en Barranquilla. Envía tu solicitud y te avisaremos si quedas.": "We're preparing the 2027 pilot in Barranquilla. Send your request and we'll let you know if you get a spot.",
+  "Estamos preparando el piloto # en Barranquilla. Envía tu solicitud y te avisaremos si quedas.": "We're preparing the # pilot in Barranquilla. Send your request and we'll let you know if you get a spot.",
+  "Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. Cada módulo dura 2 semanas, con una clase por semana.":
+    "Five free, in-person modules in Barranquilla to learn to code knowing nothing. Each module lasts 2 weeks, with one class per week.",
+  "Cinco módulos gratuitos y presenciales en Barranquilla para aprender a programar sin saber nada. Cada módulo dura # semanas, con una clase por semana.":
+    "Five free, in-person modules in Barranquilla to learn to code knowing nothing. Each module lasts # weeks, with one class per week.",
+  "Estamos en planeación.": "We're in the planning stage.",
+  "El piloto se lanza en 2027 y todavía no hay inscripciones: puedes enviar tu solicitud de cupo y el equipo la revisa. Por ahora, solo personas en Colombia. Al terminar la ruta recibes una constancia de participación.":
+    "The pilot launches in 2027 and there's no enrollment yet: you can send your request for a spot and the team reviews it. For now, only people in Colombia. At the end of the path you get a proof of participation.",
+  "Solicitar mi cupo": "Request my spot",
+  "Solicitudes pronto": "Requests coming soon",
+  "# semanas · # clases, una por semana": "# weeks · # classes, one per week",
+  "Duración": "Length",
+  "# clases presenciales, una por semana. Cada clase tiene sus temas y una práctica, y entre clase y clase hay un reto corto para la casa.":
+    "# in-person classes, one per week. Each class has its topics and a practice, and between classes there's a short challenge for home.",
+  "Semana #": "Week #",
+  "La solicitud es a la ruta completa: empiezas por el módulo 1 y sigues en orden. El equipo revisa cada solicitud y, si quedas, te avisamos por correo la fecha y el horario de tu grupo en Barranquilla (2027). Al terminar recibes una constancia de participación.":
+    "The request is for the whole path: you start with module 1 and continue in order. The team reviews every request and, if you get a spot, we'll email you your group's date and time in Barranquilla (2027). At the end you get a proof of participation.",
+  "La solicitud es a la ruta completa: empiezas por el módulo # y sigues en orden. El equipo revisa cada solicitud y, si quedas, te avisamos por correo la fecha y el horario de tu grupo en Barranquilla (#). Al terminar recibes una constancia de participación.":
+    "The request is for the whole path: you start with module # and continue in order. The team reviews every request and, if you get a spot, we'll email you your group's date and time in Barranquilla (#). At the end you get a proof of participation.",
+  "Solicitud de cupo · gratis": "Spot request · free",
+  "Enviar mi solicitud": "Send my request",
+  "Tu solicitud quedó guardada. Estamos en planeación: el equipo la revisará y te avisaremos por correo si quedas en el piloto 2027.":
+    "Your request was saved. We're in the planning stage: the team will review it and email you if you get a spot in the 2027 pilot.",
+  "Esto no es una inscripción todavía: es tu solicitud de cupo. El equipo la revisa y, si quedas, te avisamos por correo la fecha, el horario y el lugar de tu grupo en Barranquilla (2027).":
+    "This isn't an enrollment yet: it's your request for a spot. The team reviews it and, if you get one, we'll email you the date, time and place of your group in Barranquilla (2027).",
+  };
+  Object.assign(window.TC_EN, PLANEACION_EN);
+})();

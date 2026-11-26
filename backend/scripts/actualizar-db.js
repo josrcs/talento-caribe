@@ -17,12 +17,14 @@
      de la autorización, y a mensajes_contacto la versión aceptada al escribir.
    - Encuesta pública: respuestas_encuesta.estudiante_id puede quedar vacío (respuestas anónimas sin cuenta).
    - Piloto 2027 (una sola vez, se anota en la tabla migraciones): las fichas aceptan la jornada
-     «Por definir», el contacto acepta los intereses de «Súmate» y se cargan los 4 cursos de la ruta
+     «Por definir», el contacto acepta los intereses de «Súmate» y se cargan los 5 módulos de la ruta
      del piloto «Programación desde cero» (Lógica de programación → Git y GitHub → HTML y CSS →
-     JavaScript → Bases de datos con SQL; en el piloto cada módulo dura 1 semana). Si un curso con
+     JavaScript → Bases de datos con SQL). Si un curso con
      el mismo nombre ya existe se actualiza (conserva sus inscripciones); sus fichas viejas quedan
      «Finalizada». Los demás cursos NO se borran: pasan a «Próximamente» (nadie se puede inscribir y
      la página pública no los muestra) y el Gerente puede eliminarlos desde el panel.
+   - Ruta de 2 semanas (una sola vez): cada módulo de la ruta pasa a durar 2 semanas, con una clase
+     presencial por semana (la duración sale de compartido/cursos.json).
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -106,7 +108,19 @@ const ESTRUCTURA = `
   ALTER TABLE mensajes_contacto ADD CONSTRAINT mensajes_contacto_interes_check
     CHECK (interes IN ('curso', 'mentor', 'alianza', 'otro', 'patrocinar', 'donar', 'espacio', 'estudiar', 'difundir'));`;
 
-/* Piloto 2027: carga la ruta de 4 cursos una sola vez (ver la cabecera del archivo) */
+/* Ruta de 2 semanas por módulo, una clase por semana (una sola vez) */
+async function rutaDosSemanas(db) {
+  if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'ruta-2-semanas'")).rowCount) return console.log("ℹ Los módulos de la ruta ya duraban 2 semanas");
+  let cambiados = 0;
+  for (const c of cursos) {
+    const { rowCount } = await db.query("UPDATE cursos SET duracion_semanas = $1, actualizado_en = now() WHERE titulo = $2", [Number(c.duracion), c.titulo]);
+    cambiados += rowCount;
+  }
+  await db.query("INSERT INTO migraciones (nombre) VALUES ('ruta-2-semanas')");
+  console.log(`✔ ${cambiados} módulo(s) de la ruta ahora duran 2 semanas`);
+}
+
+/* Piloto 2027: carga la ruta de 5 módulos una sola vez (ver la cabecera del archivo) */
 const moduloLimpio = (m) => ({ titulo: m.titulo, temas: m.temas || [], temasTexto: m.temasTexto || "", actividades: m.actividades || [], evidencia: m.evidencia || "" });
 async function piloto2027(db) {
   if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'piloto-2027'")).rowCount) return console.log("ℹ La ruta del piloto 2027 ya estaba cargada");
@@ -158,6 +172,7 @@ async function main() {
     console.log(`✔ Módulos y guía cargados en ${conModulos} curso(s)`);
 
     await piloto2027(db);
+    await rutaDosSemanas(db);
 
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);
