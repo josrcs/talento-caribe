@@ -32,7 +32,7 @@ function claveSegura(clave, correo = "") {
 }
 
 /* Contraseña aleatoria fácil de dictar: 4 bloques de letras y números (ej. Kq7m-x2Pa-9rTe-W4nb).
-   La usan npm run cuenta y el Gerente al crear una cuenta administrativa. */
+   La usan npm run cuenta y el Director(a) general al crear una cuenta administrativa. */
 function generarClave() {
   const letras = "abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin 0/O ni 1/l/I, que se confunden
   let clave;

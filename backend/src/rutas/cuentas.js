@@ -1,9 +1,9 @@
 /* ==========================================================
    Rutas de cuentas
-   - Gerente (permiso cuentasEquipo): crea y elimina cuentas administrativas con cargo fijo.
-   - Gerente, Dirección académica y Dirección de tecnología (permiso cuentasDocentes): crean cuentas
+   - Director(a) general (permiso cuentasEquipo): crea y elimina cuentas administrativas con cargo fijo.
+   - Director(a) general, Dirección académica y Dirección de tecnología (permiso cuentasDocentes): crean cuentas
      de docentes y las desactivan o reactivan.
-   - Coordinación de admisiones y Gerente (permiso bloquearEstudiantes): bloquean las cuentas de
+   - Coordinación de admisiones y Director(a) general (permiso bloquearEstudiantes): bloquean las cuentas de
      estudiantes inactivos y las desbloquean cuando quieran.
    Todo queda en el registro de seguridad (eventos cuenta_creada, cuenta_eliminada, cuenta_bloqueada
    y cuenta_desbloqueada).
@@ -22,7 +22,7 @@ const ACTIVIDAD = "GREATEST(u.creado_en, u.ultimo_ingreso, u.desbloqueado_en)";
 const quien = (req) => `${req.usuario.nombre} (${req.usuario.puesto || "administrativo"})`.slice(0, 160);
 const faltaColumna = (res, e) => e.code === "42703" && res.status(503).json({ error: "La base es de una versión anterior: ejecuta npm run db:actualizar." });
 
-/* ---------- Equipo administrativo (Gerente) ---------- */
+/* ---------- Equipo administrativo (Director(a) general) ---------- */
 router.get("/cuentas/equipo", requiereSesion, requierePermiso("cuentasEquipo"), async (req, res, next) => {
   try {
     const { rows } = await pool.query(
@@ -32,7 +32,7 @@ router.get("/cuentas/equipo", requiereSesion, requierePermiso("cuentasEquipo"), 
   } catch (e) { faltaColumna(res, e) || next(e); }
 });
 
-// Crea la cuenta con una contraseña temporal segura que se muestra UNA vez al Gerente
+// Crea la cuenta con una contraseña temporal segura que se muestra UNA vez al Director(a) general
 router.post("/cuentas/equipo", requiereSesion, requierePermiso("cuentasEquipo"), async (req, res, next) => {
   const b = req.body || {};
   if (rechazar(res, { nombre: linea(b.nombre, 3, 100), correo: EMAIL.test(b.correo), puesto: CARGOS.includes(b.puesto) })) return;
@@ -59,10 +59,10 @@ router.delete("/cuentas/equipo/:id", requiereSesion, requierePermiso("cuentasEqu
     await db.query("BEGIN");
     const u = (await db.query("SELECT id, nombre, correo, rol, puesto FROM usuarios WHERE id = $1 FOR UPDATE", [id])).rows[0];
     if (!u || u.rol !== "administrativo") { await db.query("ROLLBACK"); return res.status(404).json({ error: "Esa cuenta administrativa ya no existe." }); }
-    // Siempre debe quedar al menos una cuenta activa que pueda entrar como Gerente (cargo Gerente o cuenta sin cargo fijo)
+    // Siempre debe quedar al menos una cuenta activa que pueda entrar como Director(a) general (ese cargo o cuenta sin cargo fijo)
     const gerentes = (await db.query(
-      "SELECT count(*)::int AS n FROM usuarios WHERE rol = 'administrativo' AND activo AND (puesto = 'Gerente' OR puesto IS NULL) AND id <> $1", [id])).rows[0].n;
-    if (!gerentes) { await db.query("ROLLBACK"); return res.status(409).json({ error: "Es la última cuenta que puede entrar como Gerente: crea otra antes de eliminarla." }); }
+      "SELECT count(*)::int AS n FROM usuarios WHERE rol = 'administrativo' AND activo AND (puesto = 'Director(a) general' OR puesto IS NULL) AND id <> $1", [id])).rows[0].n;
+    if (!gerentes) { await db.query("ROLLBACK"); return res.status(409).json({ error: "Es la última cuenta que puede entrar como Director(a) general: crea otra antes de eliminarla." }); }
     await db.query("DELETE FROM usuarios WHERE id = $1", [id]); // sus sesiones dejan de valer: la cuenta ya no existe
     await db.query("COMMIT");
     registrarEvento(req, "cuenta_eliminada", { correo: u.correo, detalle: `${u.nombre}, cargo ${u.puesto || "a elección"}, por ${quien(req)}` });
@@ -71,7 +71,7 @@ router.delete("/cuentas/equipo/:id", requiereSesion, requierePermiso("cuentasEqu
   finally { db.release(); }
 });
 
-/* ---------- Docentes (Gerente, Dirección académica y Dirección de tecnología) ----------
+/* ---------- Docentes (Director(a) general, Dirección académica y Dirección de tecnología) ----------
    Un docente queda a cargo de un curso cuando en el curso se escribe su nombre como instructor
    (rutas/admin.js lo busca por nombre), por eso no se permiten dos docentes con el mismo nombre.
    No se eliminan: borrar un docente borraría sus actividades y las entregas de los estudiantes.
@@ -124,7 +124,7 @@ router.post("/cuentas/docentes/:id/:accion(desactivar|activar)", requiereSesion,
   } catch (e) { next(e); }
 });
 
-/* ---------- Estudiantes inactivos (Coordinación de admisiones y Gerente) ---------- */
+/* ---------- Estudiantes inactivos (Coordinación de admisiones y Director(a) general) ---------- */
 router.get("/cuentas/estudiantes", requiereSesion, requierePermiso("bloquearEstudiantes"), async (req, res, next) => {
   try {
     const { rows } = await pool.query(

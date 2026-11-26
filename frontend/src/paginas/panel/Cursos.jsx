@@ -2,7 +2,7 @@
    Cursos.jsx - Cursos y fichas del panel
    Crear y editar cursos (POST/PUT /api/cursos) y fichas (POST/PUT /api/fichas).
    Solo los cargos con permiso editarCursos ven los botones; el servidor lo vuelve a revisar.
-   El Gerente además puede eliminar un curso (DELETE /api/cursos/:id), con confirmación.
+   El Director(a) general además puede eliminar un curso (DELETE /api/cursos/:id), con confirmación.
    Mentor: es opcional mientras se eligen los mentores del piloto ("Por asignar").
    ========================================================== */
 import { useState } from "react";
@@ -163,7 +163,7 @@ export default function Cursos() {
   const { acciones } = useDatos();
   const q = buscar.replace(/\D/g, "");
 
-  /* Solo el Gerente: borra el curso con todo lo que depende de él (el servidor lo vuelve a revisar) */
+  /* Solo el Director(a) general: borra el curso con todo lo que depende de él (el servidor lo vuelve a revisar) */
   async function eliminarCurso(c) {
     const inscritos = D.inscripciones().filter((i) => Number(i.curso_id) === Number(c.id)).length;
     const fichasCurso = D.fichasDeCurso(c.id).length;

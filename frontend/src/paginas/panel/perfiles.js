@@ -5,8 +5,7 @@
    solo comodidad; quien decide de verdad es la API.
    ========================================================== */
 export const PERFILES = {
-  "Gerente": { area: "Gerencia", start: "resumen", sections: ["resumen", "area", "cursos", "inscripciones", "mensajes", "ia", "encuestas"], courseArea: "", title: "Gerencia · todas las áreas", intro: "Supervisas el trabajo de toda la organización y puedes corregirlo cuando haga falta: oferta académica, actividades y notas de los docentes, admisiones, comunicaciones, finanzas y el asistente.", tasks: [["Indicadores ejecutivos", "Consulta cifras de actividad y demanda de todas las áreas.", "resumen"], ["Oferta de formación", "Crea, edita y elimina cursos y fichas de cualquier área.", "cursos"], ["Admisiones", "Revisa y cambia el estado de las solicitudes de inscripción.", "inscripciones"], ["Comunicaciones", "Lee y responde los mensajes de contacto.", "mensajes"], ["Finanzas", "Revisa, registra, corrige o elimina los gastos del proyecto.", "area"], ["Pulso institucional", "Consulta encuestas organizadas por departamento.", "encuestas"], ["Experiencia de la comunidad", "Define el tono y la información del asistente.", "ia"]] },
-  "Director(a) general": { area: "Dirección general", start: "resumen", sections: ["resumen", "cursos", "encuestas"], courseArea: "", title: "Dirección general · seguimiento", intro: "Supervisa los indicadores generales y la oferta publicada. El acceso a mensajes personales y documentos de inscripción se mantiene en las áreas responsables.", tasks: [["Indicadores", "Revisa actividad general sin acceder a expedientes personales.", "resumen"], ["Catálogo institucional", "Consulta los cursos disponibles en todas las áreas.", "cursos"], ["Encuestas por departamento", "Consulta la retroalimentación de toda la comunidad.", "encuestas"]] },
+  "Director(a) general": { area: "Dirección general", start: "resumen", sections: ["resumen", "area", "cursos", "inscripciones", "mensajes", "ia", "encuestas"], courseArea: "", title: "Dirección general · todas las áreas", intro: "Diriges la fundación y supervisas el trabajo de todas las áreas y puedes corregirlo cuando haga falta: oferta académica, actividades y notas de los docentes, admisiones, comunicaciones, finanzas y el asistente.", tasks: [["Indicadores ejecutivos", "Consulta cifras de actividad y demanda de todas las áreas.", "resumen"], ["Oferta de formación", "Crea, edita y elimina cursos y fichas de cualquier área.", "cursos"], ["Admisiones", "Revisa y cambia el estado de las solicitudes de inscripción.", "inscripciones"], ["Comunicaciones", "Lee y responde los mensajes de contacto.", "mensajes"], ["Finanzas", "Revisa, registra, corrige o elimina los gastos del proyecto.", "area"], ["Pulso institucional", "Consulta encuestas organizadas por departamento.", "encuestas"], ["Experiencia de la comunidad", "Define el tono y la información del asistente.", "ia"]] },
   "Director(a) académico(a)": { area: "Dirección académica", start: "area", sections: ["area", "cursos", "encuestas"], courseArea: "Software", title: "Dirección académica", intro: "Define la oferta de aprendizaje y mantiene la calidad de los programas de software.", tasks: [["Programas académicos", "Revisa y crea cursos del área de software.", "cursos"], ["Voz de estudiantes", "Consulta encuestas por departamento.", "encuestas"]] },
   "Director(a) de tecnología": { area: "Dirección de tecnología", start: "area", sections: ["area", "cursos", "encuestas"], courseArea: "Hardware", title: "Dirección de tecnología", intro: "Orienta el catálogo de hardware, laboratorios y experiencias prácticas.", tasks: [["Programas de tecnología", "Revisa los cursos del área de hardware.", "cursos"], ["Experiencia de laboratorio", "Consulta encuestas de todos los departamentos.", "encuestas"]] },
   "Director(a) de admisiones": { area: "Dirección de admisiones", start: "area", sections: ["area", "inscripciones", "mensajes", "encuestas"], courseArea: "", title: "Dirección de admisiones", intro: "Supervisa el proceso de ingreso y el acompañamiento a candidatos y estudiantes.", tasks: [["Solicitudes de ingreso", "Revisa y actualiza solicitudes de inscripción.", "inscripciones"], ["Consultas de aspirantes", "Atiende los mensajes relacionados con admisiones.", "mensajes"], ["Encuestas por departamento", "Consulta los resultados de las encuestas por departamento.", "encuestas"]] },
@@ -24,12 +23,12 @@ export const PERFILES = {
 
 export const CARGOS = Object.keys(PERFILES);
 // Cargos que ven la actividad académica de los docentes
-const ACADEMICOS = ["Gerente", "Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología", "Coordinador(a) académico(a)", "Coordinador(a) de tecnología"];
+const ACADEMICOS = ["Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología", "Coordinador(a) académico(a)", "Coordinador(a) de tecnología"];
 // Registro de seguridad: PERMISOS.seguridad
-const SEGURIDAD = ["Gerente", "Director(a) general", "Director(a) de tecnología"];
+const SEGURIDAD = ["Director(a) general", "Director(a) de tecnología"];
 // = PERMISOS.finanzas, PERMISOS.editarCursos, PERMISOS.cuentasEquipo y PERMISOS.bloquearEstudiantes del servidor
-const FINANZAS = ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"];
-const EDITAN_CURSOS = ["Gerente", "Director(a) académico(a)", "Director(a) de tecnología"];
+const FINANZAS = ["Director(a) general", "Administración y finanzas", "Director(a) administrativo(a)"];
+const EDITAN_CURSOS = ["Director(a) general", "Director(a) académico(a)", "Director(a) de tecnología"];
 
 /* Perfil completo de un cargo: secciones visibles, tareas (accesos rápidos) y permisos */
 export function construirPerfil(puesto) {
@@ -39,7 +38,7 @@ export function construirPerfil(puesto) {
   if (ACADEMICOS.includes(puesto)) { secciones.splice(1, 0, "academico"); tasks.push(["Actividad académica", "Mira qué actividades publican los docentes y cómo van las entregas.", "academico"]); }
   if (SEGURIDAD.includes(puesto)) { secciones.push("seguridad"); tasks.push(["Seguridad", "Revisa ingresos, intentos fallidos y bloqueos de cuentas.", "seguridad"]); }
   // gestionaDocentes = PERMISOS.cuentasDocentes del servidor (los mismos cargos que editan cursos)
-  const gestionaEquipo = puesto === "Gerente", gestionaEstudiantes = ["Gerente", "Coordinador(a) de admisiones"].includes(puesto), gestionaDocentes = EDITAN_CURSOS.includes(puesto);
+  const gestionaEquipo = puesto === "Director(a) general", gestionaEstudiantes = ["Director(a) general", "Coordinador(a) de admisiones"].includes(puesto), gestionaDocentes = EDITAN_CURSOS.includes(puesto);
   if (gestionaEquipo || gestionaEstudiantes || gestionaDocentes) {
     secciones.push("cuentas");
     tasks.push(["Cuentas", gestionaEquipo ? "Crea cuentas del equipo y de docentes, y bloquea estudiantes inactivos."
@@ -53,8 +52,8 @@ export function construirPerfil(puesto) {
     permitidas: new Set([...secciones, "encuestas"]),
     finanzas: FINANZAS.includes(puesto),
     editaCursos: EDITAN_CURSOS.includes(puesto),
-    eliminaCursos: puesto === "Gerente", // = PERMISOS.eliminarCursos del servidor
-    supervisa: puesto === "Gerente",
+    eliminaCursos: puesto === "Director(a) general", // = PERMISOS.eliminarCursos del servidor (Talento Caribe no tiene Gerente)
+    supervisa: puesto === "Director(a) general",
     gestionaEquipo, gestionaEstudiantes, gestionaDocentes,
   };
 }

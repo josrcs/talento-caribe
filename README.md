@@ -111,7 +111,7 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] El frontend trabaja siempre con la API real (sin modo demostración)
 - [x] **Piloto 2027** (Barranquilla, presencial, solo Colombia): ruta «Programación desde cero» de 5 módulos — Lógica de programación → Git y GitHub → HTML y CSS → JavaScript → Bases de datos con SQL. Normalmente cada módulo dura 2 semanas; en el piloto, 1. Los grupos se hacen en el primer y segundo trimestre de 2027 y las fechas se avisan por correo; al terminar se entrega una **constancia de participación** (no un certificado: eso exige el aval de la Secretaría de Educación); después, Latinoamérica. La página pública solo muestra la ruta (los demás cursos quedan en «Próximamente»)
 - [x] Solo personas en Colombia pueden crear la cuenta e inscribirse (lo revisa el servidor: `paisPermitido` en `backend/src/validar.js`)
-- [x] El Gerente puede **eliminar cursos** desde el panel (DELETE /api/cursos/:id, con confirmación). El mentor de cada curso es opcional («Por asignar»)
+- [x] El Director(a) general puede **eliminar cursos** desde el panel (DELETE /api/cursos/:id, con confirmación). El mentor de cada curso es opcional («Por asignar»)
 - [x] Sección **Súmate a la comunidad** en el inicio: patrocinar, donar, prestar un espacio, ser mentor, estudiar o difundir (llega como mensaje de contacto)
 - [x] Catálogo con búsqueda, filtros por área, nivel, modalidad y número de ficha, detalle y preinscripción
 - [x] Registro estudiantil por país, con documento, contacto, edad y datos de acudiente cuando aplica
@@ -123,8 +123,8 @@ psql -U postgres -d talento_caribe -f database/seed.sql
 - [x] Portal del estudiante: inicio didáctico, cursos, actividades, logros, encuestas y tutor IA
 - [x] Portal del docente: cursos con guía de clase, actividades con plantillas, entregas por calificar y seguimiento
 - [x] Panel por cargo: indicadores, gráficas, actividad académica, cursos y fichas, inscripciones, mensajes, encuestas, finanzas, configuración de la IA, seguridad y cuentas
-- [x] Gerencia con acceso a todas las áreas: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas de los docentes
-- [x] Cuentas: el Gerente crea y elimina cuentas administrativas; el Gerente y las direcciones académica y de tecnología crean cuentas de docentes y las desactivan o reactivan; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
+- [x] Talento Caribe es una fundación: no hay Gerente. La **Dirección general** tiene acceso a todas las áreas y hace todo: supervisa y corrige cursos, admisiones, mensajes, finanzas, actividades y notas, configura la IA y crea cuentas
+- [x] Cuentas: la Dirección general crea y elimina cuentas administrativas; la Dirección general y las direcciones académica y de tecnología crean cuentas de docentes (no hay docentes de prueba: el equipo las crea) y las desactivan o reactivan; Coordinación de admisiones bloquea estudiantes inactivos y los desbloquea
 - [x] Asistente conectado a IA real y gratuita (Google Gemini) en `POST /api/chat`, con respuestas locales de respaldo
 - [x] Encuestas que guardan respuestas: el estudiante responde en su portal y el panel muestra resultados sin nombres
 - [x] Encuesta pública y anónima (`encuesta.html`): cualquier visitante responde sin cuenta y el panel muestra los resultados
@@ -146,8 +146,7 @@ Las crea `database/seed.sql`. **En la plataforma publicada no funcionan:** al ar
 | Perfil | Correo | Contraseña | Entra a |
 |---|---|---|---|
 | Estudiante | estudiante@talentocaribe.co | Estudiante123 | portal.html |
-| Docente | docente@talentocaribe.co (también `daniel@`, `valeria@`, `andres@`, `laura@`) | Docente123 | portal.html |
-| Administrativo | admin@talentocaribe.co (con cualquier cargo) | Admin123 | admin/panel.html |
+| Administrativo | admin@talentocaribe.co (con cualquier cargo, por ejemplo Director(a) general) | Admin123 | admin/panel.html |
 
 Cada rol y cargo recibe del servidor **solo sus datos** (por ejemplo, solo admisiones ve documentos y teléfonos de los estudiantes).
 
