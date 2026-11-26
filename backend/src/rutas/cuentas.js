@@ -189,4 +189,17 @@ router.post("/cuentas/estudiantes/:id/desbloquear", requiereSesion, requierePerm
   } catch (e) { faltaColumna(res, e) || next(e); }
 });
 
+/* Eliminar la cuenta de un estudiante (solo Director(a) general). La base borra con ella sus inscripciones,
+   entregas, respuestas de encuestas y el historial de monitoría (ON DELETE CASCADE). No se puede deshacer. */
+router.delete("/cuentas/estudiantes/:id", requiereSesion, requierePermiso("eliminarEstudiantes"), async (req, res, next) => {
+  const id = entero(req.params.id);
+  if (!id) return res.status(400).json({ error: "Cuenta no válida." });
+  try {
+    const { rows } = await pool.query("DELETE FROM usuarios WHERE id = $1 AND rol = 'estudiante' RETURNING id, nombre, correo", [id]);
+    if (!rows.length) return res.status(404).json({ error: "Esa cuenta de estudiante no existe." });
+    registrarEvento(req, "cuenta_eliminada", { correo: rows[0].correo, detalle: `estudiante ${rows[0].nombre}, por ${quien(req)}`.slice(0, 200) });
+    res.json({ ok: true, nombre: rows[0].nombre });
+  } catch (e) { next(e); }
+});
+
 module.exports = router;

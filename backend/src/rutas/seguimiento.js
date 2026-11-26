@@ -3,7 +3,8 @@
    Director(a) general y Monitor(a).
    GET  /api/seguimiento                    Los jóvenes con cupo aprobado en la ruta: datos de contacto
                                             (y del acudiente), módulos, avance, promedio, último ingreso
-                                            y el historial de contactos que ha registrado el equipo.
+                                            el historial de contactos que ha registrado el equipo y cada actividad
+                                            de sus módulos con su entrega (respuesta, enlace, nota y comentario).
    POST /api/seguimiento/:id/contactos      Registra un contacto con el joven o su acudiente
                                             (WhatsApp, llamada, correo, presencial u otro) y una nota.
    ========================================================== */
@@ -42,6 +43,16 @@ router.get("/seguimiento", requiereSesion, requierePermiso("seguimiento"), async
     const entregas = await q(`
       SELECT e.estudiante_id, count(*)::int AS entregadas, round(avg(e.nota), 1)::float AS promedio, max(e.creado_en) AS ultima
       FROM entregas e WHERE e.estudiante_id = ANY($1) GROUP BY e.estudiante_id`, [ids]);
+    // Cada actividad que le corresponde, con su entrega si ya la hizo
+    const tareas = await q(`
+      SELECT i.estudiante_id, a.id::text AS id, a.titulo, a.tipo, a.modulo, c.titulo AS curso, to_char(a.fecha_limite, 'YYYY-MM-DD') AS limite,
+             e.estado, e.nota::float AS nota, e.comentario, e.enlace, e.respuesta, e.creado_en AS entregada
+      FROM inscripciones i
+      JOIN actividades a ON a.curso_id = i.curso_id AND (a.ficha_id IS NULL OR a.ficha_id = i.ficha_id)
+      JOIN cursos c ON c.id = a.curso_id
+      LEFT JOIN entregas e ON e.actividad_id = a.id AND e.estudiante_id = i.estudiante_id
+      WHERE i.estado = 'aprobada' AND i.estudiante_id = ANY($1)
+      ORDER BY a.fecha_limite`, [ids]);
     const contactos = await q(`
       SELECT s.id, s.estudiante_id, s.tipo, s.nota, s.creado_en, COALESCE(a.nombre, 'Equipo') AS autor
       FROM seguimiento_contactos s LEFT JOIN usuarios a ON a.id = s.autor_id
@@ -59,6 +70,7 @@ router.get("/seguimiento", requiereSesion, requierePermiso("seguimiento"), async
           promedio: ent.promedio ?? null,
           ultima_entrega: ent.ultima || null,
           contactos: de(contactos, e.id),
+          tareas: de(tareas, e.id),
         };
       }),
     });
