@@ -193,3 +193,57 @@
   .ruta-lista a { grid-template-columns: 1.6rem 1fr; padding-inline: 1.1rem; }
   .ruta-lista .tag { grid-column: 2; justify-self: start; }
 }
+
+/* ==========================================================
+   Piloto 2027: ruta de 4 cursos, calendario y "Súmate"
+   ========================================================== */
+/* ---------- La ruta del piloto ---------- */
+.ruta-piloto { display: grid; gap: 1.25rem; counter-reset: ruta; }
+.ruta-paso { position: relative; display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: start; padding: 1.4rem;
+  background: var(--superficie); border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-lg); box-shadow: var(--sombra-tarjeta); }
+.ruta-paso-num { display: grid; place-items: center; width: 3rem; height: 3rem; border-radius: 50%; background: var(--sol); color: var(--marino);
+  font-family: var(--fuente-titulos); font-size: 1.4rem; font-weight: 850; }
+.ruta-paso:last-child .ruta-paso-num { background: var(--palma-logo); color: #fff; }
+.ruta-paso-etiqueta { margin: 0 0 .2rem; color: var(--acento); font-size: .78rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.ruta-paso h3 { margin: 0 0 .35rem; font-size: 1.25rem; }
+.ruta-paso p { margin: 0 0 .6rem; color: var(--color-slate-400); font-size: .95rem; }
+@media (min-width: 1200px) {
+  .ruta-piloto { grid-template-columns: repeat(5, 1fr); gap: 1.4rem; }
+  .ruta-paso { grid-template-columns: 1fr; }
+  /* Flecha entre un curso y el siguiente */
+  .ruta-paso:not(:last-child)::after { content: "→"; position: absolute; right: -1.05rem; top: 2rem; z-index: 1; display: grid; place-items: center;
+    width: 1.6rem; height: 1.6rem; border-radius: 50%; background: var(--marino); color: #fff; font-weight: 800; font-size: .9rem; }
+}
+
+/* ---------- Calendario del piloto ---------- */
+.calendario { display: grid; gap: 1rem; }
+.calendario-paso { position: relative; padding: 1.3rem 1.3rem 1.3rem 1.5rem; background: var(--superficie); border: 2px solid var(--borde-tarjeta);
+  border-left: 6px solid var(--ola); border-radius: var(--radius-lg); }
+.calendario-paso.is-ahora { border-left-color: var(--palma-logo); }
+.calendario-paso.is-futuro { border-left-color: var(--sol); border-style: dashed; border-left-style: solid; }
+.calendario-cuando { display: inline-block; margin-bottom: .4rem; color: var(--acento); font-size: .8rem; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.calendario-paso.is-ahora .calendario-cuando::before { content: ""; display: inline-block; width: .55rem; height: .55rem; margin-right: .4rem; border-radius: 50%; background: var(--palma-logo); vertical-align: .05em; }
+.calendario-paso h3 { margin: 0 0 .3rem; font-size: 1.12rem; }
+.calendario-paso p { margin: 0; color: var(--color-slate-400); font-size: .93rem; }
+@media (min-width: 860px) { .calendario { grid-template-columns: repeat(4, 1fr); } }
+.aviso-piloto-grande { margin-top: 1.5rem; font-size: .98rem; }
+
+/* ---------- Súmate a la comunidad ---------- */
+.sumate-grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); }
+.sumate-opcion { display: grid; gap: .35rem; height: 100%; padding: 1.3rem; color: var(--texto-fuerte); text-decoration: none; background: var(--superficie);
+  border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-lg); box-shadow: var(--sombra-tarjeta); transition: transform .15s ease, box-shadow .15s ease; }
+.sumate-opcion:hover, .sumate-opcion:focus-visible { transform: translate(-2px, -2px); box-shadow: 7px 7px 0 var(--sombra-dura); }
+.sumate-icono { font-size: 1.8rem; line-height: 1; }
+.sumate-opcion strong { font-family: var(--fuente-titulos); font-size: 1.1rem; font-stretch: 108%; }
+.sumate-opcion > span:not(.sumate-icono):not(.sumate-accion) { color: var(--color-slate-400); font-size: .93rem; }
+.sumate-accion { margin-top: .3rem; color: var(--acento); font-weight: 700; font-size: .9rem; }
+.ruta-acciones { display: flex; flex-wrap: wrap; gap: .75rem; margin-top: 1.5rem; }
+.ruta-piloto .ruta-paso h3 { hyphens: manual; overflow-wrap: normal; }
+@media (min-width: 1200px) { .ruta-piloto .ruta-paso h3 { font-size: 1.05rem; } .ruta-paso { padding: 1.2rem; } }
+@media (min-width: 700px) and (max-width: 1199px) { .ruta-piloto { grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr)); } .ruta-paso { grid-template-columns: 1fr; } }
+
+/* ---------- Mentores: convocatoria (todavía no hay mentores) ---------- */
+.mentores-convocatoria { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1.25rem 2rem; padding: clamp(1.4rem, 3vw, 2.2rem);
+  background: var(--superficie); border: 2px solid var(--borde-tarjeta); border-radius: var(--radius-lg); box-shadow: var(--sombra-tarjeta); }
+.mentores-convocatoria > div { max-width: 44rem; }
+.mentores-convocatoria h2 { margin-bottom: .5rem; }

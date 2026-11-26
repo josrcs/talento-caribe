@@ -24,5 +24,6 @@ export const GUIAS_PAIS = {
   Chile: { docs: ["Cédula de identidad (RUN/RUT)", "Pasaporte", "Documento de identidad de otro país"], texto: "Ten a mano tu cédula de identidad o pasaporte y, si corresponde, una constancia o certificado de estudios previos. La institución confirmará si requiere reconocimiento de estudios." },
   Otro: { docs: ["Documento nacional de identidad", "Cédula o tarjeta de identidad", "Pasaporte"], texto: "Ten a mano un documento oficial de identidad y, si ya has estudiado, una constancia, certificado o calificaciones del último nivel aprobado. Si eres menor de edad, prepara los datos de tu madre, padre o acudiente. Los requisitos cambian según el país y el curso." },
 };
-export const PAISES = ["Colombia", "Venezuela", "Ecuador", "Perú", "México", "Argentina", "Chile"];
+// Piloto 2027: solo Colombia (clases presenciales en Barranquilla). El servidor también lo revisa.
+export const PAISES = ["Colombia"];
 export const ESTUDIOS = ["Primaria", "Secundaria o bachillerato", "Técnico o tecnológico", "Universitario", "Otro o en curso", "Prefiero no indicarlo"];

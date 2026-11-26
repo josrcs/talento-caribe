@@ -1,6 +1,7 @@
 /* FormContacto.jsx - Formulario de contacto: valida en el navegador y envía a POST /api/contacto.
-   El servidor guarda el mensaje en PostgreSQL (lo lee el equipo en el panel) y responde por correo. */
-import { useState } from "react";
+   El servidor guarda el mensaje en PostgreSQL (lo lee el equipo en el panel) y responde por correo.
+   pedido = { interes, asunto, n }: lo manda "Súmate" para dejar elegida una forma de ayudar. */
+import { useEffect, useRef, useState } from "react";
 import { pedir } from "../../lib/api.js";
 import { EMAIL, toast } from "../../lib/utils.js";
 import { useValidacion } from "../../lib/validacion.jsx";
@@ -15,8 +16,16 @@ const REGLAS = {
   acepto: (v) => (v ? "" : "Debes aceptar el uso de tus datos para poder responderte."),
 };
 
-export default function FormContacto() {
+export default function FormContacto({ pedido }) {
   const { validar, error, invalido } = useValidacion();
+  const formRef = useRef(null);
+  useEffect(() => {
+    const f = formRef.current?.elements;
+    if (!pedido || !f) return;
+    f.interes.value = pedido.interes;
+    if (!f.asunto.value || f.asunto.dataset.sumate) { f.asunto.value = pedido.asunto; f.asunto.dataset.sumate = "1"; }
+    setTimeout(() => f.nombre.focus({ preventScroll: true }), 400);
+  }, [pedido]);
   const [enviando, setEnviando] = useState(false);
   const [estado, setEstado] = useState(null); // { texto, error }
 
@@ -38,7 +47,7 @@ export default function FormContacto() {
   }
 
   return (
-    <form id="form-contacto" className="form" noValidate data-revelar="derecha" onSubmit={enviar}>
+    <form id="form-contacto" ref={formRef} className="form" noValidate data-revelar="derecha" onSubmit={enviar}>
       <div className="campo">
         <label htmlFor="c-nombre">Nombre completo</label>
         <input id="c-nombre" name="nombre" type="text" autoComplete="name" required minLength="3" maxLength="80" aria-invalid={invalido("nombre")} />
@@ -61,6 +70,13 @@ export default function FormContacto() {
           <option value="mentor">Quiero ser mentor</option>
           <option value="alianza">Alianzas o patrocinio</option>
           <option value="otro">Otro tema</option>
+          <optgroup label="Súmate a la comunidad">
+            <option value="patrocinar">Quiero patrocinar</option>
+            <option value="donar">Quiero donar equipos o recursos</option>
+            <option value="espacio">Quiero prestar un espacio</option>
+            <option value="estudiar">Quiero estudiar en el piloto</option>
+            <option value="difundir">Quiero apoyar y difundir</option>
+          </optgroup>
         </select>
         {error("interes")}
       </div>

@@ -24,8 +24,8 @@ const DOCUMENTOS = [
 
 export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
   const { modelo, acciones } = useDatos();
-  const paisInicial = sesion?.pais ? (PAISES.includes(sesion.pais) ? sesion.pais : "Otro") : "";
-  const [pais, setPais] = useState(paisInicial);
+  // Piloto 2027: solo Colombia
+  const [pais, setPais] = useState("Colombia");
   const [nacimiento, setNacimiento] = useState(sesion?.fecha_nacimiento || "");
   const [enviando, setEnviando] = useState(false);
   const [estado, setEstado] = useState("");
@@ -49,7 +49,7 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
     const edadMinima = Number(curso.edadMinima ?? 14);
     if (edad < edadMinima) { setEstado(`Este curso está dirigido a personas desde los ${edadMinima} años. Puedes explorar otros programas.`); return; }
     const perfil = {
-      nombre: sesion.nombre, correo: sesion.correo, pais: pais === "Otro" ? v("pais_otro") : pais,
+      nombre: sesion.nombre, correo: sesion.correo, pais,
       tipo_documento: f.tipo_documento.value, numero_documento: v("numero_documento"), fecha_nacimiento: nacimiento,
       telefono: v("telefono"), direccion: v("direccion"), ciudad: v("ciudad"), region: v("region"), codigo_postal: v("codigo_postal"),
       ultimo_estudio: f.ultimo_estudio.value, documentos_disponibles: new FormData(form).getAll("documentos_disponibles"),
@@ -74,21 +74,16 @@ export default function FormInscripcion({ curso, ficha, sesion, alCerrar }) {
           <button type="button" className="modal-cerrar" aria-label="Cerrar formulario" onClick={alCerrar}>&times;</button>
           <span className="eyebrow">Preinscripción gratuita</span>
           <h2 id="mi-titulo">Revisa tu información</h2>
-          <p className="modal-sub">{`Curso: ${curso.titulo} · Ficha ${ficha}`}</p>
+          <p className="modal-sub">{`Ruta: Programación desde cero · empiezas por ${curso.titulo} · Ficha ${ficha}`}</p>
+          <p className="aviso-piloto" role="note">Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de 2027. Te avisaremos por correo la fecha y el horario de tu grupo.</p>
           <div className="campo">
             <label htmlFor="i-pais">¿De qué país eres?</label>
             <select id="i-pais" name="pais" required value={pais} onChange={(e) => setPais(e.target.value)}>
               <option value="">Selecciona tu país</option>
               {PAISES.map((p) => <option key={p} value={p}>{p}</option>)}
-              <option value="Otro">Otro país</option>
             </select>
+            <small className="form-ayuda">Por ahora el piloto 2027 es solo para personas en Colombia, con clases presenciales en Barranquilla.</small>
           </div>
-          {pais === "Otro" && (
-            <div className="campo">
-              <label htmlFor="i-pais-otro">Escribe el nombre de tu país</label>
-              <input id="i-pais-otro" name="pais_otro" type="text" autoComplete="country-name" maxLength="60" required defaultValue={paisInicial === "Otro" ? s.pais : ""} />
-            </div>
-          )}
           {tienePais && (
             <>
               <section className="inscripcion-requisitos" aria-live="polite">

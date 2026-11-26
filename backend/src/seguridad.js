@@ -64,6 +64,7 @@ const PERMISOS = {
   inscripciones: ["Gerente", "Director(a) de admisiones", "Coordinador(a) de admisiones", "Admisiones y registro"],
   mensajes: ["Gerente", "Director(a) de admisiones", "Director(a) de comunicaciones", "Coordinador(a) de comunicaciones", "Admisiones y registro", "Comunicaciones y alianzas"],
   editarCursos: ["Gerente", "Director(a) académico(a)", "Director(a) de tecnología"],
+  eliminarCursos: ["Gerente"],      // borrar un curso con sus fichas, inscripciones y actividades
   finanzas: ["Gerente", "Administración y finanzas", "Director(a) administrativo(a)"],
   supervisarAcademico: ["Gerente"], // editar o borrar actividades de cualquier docente y corregir notas
   cuentasEquipo: ["Gerente"],       // crear y eliminar cuentas administrativas

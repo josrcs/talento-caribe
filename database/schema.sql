@@ -77,7 +77,7 @@ CREATE TABLE fichas (
   id            SERIAL PRIMARY KEY,
   numero        VARCHAR(6)  NOT NULL UNIQUE CHECK (numero ~ '^[0-9]{4,6}$'),
   curso_id      INTEGER     NOT NULL REFERENCES cursos(id) ON DELETE CASCADE,
-  jornada       VARCHAR(10) NOT NULL CHECK (jornada IN ('Mañana', 'Tarde', 'Noche', 'Sábados')),
+  jornada       VARCHAR(12) NOT NULL CHECK (jornada IN ('Mañana', 'Tarde', 'Noche', 'Sábados', 'Por definir')),
   fecha_inicio  DATE,
   cupos         SMALLINT    NOT NULL DEFAULT 25 CHECK (cupos BETWEEN 1 AND 200),
   estado        VARCHAR(25) NOT NULL DEFAULT 'Inscripciones abiertas'
@@ -136,7 +136,8 @@ CREATE TABLE mensajes_contacto (
   nombre     VARCHAR(80)  NOT NULL,
   correo     VARCHAR(120) NOT NULL,
   telefono   VARCHAR(20),
-  interes    VARCHAR(10)  NOT NULL CHECK (interes IN ('curso', 'mentor', 'alianza', 'otro')),
+  -- curso, mentor, alianza y otro: formulario de contacto. Los demás: «Súmate a la comunidad»
+  interes    VARCHAR(12)  NOT NULL CHECK (interes IN ('curso', 'mentor', 'alianza', 'otro', 'patrocinar', 'donar', 'espacio', 'estudiar', 'difundir')),
   asunto     VARCHAR(100) NOT NULL,
   mensaje    TEXT         NOT NULL,
   leido      BOOLEAN      NOT NULL DEFAULT false,
@@ -198,6 +199,12 @@ CREATE TABLE eventos_seguridad (
   agente      VARCHAR(200),             -- navegador que hizo la petición
   detalle     VARCHAR(200),
   creado_en   TIMESTAMPTZ  NOT NULL DEFAULT now()
+);
+
+-- ---------- Cambios de datos que ya se aplicaron (npm run db:actualizar los hace una sola vez) ----------
+CREATE TABLE migraciones (
+  nombre       VARCHAR(60) PRIMARY KEY,
+  aplicada_en  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 
 -- ---------- Índices para las consultas más frecuentes ----------

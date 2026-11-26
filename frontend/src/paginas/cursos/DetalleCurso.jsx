@@ -1,42 +1,41 @@
-/* DetalleCurso.jsx - Ventana con el detalle de un curso: datos, módulos, proyecto y fichas.
-   Solo se puede elegir una ficha con inscripciones abiertas. */
+/* DetalleCurso.jsx - Ventana con el detalle de un módulo de la ruta: datos, clases y proyecto.
+   Piloto 2027: no se muestra el mentor (todavía no hay mentores), cada módulo dura 1 semana
+   y la inscripción es a la ruta completa (la hace Cursos.jsx en el primer módulo). */
 import Modal from "../../componentes/Modal.jsx";
-import { locale } from "../../i18n/idioma.js";
+import { PILOTO, pasoDeRuta, semanas } from "../../lib/piloto.js";
 
-const fechaCorta = (iso) => (iso ? new Date(iso + "T00:00:00").toLocaleDateString(locale, { day: "numeric", month: "short", year: "numeric" }) : "Por definir");
-const claseFicha = (estado) => ({ "Inscripciones abiertas": "tag-lanzamiento", "En formación": "tag-formacion", Finalizada: "tag-finalizada" }[estado] || "");
 const o = (valor) => valor || "Por definir";
 
-export default function DetalleCurso({ curso, fichas, fichaElegida, alElegirFicha, alInscribirse, alCerrar }) {
-  const modulos = curso?.modulos || [];
+export default function DetalleCurso({ curso, puedeInscribirse, alInscribirse, alCerrar }) {
+  const clases = curso?.modulos || [];
   const edad = Number(curso?.edadMinima ?? 14);
-  const puede = curso?.fase === "Lanzamiento" && Boolean(fichaElegida);
+  const paso = curso ? pasoDeRuta(curso) + 1 : 0;
   return (
     <Modal abierto={Boolean(curso)} alCerrar={alCerrar} etiqueta="mc-titulo" id="modal-curso">
       {curso && (
         <article className="modal-contenido">
           <button type="button" className="modal-cerrar" aria-label="Cerrar detalle" onClick={alCerrar}>&times;</button>
+          <span className="eyebrow">{`Módulo ${paso} de ${PILOTO.ruta.length} · ${PILOTO.nombre}`}</span>
           <h2 id="mc-titulo">{curso.titulo}</h2>
           <dl className="curso-meta">
-            <div><dt>Área</dt><dd>{o(curso.area)}</dd></div>
             <div><dt>Nivel</dt><dd>{o(curso.nivel)}</dd></div>
-            <div><dt>Duración</dt><dd>{`${curso.duracion} semanas`}</dd></div>
+            <div><dt>Duración en el piloto</dt><dd>{semanas(curso.duracion)}</dd></div>
             <div><dt>Modalidad</dt><dd>{o(curso.modalidad)}</dd></div>
-            <div><dt>Instructor</dt><dd>{o(curso.instructor)}</dd></div>
+            <div><dt>Dónde</dt><dd>Barranquilla</dd></div>
             <div><dt>Edad mínima</dt><dd>{edad > 0 ? `${edad} años` : "Sin mínimo específico"}</dd></div>
           </dl>
           <h3>De qué trata</h3>
           <p>{o(curso.descripcion)}</p>
           <h3>Lo que lograrás</h3>
           <p>{o(curso.objetivo)}</p>
-          <h3>Módulos del curso</h3>
-          <p className="modal-sub">Cada módulo agrupa los temas que se verán y las actividades para practicarlos.</p>
+          <h3>Clases del módulo</h3>
+          <p className="modal-sub">{`${clases.length} clases presenciales en ${semanas(curso.duracion)}. Cada clase tiene sus temas y una práctica.`}</p>
           <div className="modulos-lista">
-            {modulos.length ? modulos.map((m, i) => (
+            {clases.length ? clases.map((m, i) => (
               <details className="modulo" open={i === 0} key={m.numero}>
                 <summary>
                   <span className="modulo-num">{m.numero}</span>
-                  <span className="modulo-titulo"><small>{`Módulo ${m.numero}${modulos.length * 2 === Number(curso.duracion) ? ` · Semanas ${m.numero * 2 - 1} y ${m.numero * 2}` : ""}`}</small>{m.titulo}</span>
+                  <span className="modulo-titulo"><small>{`Clase ${m.numero}`}</small>{m.titulo}</span>
                   <span className="modulo-cuenta">{`${m.temas.length} ${m.temas.length === 1 ? "tema" : "temas"}`}</span>
                 </summary>
                 <div className="modulo-cuerpo">
@@ -45,28 +44,14 @@ export default function DetalleCurso({ curso, fichas, fichaElegida, alElegirFich
                   {m.evidencia && <p className="modulo-evidencia"><strong>Entregas:</strong> {m.evidencia}</p>}
                 </div>
               </details>
-            )) : <p>El contenido de este curso se publicará pronto.</p>}
+            )) : <p>El contenido de este módulo se publicará pronto.</p>}
           </div>
-          <h3>Proyecto final</h3>
+          <h3>Proyecto del módulo</h3>
           <p>{o(curso.proyecto)}</p>
-          <h3>Fichas</h3>
-          <p className="modal-sub">Cada grupo del curso tiene un número de ficha. Elige el que mejor se acomode a tu horario.</p>
-          <div className="fichas-lista" role="radiogroup" aria-label="Fichas del curso">
-            {fichas.length ? fichas.map((f) => {
-              const abierta = f.estado === "Inscripciones abiertas";
-              return (
-                <label className={`ficha-opcion ${abierta ? "" : "is-cerrada"}`} key={f.numero}>
-                  <input type="radio" name="mc-ficha" value={f.numero} checked={f.numero === fichaElegida} disabled={!abierta} onChange={() => alElegirFicha(f.numero)} />
-                  <span className="ficha-numero"><small>Ficha</small>{f.numero}</span>
-                  <span className="ficha-datos"><strong>{f.jornada}</strong><small>{`Inicia ${fechaCorta(f.inicio)} · ${Number(f.cupos) || "—"} cupos`}</small></span>
-                  <span className={`tag ${claseFicha(f.estado)}`}>{f.estado}</span>
-                </label>
-              );
-            }) : <p className="modal-sub">Pronto abriremos la primera ficha de este curso.</p>}
-          </div>
+          <p className="aviso-piloto" role="note">La inscripción es a la ruta completa: empiezas por el módulo 1 y sigues en orden. Las clases son presenciales en Barranquilla entre el primer y el segundo trimestre de 2027; te avisaremos por correo la fecha y el horario de tu grupo. Al terminar recibes una constancia de participación.</p>
           <div className="modal-acciones">
-            <button type="button" className="btn btn-primary" id="mc-inscribirme" disabled={!puede} onClick={alInscribirse}>
-              {puede ? `Inscribirme en la ficha ${fichaElegida}` : curso.fase === "Lanzamiento" ? "Sin fichas abiertas" : "Próximamente"}
+            <button type="button" className="btn btn-primary" id="mc-inscribirme" disabled={!puedeInscribirse} onClick={alInscribirse}>
+              {puedeInscribirse ? "Inscribirme en la ruta" : "Inscripciones pronto"}
             </button>
             <button type="button" className="btn btn-outline" onClick={alCerrar}>Cerrar</button>
           </div>

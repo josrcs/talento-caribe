@@ -2,12 +2,14 @@
    Cursos.jsx - Cursos y fichas del panel
    Crear y editar cursos (POST/PUT /api/cursos) y fichas (POST/PUT /api/fichas).
    Solo los cargos con permiso editarCursos ven los botones; el servidor lo vuelve a revisar.
+   El Gerente además puede eliminar un curso (DELETE /api/cursos/:id), con confirmación.
+   Mentor: es opcional mientras se eligen los mentores del piloto ("Por asignar").
    ========================================================== */
 import { useState } from "react";
 import Modal from "../../componentes/Modal.jsx";
 import { useDatos } from "../../contexto/Datos.jsx";
 import { modulosDe } from "../../lib/cursos.js";
-import { toast } from "../../lib/utils.js";
+import { confirmar, toast } from "../../lib/utils.js";
 import BotonCarga from "../../componentes/BotonCarga.jsx";
 import { FilaVacia, intentar } from "./comunes.jsx";
 import { usePanel } from "./PanelContexto.jsx";
@@ -27,7 +29,7 @@ function FormCurso({ pedido, alCerrar }) {
     const f = e.currentTarget; if (!f.reportValidity()) return;
     const v = (n) => f.elements[n].value.trim();
     const id = curso?.id || Math.max(0, ...D.cursos().map((c) => Number(c.id))) + 1;
-    const nuevo = { id, titulo: v("titulo"), area: perfil.courseArea || f.elements.area.value, nivel: f.elements.nivel.value, duracion: Number(f.elements.duracion.value), modalidad: f.elements.modalidad.value, fase: f.elements.fase.value, instructor: v("instructor"), edadMinima: Number(f.elements.edad_minima.value), descripcion: v("descripcion"), objetivo: v("objetivo"), temario: f.elements.temario.value.split("\n").map((l) => l.trim()).filter(Boolean), proyecto: v("proyecto") };
+    const nuevo = { id, titulo: v("titulo"), area: perfil.courseArea || f.elements.area.value, nivel: f.elements.nivel.value, duracion: Number(f.elements.duracion.value), modalidad: f.elements.modalidad.value, fase: f.elements.fase.value, instructor: v("instructor") || "Por asignar", edadMinima: Number(f.elements.edad_minima.value), descripcion: v("descripcion"), objetivo: v("objetivo"), temario: f.elements.temario.value.split("\n").map((l) => l.trim()).filter(Boolean), proyecto: v("proyecto") };
     // Cada línea es un módulo; si el módulo conserva su título, también conserva la actividad y la evidencia del plan
     nuevo.modulos = modulosDe({ temario: nuevo.temario }).map((m, i) => { const a = mods[i]?.titulo === m.titulo ? mods[i] : null; return { titulo: m.titulo, temas: m.temas, temasTexto: m.temasTexto, actividades: a?.actividades || [], evidencia: a?.evidencia || "" }; });
     if (curso?.guia) nuevo.guia = curso.guia;
@@ -49,7 +51,7 @@ function FormCurso({ pedido, alCerrar }) {
           <div className="fila-campos">
             <div className="campo"><label htmlFor="fc-modalidad">Modalidad</label><select id="fc-modalidad" name="modalidad" required defaultValue={curso?.modalidad || "Virtual"}><option value="Virtual">Virtual</option><option value="Presencial">Presencial</option><option value="Híbrido">Híbrido</option></select></div>
             <div className="campo"><label htmlFor="fc-fase">Fase</label><select id="fc-fase" name="fase" required defaultValue={curso?.fase || "Próximamente"}><option value="Lanzamiento">Lanzamiento</option><option value="Próximamente">Próximamente</option></select></div>
-            <div className="campo"><label htmlFor="fc-instructor">Instructor</label><input id="fc-instructor" name="instructor" type="text" required defaultValue={curso?.instructor} /></div>
+            <div className="campo"><label htmlFor="fc-instructor">Mentor (opcional)</label><input id="fc-instructor" name="instructor" type="text" placeholder="Por asignar" defaultValue={curso?.instructor === "Por asignar" ? "" : curso?.instructor} /></div>
           </div>
           <div className="campo"><label htmlFor="fc-edad-minima">Edad mínima del programa</label><input id="fc-edad-minima" name="edad_minima" type="number" min="0" max="100" required defaultValue={curso?.edadMinima ?? 14} /><small className="form-ayuda">La mayoría de cursos parte de los 14 años. Usa 0 si el programa no tiene mínimo de edad.</small></div>
           <div className="campo"><label htmlFor="fc-descripcion">Descripción</label><textarea id="fc-descripcion" name="descripcion" rows="4" required defaultValue={curso?.descripcion}></textarea></div>
@@ -76,7 +78,7 @@ function DetalleCurso({ curso, alCerrar }) {
           <p>{curso.descripcion}</p>
           <dl className="curso-meta">
             <div><dt>Nivel</dt><dd>{curso.nivel}</dd></div><div><dt>Duración</dt><dd>{curso.duracion + " semanas"}</dd></div>
-            <div><dt>Modalidad</dt><dd>{curso.modalidad}</dd></div><div><dt>Instructor</dt><dd>{curso.instructor}</dd></div>
+            <div><dt>Modalidad</dt><dd>{curso.modalidad}</dd></div><div><dt>Mentor</dt><dd>{curso.instructor || "Por asignar"}</dd></div>
             <div><dt>Edad mínima</dt><dd>{edad > 0 ? edad + " años" : "Sin mínimo específico"}</dd></div>
           </dl>
           <h3>Lo que lograrán</h3><p>{curso.objetivo || "Por definir"}</p>
@@ -133,8 +135,8 @@ function FormFicha({ pedido, alCerrar }) {
             <div className="campo"><label htmlFor="ff-curso">Curso</label><select id="ff-curso" name="curso_id" required defaultValue={String(f?.curso_id || cursosVisibles[0]?.id || "")}>{cursosVisibles.map((c) => <option key={c.id} value={String(c.id)}>{c.titulo}</option>)}</select></div>
           </div>
           <div className="fila-campos">
-            <div className="campo"><label htmlFor="ff-jornada">Jornada</label><select id="ff-jornada" name="jornada" required defaultValue={f?.jornada || "Mañana"}>{["Mañana", "Tarde", "Noche", "Sábados"].map((j) => <option key={j}>{j}</option>)}</select></div>
-            <div className="campo"><label htmlFor="ff-inicio">Fecha de inicio</label><input id="ff-inicio" name="inicio" type="date" required defaultValue={f?.inicio || ""} /></div>
+            <div className="campo"><label htmlFor="ff-jornada">Jornada</label><select id="ff-jornada" name="jornada" required defaultValue={f?.jornada || "Por definir"}>{["Por definir", "Mañana", "Tarde", "Noche", "Sábados"].map((j) => <option key={j}>{j}</option>)}</select></div>
+            <div className="campo"><label htmlFor="ff-inicio">Fecha de inicio</label><input id="ff-inicio" name="inicio" type="date" defaultValue={f?.inicio || ""} /><small className="form-ayuda">Déjala vacía si todavía no está definida: se mostrará «Se anunciará por correo».</small></div>
           </div>
           <div className="fila-campos">
             <div className="campo"><label htmlFor="ff-cupos">Cupos</label><input id="ff-cupos" name="cupos" type="number" min="1" max="200" required defaultValue={f?.cupos || 25} /></div>
@@ -157,7 +159,20 @@ export default function Cursos() {
   const [formFicha, setFormFicha] = useState(null);
   const [buscar, setBuscar] = useState("");
   const [estado, setEstado] = useState("");
+  const [borrando, setBorrando] = useState(null); // id del curso que se está eliminando
+  const { acciones } = useDatos();
   const q = buscar.replace(/\D/g, "");
+
+  /* Solo el Gerente: borra el curso con todo lo que depende de él (el servidor lo vuelve a revisar) */
+  async function eliminarCurso(c) {
+    const inscritos = D.inscripciones().filter((i) => Number(i.curso_id) === Number(c.id)).length;
+    const fichasCurso = D.fichasDeCurso(c.id).length;
+    const detalle = [fichasCurso && fichasCurso + (fichasCurso === 1 ? " ficha" : " fichas"), inscritos && inscritos + (inscritos === 1 ? " inscripción" : " inscripciones")].filter(Boolean).join(" y ");
+    if (!(await confirmar({ titulo: "¿Eliminar el curso «" + c.titulo + "»?", mensaje: (detalle ? "También se borrarán sus " + detalle + ", y sus actividades y entregas. " : "") + "Esta acción no se puede deshacer.", aceptar: "Eliminar curso", peligro: true }))) return;
+    setBorrando(c.id);
+    if (await intentar(() => acciones.eliminarCurso(c.id))) toast("Curso «" + c.titulo + "» eliminado");
+    setBorrando(null);
+  }
   const fichas = D.fichas().filter((f) => cursoEnArea(f.curso_id) && (!q || f.numero.includes(q)) && (!estado || f.estado === estado)).sort((a, b) => a.numero.localeCompare(b.numero));
   return (
     <>
@@ -167,16 +182,17 @@ export default function Cursos() {
       </div>
       <div className="tabla-wrap">
         <table className="tabla">
-          <thead><tr><th scope="col">Curso</th><th scope="col">Área</th><th scope="col">Nivel</th><th scope="col">Modalidad</th><th scope="col">Instructor</th><th scope="col">Fichas</th><th scope="col">Fase</th><th scope="col">Acciones</th></tr></thead>
+          <thead><tr><th scope="col">Curso</th><th scope="col">Área</th><th scope="col">Nivel</th><th scope="col">Modalidad</th><th scope="col">Mentor</th><th scope="col">Fichas</th><th scope="col">Fase</th><th scope="col">Acciones</th></tr></thead>
           <tbody>
             {cursosVisibles.length ? cursosVisibles.map((c) => (
               <tr key={c.id}>
-                <td>{c.titulo}<br /><small>{D.modulos(c).length + " módulos"}</small></td><td>{c.area}</td><td>{c.nivel}</td><td>{c.modalidad}</td><td>{c.instructor}</td>
+                <td>{c.titulo}<br /><small>{D.modulos(c).length + " módulos"}</small></td><td>{c.area}</td><td>{c.nivel}</td><td>{c.modalidad}</td><td>{c.instructor || "Por asignar"}</td>
                 <td><span className="fichas-celda">{D.fichasDeCurso(c.id).length ? D.fichasDeCurso(c.id).map((f) => <span className="ficha-chip" key={f.numero} title={f.jornada + " · " + f.estado}>{f.numero}</span>) : "—"}</span></td>
                 <td><span className={"pill " + (c.fase === "Lanzamiento" ? "pill-ok" : "")}>{c.fase}</span></td>
                 <td><div className="portal-actions">
                   <button type="button" className="btn btn-outline btn-sm" onClick={() => setDetalle(c)}>Ver información</button>
                   {perfil.editaCursos && <button type="button" className="btn btn-outline btn-sm" onClick={() => setFormCurso({ curso: c, n: Date.now() })}>Editar</button>}
+                  {perfil.eliminaCursos && <button type="button" className="btn btn-outline btn-sm btn-peligro" disabled={borrando === c.id} onClick={() => eliminarCurso(c)}>{borrando === c.id ? "Eliminando…" : "Eliminar"}</button>}
                 </div></td>
               </tr>
             )) : <FilaVacia columnas={8}>No hay cursos para este departamento.</FilaVacia>}
@@ -202,8 +218,8 @@ export default function Cursos() {
               return (
                 <tr key={f.numero}>
                   <td><span className="ficha-chip">{f.numero}</span></td>
-                  <td>{cursoTitulo(f.curso_id)}<br /><small>{D.curso(f.curso_id)?.instructor || ""}</small></td>
-                  <td>{f.jornada}</td><td>{f.inicio || "—"}</td>
+                  <td>{cursoTitulo(f.curso_id)}</td>
+                  <td>{f.jornada}</td><td>{f.inicio || "Por anunciar"}</td>
                   <td>{`${n}/${Number(f.cupos) || "—"}`}{pend > 0 && <><br /><small>{`${pend} en revisión`}</small></>}</td>
                   <td><span className={"pill " + (CLASE_FICHA[f.estado] || "")}>{f.estado}</span></td>
                   <td>{perfil.editaCursos ? <button type="button" className="btn btn-outline btn-sm" onClick={() => setFormFicha({ ficha: f, n: Date.now() })}>Editar</button> : "—"}</td>

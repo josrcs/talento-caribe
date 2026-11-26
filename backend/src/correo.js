@@ -112,7 +112,9 @@ async function enviarConBrevo({ para, asunto, texto, html, responderA }) {
 }
 
 const enlaces = { cursos: `${SITIO}/cursos.html`, portal: `${SITIO}/portal.html`, ingresar: `${SITIO}/admin/login.html` };
-const INTERES = { curso: "Información de un curso", mentor: "Quiere ser mentor", alianza: "Alianzas o patrocinio", otro: "Otro tema" };
+const INTERES = { curso: "Información de un curso", mentor: "Quiere ser mentor", alianza: "Alianzas o patrocinio", otro: "Otro tema",
+  patrocinar: "Súmate: quiere patrocinar", donar: "Súmate: quiere donar equipos o recursos", espacio: "Súmate: quiere prestar un espacio",
+  estudiar: "Súmate: quiere estudiar en el piloto", difundir: "Súmate: quiere apoyar y difundir" };
 
 module.exports = {
   configurado, medio, SITIO,

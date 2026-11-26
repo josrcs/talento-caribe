@@ -9,7 +9,7 @@ function validarCurso(b) {
     titulo: linea(b.titulo, 3, 100), area: ["Software", "Hardware"].includes(b.area), nivel: ["Básico", "Intermedio"].includes(b.nivel),
     duracion: Number.isInteger(Number(b.duracion)) && b.duracion >= 1 && b.duracion <= 52,
     modalidad: ["Virtual", "Presencial", "Híbrido"].includes(b.modalidad), fase: ["Lanzamiento", "Próximamente"].includes(b.fase),
-    instructor: linea(b.instructor, 3, 100), edadMinima: Number.isInteger(Number(b.edadMinima)) && b.edadMinima >= 0 && b.edadMinima <= 100,
+    instructor: !limpio(b.instructor) || linea(b.instructor, 3, 100), edadMinima: Number.isInteger(Number(b.edadMinima)) && b.edadMinima >= 0 && b.edadMinima <= 100,
     descripcion: texto(b.descripcion, 10, 3000), objetivo: opcional(b.objetivo, 1000, true), proyecto: opcional(b.proyecto, 200, true),
     temario: b.temario === undefined || (Array.isArray(b.temario) && b.temario.length <= 30 && b.temario.every((t) => texto(t, 1, 200))),
     modulos: b.modulos === undefined || (Array.isArray(b.modulos) && b.modulos.length <= 30 && b.modulos.every((m) =>
@@ -27,8 +27,10 @@ async function guardarCurso(req, res, next, id) {
   const area = AREA_CARGO[req.usuario.puesto];
   if (area && b.area !== area) return res.status(403).json({ error: `Tu cargo solo administra cursos de ${area}.` });
   try {
-    const docente = (await pool.query("SELECT id FROM usuarios WHERE rol = 'docente' AND nombre = $1", [b.instructor.trim()])).rows[0];
-    const valores = [b.titulo.trim(), b.area, b.nivel, Number(b.duracion), b.modalidad, b.fase, docente?.id || null, b.instructor.trim(),
+    // Mentor del curso: es opcional mientras se asignan los mentores del piloto
+    const mentor = limpio(b.instructor) || "Por asignar";
+    const docente = (await pool.query("SELECT id FROM usuarios WHERE rol = 'docente' AND nombre = $1", [mentor])).rows[0];
+    const valores = [b.titulo.trim(), b.area, b.nivel, Number(b.duracion), b.modalidad, b.fase, docente?.id || null, mentor,
       Number(b.edadMinima), b.descripcion.trim(), limpio(b.objetivo), b.temario || [], limpio(b.proyecto), JSON.stringify(limpiarModulos(b.modulos))];
     if (id) {
       if (area && !(await pool.query("SELECT 1 FROM cursos WHERE id = $1 AND area = $2", [id, area])).rowCount) return res.status(403).json({ error: `Tu cargo solo administra cursos de ${area}.` });
@@ -50,8 +52,18 @@ router.put("/cursos/:id", requiereSesion, requierePermiso("editarCursos"), (req,
   id ? guardarCurso(req, res, next, id) : res.status(400).json({ error: "Curso no válido." });
 });
 
+/* Borrar un curso: solo el Gerente. La base borra con él sus fichas, inscripciones, actividades y entregas (ON DELETE CASCADE). */
+router.delete("/cursos/:id", requiereSesion, requierePermiso("eliminarCursos"), async (req, res, next) => {
+  const id = entero(req.params.id);
+  if (!id) return res.status(400).json({ error: "Curso no válido." });
+  try {
+    const { rows } = await pool.query("DELETE FROM cursos WHERE id = $1 RETURNING titulo", [id]);
+    rows.length ? res.json({ ok: true, titulo: rows[0].titulo }) : res.status(404).json({ error: "Curso no encontrado." });
+  } catch (e) { next(e); }
+});
+
 /* ---------- Fichas (grupos de cada curso) ---------- */
-const JORNADAS = ["Mañana", "Tarde", "Noche", "Sábados"], ESTADOS_FICHA = ["Inscripciones abiertas", "En formación", "Próximamente", "Finalizada"];
+const JORNADAS = ["Mañana", "Tarde", "Noche", "Sábados", "Por definir"], ESTADOS_FICHA = ["Inscripciones abiertas", "En formación", "Próximamente", "Finalizada"];
 async function guardarFicha(req, res, next, numeroExistente) {
   const b = req.body || {}, numero = String(numeroExistente || b.numero || "").trim();
   if (rechazar(res, {

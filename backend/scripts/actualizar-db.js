@@ -7,8 +7,6 @@
    - Crea la tabla fichas con las fichas del catálogo.
    - Agrega ficha_id a inscripciones y modulo/ficha_id a actividades. Las inscripciones
      que no tienen ficha quedan en la primera ficha de su curso.
-   - Corrige la duración de los cursos que tienen menos semanas de las que necesitan sus
-     módulos (cada módulo dura 2 semanas): toma la duración del catálogo.
    - Crea las tablas de respuestas de encuestas y de recuperación de contraseña, y carga
      respuestas de ejemplo de los estudiantes de prueba si la tabla está vacía.
    - Seguridad: agrega usuarios.sesiones_desde (cambiar la contraseña cierra las demás
@@ -18,6 +16,13 @@
    - Datos personales (Ley 1581 de 2012): agrega a usuarios la versión de la política aceptada y la fecha
      de la autorización, y a mensajes_contacto la versión aceptada al escribir.
    - Encuesta pública: respuestas_encuesta.estudiante_id puede quedar vacío (respuestas anónimas sin cuenta).
+   - Piloto 2027 (una sola vez, se anota en la tabla migraciones): las fichas aceptan la jornada
+     «Por definir», el contacto acepta los intereses de «Súmate» y se cargan los 4 cursos de la ruta
+     del piloto «Programación desde cero» (Lógica de programación → Git y GitHub → HTML y CSS →
+     JavaScript → Bases de datos con SQL; en el piloto cada módulo dura 1 semana). Si un curso con
+     el mismo nombre ya existe se actualiza (conserva sus inscripciones); sus fichas viejas quedan
+     «Finalizada». Los demás cursos NO se borran: pasan a «Próximamente» (nadie se puede inscribir y
+     la página pública no los muestra) y el Gerente puede eliminarlos desde el panel.
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -91,7 +96,46 @@ const ESTRUCTURA = `
   ALTER TABLE usuarios          ADD COLUMN IF NOT EXISTS consentimiento_version VARCHAR(10);
   ALTER TABLE usuarios          ADD COLUMN IF NOT EXISTS consentimiento_en      TIMESTAMPTZ;
   ALTER TABLE mensajes_contacto ADD COLUMN IF NOT EXISTS politica_version       VARCHAR(10);
-  ALTER TABLE respuestas_encuesta ALTER COLUMN estudiante_id DROP NOT NULL;`;
+  ALTER TABLE respuestas_encuesta ALTER COLUMN estudiante_id DROP NOT NULL;
+  CREATE TABLE IF NOT EXISTS migraciones (nombre VARCHAR(60) PRIMARY KEY, aplicada_en TIMESTAMPTZ NOT NULL DEFAULT now());
+  ALTER TABLE fichas ALTER COLUMN jornada TYPE VARCHAR(12);
+  ALTER TABLE fichas DROP CONSTRAINT IF EXISTS fichas_jornada_check;
+  ALTER TABLE fichas ADD CONSTRAINT fichas_jornada_check CHECK (jornada IN ('Mañana', 'Tarde', 'Noche', 'Sábados', 'Por definir'));
+  ALTER TABLE mensajes_contacto ALTER COLUMN interes TYPE VARCHAR(12);
+  ALTER TABLE mensajes_contacto DROP CONSTRAINT IF EXISTS mensajes_contacto_interes_check;
+  ALTER TABLE mensajes_contacto ADD CONSTRAINT mensajes_contacto_interes_check
+    CHECK (interes IN ('curso', 'mentor', 'alianza', 'otro', 'patrocinar', 'donar', 'espacio', 'estudiar', 'difundir'));`;
+
+/* Piloto 2027: carga la ruta de 4 cursos una sola vez (ver la cabecera del archivo) */
+const moduloLimpio = (m) => ({ titulo: m.titulo, temas: m.temas || [], temasTexto: m.temasTexto || "", actividades: m.actividades || [], evidencia: m.evidencia || "" });
+async function piloto2027(db) {
+  if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'piloto-2027'")).rowCount) return console.log("ℹ La ruta del piloto 2027 ya estaba cargada");
+  let creados = 0, actualizados = 0, fichasNuevas = 0;
+  for (const c of cursos) {
+    const v = [c.titulo, c.area, c.nivel, Number(c.duracion), c.modalidad, c.fase, c.instructor, Number(c.edadMinima ?? 14), c.descripcion,
+      c.objetivo || null, c.temario || [], JSON.stringify((c.modulos || []).map(moduloLimpio)), JSON.stringify(c.guia || {}), c.proyecto || null];
+    const { rowCount } = await db.query(`UPDATE cursos SET area=$2, nivel=$3, duracion_semanas=$4, modalidad=$5, fase=$6, instructor=$7, docente_id=NULL,
+      edad_minima=$8, descripcion=$9, objetivo=$10, temario=$11, modulos=$12, guia=$13, proyecto=$14, actualizado_en=now() WHERE titulo = $1`, v);
+    if (rowCount) actualizados++;
+    else {
+      await db.query(`INSERT INTO cursos (titulo, area, nivel, duracion_semanas, modalidad, fase, instructor, edad_minima, descripcion, objetivo, temario, modulos, guia, proyecto)
+        VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14)`, v);
+      creados++;
+    }
+    const numeros = fichas.filter((f) => f.curso_id === c.id).map((f) => f.numero);
+    await db.query(`UPDATE fichas SET estado = 'Finalizada' WHERE curso_id = (SELECT id FROM cursos WHERE titulo = $1) AND NOT (numero = ANY($2))`, [c.titulo, numeros]);
+  }
+  for (const f of fichas) {
+    const titulo = cursos.find((c) => c.id === f.curso_id)?.titulo;
+    const { rowCount } = await db.query(`INSERT INTO fichas (numero, curso_id, jornada, fecha_inicio, cupos, estado)
+      SELECT $1, id, $3, $4, $5, $6 FROM cursos WHERE titulo = $2 ON CONFLICT (numero) DO NOTHING`,
+      [f.numero, titulo, f.jornada, f.inicio || null, Number(f.cupos), f.estado]);
+    fichasNuevas += rowCount;
+  }
+  const { rowCount: otros } = await db.query("UPDATE cursos SET fase = 'Próximamente' WHERE NOT (titulo = ANY($1))", [cursos.map((c) => c.titulo)]);
+  await db.query("INSERT INTO migraciones (nombre) VALUES ('piloto-2027')");
+  console.log(`✔ Ruta del piloto 2027: ${creados} módulo(s) nuevo(s), ${actualizados} actualizado(s), ${fichasNuevas} ficha(s) nueva(s) y ${otros} curso(s) fuera de la ruta en «Próximamente»`);
+}
 
 async function main() {
   const db = new Client({ connectionString: process.env.DATABASE_URL, ssl });
@@ -107,30 +151,13 @@ async function main() {
 
     let conModulos = 0;
     for (const c of cursos) {
-      const modulos = (c.modulos || []).map((m) => ({ titulo: m.titulo, temas: m.temas || [], temasTexto: m.temasTexto || "", actividades: m.actividades || [], evidencia: m.evidencia || "" }));
-      const { rowCount } = await db.query("UPDATE cursos SET modulos = $1, guia = $2 WHERE id = $3 AND titulo = $4 AND modulos = '[]'::jsonb",
-        [JSON.stringify(modulos), JSON.stringify(c.guia || {}), c.id, c.titulo]);
+      const { rowCount } = await db.query("UPDATE cursos SET modulos = $1, guia = $2 WHERE titulo = $3 AND modulos = '[]'::jsonb",
+        [JSON.stringify((c.modulos || []).map(moduloLimpio)), JSON.stringify(c.guia || {}), c.titulo]);
       conModulos += rowCount;
     }
     console.log(`✔ Módulos y guía cargados en ${conModulos} curso(s)`);
 
-    // Cada módulo dura 2 semanas: un curso de 8 módulos no puede durar 4 semanas
-    let corregidos = 0;
-    for (const c of cursos) {
-      const { rowCount } = await db.query("UPDATE cursos SET duracion_semanas = $1 WHERE id = $2 AND titulo = $3 AND duracion_semanas < jsonb_array_length(modulos) * 2",
-        [Number(c.duracion), c.id, c.titulo]);
-      corregidos += rowCount;
-    }
-    console.log(`✔ Duración corregida en ${corregidos} curso(s)`);
-
-    let nuevas = 0;
-    for (const f of fichas) {
-      const { rowCount } = await db.query(`INSERT INTO fichas (numero, curso_id, jornada, fecha_inicio, cupos, estado)
-        SELECT $1, $2, $3, $4, $5, $6 WHERE EXISTS (SELECT 1 FROM cursos WHERE id = $2) ON CONFLICT (numero) DO NOTHING`,
-        [f.numero, f.curso_id, f.jornada, f.inicio || null, Number(f.cupos), f.estado]);
-      nuevas += rowCount;
-    }
-    console.log(`✔ ${nuevas} ficha(s) nueva(s)`);
+    await piloto2027(db);
 
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);

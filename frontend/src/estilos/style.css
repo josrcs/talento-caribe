@@ -318,3 +318,8 @@ textarea { resize: vertical; }
   .mentor { grid-template-columns: auto 1fr; align-items: center; column-gap: .9rem; }
   .mentor .avatar { grid-row: span 2; margin: 0; }
 }
+
+/* ---------- Aviso del piloto 2027 (inicio, registro e inscripción) ---------- */
+.aviso-piloto { margin: .75rem 0; padding: .8rem 1rem; border-radius: var(--radius-md, 12px); background: rgba(247, 174, 31, .14);
+  border: 1px solid rgba(247, 174, 31, .55); color: var(--texto-fuerte); font-size: .92rem; line-height: 1.5; }
+.aviso-piloto strong { color: var(--texto-fuerte); }
