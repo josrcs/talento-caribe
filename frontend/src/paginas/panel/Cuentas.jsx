@@ -3,6 +3,7 @@
    Director(a) general: crea cuentas administrativas (contraseña temporal que se muestra una vez) y las elimina.
    Director(a) general, Dirección académica y Dirección de tecnología: crean docentes y los desactivan o reactivan.
    Director(a) general y Coordinación de admisiones: bloquean estudiantes inactivos y los desbloquean cuando quieran.
+   Director(a) general: además puede eliminar la cuenta de un estudiante (con confirmación; no se puede deshacer).
    Todo lo valida el servidor (backend/src/rutas/cuentas.js).
    ========================================================== */
 import { useCallback, useEffect, useState } from "react";
@@ -147,6 +148,7 @@ const tiempoSinUso = (u) => {
   return u.desde === "desbloqueo" ? "Desbloqueada " + cuando : u.desde === "creacion" ? "Creada " + cuando + ", sin ingresar" : n <= 0 ? "Usada hoy" : "Sin uso desde " + cuando;
 };
 function Estudiantes() {
+  const { perfil } = usePanel();
   const [datos, setDatos] = useState(null); // { estudiantes, diasMinimos } o { error }
   const [mostrar, setMostrar] = useState("inactivas");
   const [dias, setDias] = useState(30);
@@ -166,6 +168,10 @@ function Estudiantes() {
   }
   async function desbloquear(u) {
     if (await intentar(() => pedir("POST", "/cuentas/estudiantes/" + u.id + "/desbloquear"))) { toast("Cuenta desbloqueada"); cargar(); }
+  }
+  async function eliminar(u) {
+    if (!(await confirmar({ titulo: "¿Eliminar la cuenta de " + u.nombre + "?", mensaje: "Se borran para siempre su cuenta, sus solicitudes e inscripciones, sus entregas y el historial de monitoría. Esta acción no se puede deshacer. Si solo quieres que no entre, mejor bloquéala.", aceptar: "Eliminar cuenta", peligro: true }))) return;
+    if (await intentar(() => pedir("DELETE", "/cuentas/estudiantes/" + u.id))) { toast("Cuenta de " + u.nombre + " eliminada"); cargar(); }
   }
   async function bloquearTodas() {
     const n = inactivas.length;
@@ -198,8 +204,9 @@ function Estudiantes() {
                   <td>{u.cursos}</td>
                   <td>{!u.activo ? <><span className="pill pill-no">Bloqueada</span>{u.bloqueado_en && <><br /><small>{fechaLarga(u.bloqueado_en) + (u.bloqueado_por ? " · " + u.bloqueado_por : "")}</small></>}</>
                     : inactiva(u) ? <span className="pill pill-pendiente">Inactiva</span> : <span className="pill pill-ok">Activa</span>}</td>
-                  <td>{!u.activo ? <button type="button" className="btn btn-primary btn-sm" onClick={() => desbloquear(u)}>Desbloquear</button>
-                    : u.dias_sin_uso >= datos.diasMinimos ? <button type="button" className="btn btn-outline btn-sm btn-peligro" onClick={() => bloquear(u)}>Bloquear</button> : null}</td>
+                  <td><div className="portal-actions">{!u.activo ? <button type="button" className="btn btn-primary btn-sm" onClick={() => desbloquear(u)}>Desbloquear</button>
+                    : u.dias_sin_uso >= datos.diasMinimos ? <button type="button" className="btn btn-outline btn-sm btn-peligro" onClick={() => bloquear(u)}>Bloquear</button> : null}
+                    {perfil.eliminaEstudiantes && <button type="button" className="btn btn-outline btn-sm btn-peligro" onClick={() => eliminar(u)}>Eliminar</button>}</div></td>
                 </tr>
               )) : <FilaVacia columnas={5}>{mostrar === "inactivas" ? `No hay cuentas sin ingresar hace ${dias} días o más.` : mostrar === "bloqueadas" ? "No hay cuentas bloqueadas." : "No hay estudiantes con esos filtros."}</FilaVacia>}
           </tbody>

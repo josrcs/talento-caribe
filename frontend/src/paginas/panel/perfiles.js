@@ -48,6 +48,7 @@ export function construirPerfil(puesto) {
     permitidas: new Set([...secciones, "encuestas"]),
     finanzas: FINANZAS.includes(puesto),
     editaCursos: EDITAN_CURSOS.includes(puesto),
+    eliminaEstudiantes: puesto === "Director(a) general", // = PERMISOS.eliminarEstudiantes del servidor
     eliminaCursos: puesto === "Director(a) general", // = PERMISOS.eliminarCursos del servidor (Talento Caribe no tiene Gerente)
     supervisa: puesto === "Director(a) general",
     gestionaEquipo, gestionaEstudiantes, gestionaDocentes,

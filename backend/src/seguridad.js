@@ -67,6 +67,7 @@ const PERMISOS = {
   // crear docentes y desactivarlos
   cuentasDocentes: ["Director(a) general"],
   bloquearEstudiantes: ["Director(a) general", "Coordinador(a) de admisiones"], // bloquear estudiantes inactivos y desbloquearlos
+  eliminarEstudiantes: ["Director(a) general"], // borrar la cuenta de un estudiante con sus inscripciones y entregas
   configurarIA: ["Director(a) general"],
   seguridad: ["Director(a) general"],
   // Monitoría: ver el avance de los jóvenes de la ruta, sus datos de contacto y registrar cada contacto

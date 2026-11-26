@@ -593,3 +593,17 @@
   };
   Object.assign(window.TC_EN, MONITORIA_EN);
 })();
+
+(() => {
+  Object.assign(window.TC_EN, {
+    "Actividades: entregó # de #": "Activities: submitted # of #",
+    "Todavía no hay actividades publicadas en sus módulos.": "No activities have been published in their modules yet.",
+    "Entregada · sin calificar": "Submitted · not graded",
+    "Vencida": "Overdue",
+    "Pendiente": "Pending",
+    "Nota #": "Grade #",
+    "Abrir lo que entregó →": "Open their submission →",
+    "Retroalimentación:": "Feedback:",
+    "Eliminar cuenta": "Delete account",
+  });
+})();

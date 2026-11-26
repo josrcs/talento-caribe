@@ -5,6 +5,8 @@
    - Cada joven: módulo en el que va, entregas, promedio, último ingreso, alertas,
      botones para escribirle por WhatsApp o correo (a él o a su acudiente) y el
      historial de contactos del equipo.
+   - Sus actividades: cuáles entregó (con la respuesta, el enlace, la nota y el comentario)
+     y cuáles le faltan, marcando las vencidas.
    - "Registrar contacto" guarda una nota (POST /api/seguimiento/:id/contactos).
    Los datos llegan de GET /api/seguimiento (no de /api/datos: solo este permiso los ve).
    ========================================================== */
@@ -86,6 +88,42 @@ function RegistrarContacto({ estudiante, alCerrar, alGuardar }) {
   );
 }
 
+/* Las actividades del joven: entregadas (con su trabajo) y pendientes */
+const hoy = () => new Date().toISOString().slice(0, 10);
+function Tareas({ tareas }) {
+  if (!tareas?.length) return <p className="seg-joven-sub">Todavía no hay actividades publicadas en sus módulos.</p>;
+  const hechas = tareas.filter((t) => t.estado).length;
+  return (
+    <details className="seg-historial seg-tareas">
+      <summary>{`Actividades: entregó ${hechas} de ${tareas.length}`}</summary>
+      <ol>
+        {tareas.map((t) => {
+          const vencida = !t.estado && t.limite && t.limite < hoy();
+          return (
+            <li key={t.id}>
+              <div className="seg-tarea-top">
+                <strong>{t.titulo}</strong>
+                {t.estado === "revisada" ? <span className={"pill " + (t.nota >= 3 ? "pill-ok" : "pill-no")}>{`Nota ${Number(t.nota).toFixed(1)}`}</span>
+                  : t.estado ? <span className="pill pill-pendiente">Entregada · sin calificar</span>
+                  : <span className={"pill " + (vencida ? "pill-no" : "")}>{vencida ? "Vencida" : "Pendiente"}</span>}
+              </div>
+              <small>{`${t.tipo} · ${t.curso} · Clase ${t.modulo}${t.limite ? " · vence " + t.limite : ""}`}</small>
+              {t.estado && (
+                <div className="seg-entrega">
+                  {t.respuesta && <p data-no-traducir>{t.respuesta}</p>}
+                  {t.enlace && <a href={t.enlace} target="_blank" rel="noopener noreferrer">Abrir lo que entregó →</a>}
+                  {t.comentario && <p className="seg-comentario"><strong>Retroalimentación:</strong> <span data-no-traducir>{t.comentario}</span></p>}
+                  <small>{`Entregada el ${fechaHora(t.entregada)}`}</small>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ol>
+    </details>
+  );
+}
+
 function TarjetaJoven({ e, alRegistrar }) {
   const actual = moduloActual(e);
   const paso = actual ? pasoDeRuta(actual) : -1;
@@ -133,6 +171,8 @@ function TarjetaJoven({ e, alRegistrar }) {
         </div>
         <p className="seg-joven-sub">{[e.telefono, e.acudiente_nombre ? `Acudiente: ${e.acudiente_nombre}${e.acudiente_telefono ? " · " + e.acudiente_telefono : ""}` : ""].filter(Boolean).join(" · ")}</p>
       </div>
+
+      <Tareas tareas={e.tareas} />
 
       <details className="seg-historial">
         <summary>{e.contactos.length ? `Historial de contactos (${e.contactos.length})` : "Todavía no hay contactos registrados"}</summary>
