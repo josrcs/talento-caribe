@@ -29,6 +29,8 @@
      tiene todos los permisos, y se ELIMINAN las cuentas de docentes (con sus actividades y entregas).
    - Monitoría (una sola vez): crea la tabla seguimiento_contactos; las cuentas con cargo de director de
      área (académico, tecnología, admisiones, comunicaciones, administrativo) pasan a «Otro cargo administrativo».
+   - Solo la ruta (una sola vez): se BORRAN los cursos que no son de la ruta (con sus fichas, inscripciones,
+     actividades y entregas) y las fichas viejas; los 5 módulos se actualizan desde compartido/cursos.json.
    Se puede ejecutar varias veces: lo que ya existe no se toca.
    ========================================================== */
 require("dotenv").config();
@@ -143,6 +145,32 @@ async function monitoria(db) {
   console.log(`✔ Monitoría lista; ${rowCount} cuenta(s) con cargo de director de área pasaron a «Otro cargo administrativo»`);
 }
 
+/* Solo la ruta (una sola vez): borra los cursos que no son de la ruta (con sus fichas, inscripciones,
+   actividades y entregas), vuelve a cargar la información de los 5 módulos desde compartido/cursos.json
+   y deja en cada módulo solo sus fichas del catálogo (las inscripciones de fichas viejas pasan a la nueva). */
+async function soloLaRuta(db) {
+  if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'solo-la-ruta'")).rowCount) return console.log("ℹ El catálogo ya tenía solo la ruta");
+  const titulos = cursos.map((c) => c.titulo);
+  const { rowCount: borrados } = await db.query("DELETE FROM cursos WHERE NOT (titulo = ANY($1))", [titulos]);
+  for (const c of cursos) {
+    await db.query(`UPDATE cursos SET area=$2, nivel=$3, duracion_semanas=$4, modalidad=$5, fase=$6, edad_minima=$7, descripcion=$8, objetivo=$9,
+      temario=$10, modulos=$11, guia=$12, proyecto=$13, actualizado_en=now() WHERE titulo = $1`,
+      [c.titulo, c.area, c.nivel, Number(c.duracion), c.modalidad, c.fase, Number(c.edadMinima ?? 14), c.descripcion, c.objetivo || null,
+        c.temario || [], JSON.stringify((c.modulos || []).map(moduloLimpio)), JSON.stringify(c.guia || {}), c.proyecto || null]);
+    for (const f of fichas.filter((x) => x.curso_id === c.id)) {
+      await db.query(`INSERT INTO fichas (numero, curso_id, jornada, fecha_inicio, cupos, estado) SELECT $1, id, $3, $4, $5, $6 FROM cursos WHERE titulo = $2
+        ON CONFLICT (numero) DO NOTHING`, [f.numero, c.titulo, f.jornada, f.inicio || null, Number(f.cupos), f.estado]);
+    }
+    const numeros = fichas.filter((x) => x.curso_id === c.id).map((x) => x.numero);
+    await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT id FROM fichas WHERE numero = $2)
+      WHERE i.curso_id = (SELECT id FROM cursos WHERE titulo = $1) AND (i.ficha_id IS NULL OR i.ficha_id NOT IN (SELECT id FROM fichas WHERE numero = ANY($3)))`,
+      [c.titulo, numeros[0], numeros]);
+  }
+  const { rowCount: fichasViejas } = await db.query("DELETE FROM fichas WHERE NOT (numero = ANY($1))", [fichas.map((f) => f.numero)]);
+  await db.query("INSERT INTO migraciones (nombre) VALUES ('solo-la-ruta')");
+  console.log(`✔ Solo la ruta: ${borrados} curso(s) antiguo(s) y ${fichasViejas} ficha(s) vieja(s) eliminados; los 5 módulos quedaron al día`);
+}
+
 /* Ruta de 2 semanas por módulo, una clase por semana (una sola vez) */
 async function rutaDosSemanas(db) {
   if ((await db.query("SELECT 1 FROM migraciones WHERE nombre = 'ruta-2-semanas'")).rowCount) return console.log("ℹ Los módulos de la ruta ya duraban 2 semanas");
@@ -210,6 +238,7 @@ async function main() {
     await rutaDosSemanas(db);
     await fundacionSinGerenteNiDocentes(db);
     await monitoria(db);
+    await soloLaRuta(db);
 
     const { rowCount: ubicadas } = await db.query(`UPDATE inscripciones i SET ficha_id = (SELECT f.id FROM fichas f WHERE f.curso_id = i.curso_id ORDER BY f.numero LIMIT 1)
       WHERE i.ficha_id IS NULL AND EXISTS (SELECT 1 FROM fichas f WHERE f.curso_id = i.curso_id)`);

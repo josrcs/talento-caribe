@@ -230,3 +230,4 @@ body:has(#panel-menu-btn[aria-expanded="true"]) .panel-nav { display: flex; }
 .seg-entrega p { margin: 0; font-size: .88rem; white-space: pre-line; }
 .seg-entrega a { font-weight: 700; font-size: .88rem; }
 .seg-comentario { color: var(--color-slate-300); }
+.ruta-etiqueta-panel { color: var(--acento); font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
